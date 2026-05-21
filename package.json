@@ -1,0 +1,58 @@
+﻿{
+  "name": "superman",
+  "version": "1.0.0",
+  "description": "Express backend framework for Superman backend applications",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=20",
+    "bun": ">=1.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "superman",
+    "framework",
+    "express",
+    "ai",
+    "backend",
+    "typescript",
+    "node"
+  ],
+  "author": "Breno de Arruda Ferro",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "registry": "http://gitea.superman.com.br:3080/api/packages/superman/npm/"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.10.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.2"
+  }
+}
+
