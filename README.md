@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/superman-logo.png" alt="Superman Logo" width="180" />
+  <img src="https://raw.githubusercontent.com/euFerro/superman/main/assets/superman-logo.png" alt="Superman Logo" width="180" />
 
   <h1><span style="font-weight: 600">Superman</span></h1>
 
@@ -34,7 +34,7 @@ Simply define your configuration, controllers, and modules—**Superman handles 
 | 📝 **Structured Event Logging** | Six categories of typed JSON logs (System, Request, Response, Error, Audit, Security). | Comprehensive observability and logging without boilerplate. |
 | ⚡ **Cross-Runtime Support** | Runs on Node.js (Primary), Bun (Native ESM), and Deno with zero native dependencies. | Deploy anywhere with maximum performance. |...
 
-![alt text](/assets/image.png)
+![alt text](https://raw.githubusercontent.com/euFerro/superman/main/assets/image.png)
 
 ## Introduction
 
