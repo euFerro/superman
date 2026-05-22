@@ -1,10 +1,10 @@
 ﻿# Getting Started
 
-## Step 1 â€” Define your config
+## Step 1 — Define your config
 
 ```typescript
 // src/server.config.ts
-import 'dotenv/config'; // side-effect â€” loads .env into process.env
+import 'dotenv/config'; // side-effect — loads .env into process.env
 import { defineConfig } from 'superman';
 
 defineConfig({
@@ -40,7 +40,7 @@ defineConfig({
 
 The framework validates required env vars on startup, resolves endpoints for the active environment (via `NODE_ENV`), and makes everything available through the `config` singleton. The `prefix` is prepended to all module routes automatically.
 
-## Step 2 â€” Define a service
+## Step 2 — Define a service
 
 Define an interface for the contract and implement it with a plain class. Controllers depend on the interface, never on the implementation.
 
@@ -73,9 +73,9 @@ class UsersService implements IUsersService {
 }
 ```
 
-## Step 3 â€” Define schemas and controllers
+## Step 3 — Define schemas and controllers
 
-Schemas are written with the framework's chainable builder (`s.*`) â€” no Zod or other dep required. One declaration drives runtime validation, the OpenAPI spec, and TypeScript types (via `Infer<typeof Schema>`).
+Schemas are written with the framework's chainable builder (`s.*`) — no Zod or other dep required. One declaration drives runtime validation, the OpenAPI spec, and TypeScript types (via `Infer<typeof Schema>`).
 
 ```typescript
 // src/modules/users/user.schemas.ts
@@ -140,17 +140,17 @@ export const createUserController = defineController<IUsersService>({
   throttleConfig: 'STRICT',
   handler: async ({ body, service }) => service.create(body),
   //                ^^^^ CreateUserDto (inferred from validateBody)
-  // â†’ framework picks the single declared 2xx status (201) for the response
+  // ➡️ framework picks the single declared 2xx status (201) for the response
 });
 ```
 
-The middleware list is the single source of truth: each `validate*` / `require*` middleware validates at runtime *and* contributes its piece to the OpenAPI doc â€” schemas can't drift from guards because they're the same object. The framework also auto-injects `400`/`401`/`403`/`415`/`429`/`500`/`default` responses based on which middlewares are present, plus the `X-RateLimit-Remaining` / `Retry-After` response headers on every operation.
+The middleware list is the single source of truth: each `validate*` / `require*` middleware validates at runtime *and* contributes its piece to the OpenAPI doc — schemas can't drift from guards because they're the same object. The framework also auto-injects `400`/`401`/`403`/`415`/`429`/`500`/`default` responses based on which middlewares are present, plus the `X-RateLimit-Remaining` / `Retry-After` response headers on every operation.
 
 `defineController` is generic and returns a factory. Call the factory with your service implementation to get a `SupermanController`.
 
-## Step 4 â€” Define a module
+## Step 4 — Define a module
 
-The module file is the **composition root** â€” you instantiate implementations, wire dependencies, and declare routes.
+The module file is the **composition root** — you instantiate implementations, wire dependencies, and declare routes.
 
 ```typescript
 // src/modules/users/users.module.ts
@@ -172,7 +172,7 @@ defineModule({
 });
 ```
 
-Each controller factory is called with the service â€” you can see exactly which implementations are being used. Swap a database or service implementation by changing one line.
+Each controller factory is called with the service — you can see exactly which implementations are being used. Swap a database or service implementation by changing one line.
 
 With `prefix: '/api'` in `defineConfig` and `prefix: '/users'` in the module, the framework generates these routes:
 
@@ -182,11 +182,11 @@ GET  /api/users/:id
 POST /api/users
 ```
 
-## Step 5 â€” Main
+## Step 5 — Main
 
 ```typescript
 // src/server.ts
-import './server.config'; // side-effect â€” runs defineConfig()
+import './server.config'; // side-effect — runs defineConfig()
 import { app, config, logger } from 'superman';
 
 const log = logger.child('Server');
@@ -204,5 +204,5 @@ const main = async () => {
 main();
 ```
 
-That's it. Config, logging, rate limiting, exception handling, and graceful shutdown â€” all automatic.
+That's it. Config, logging, rate limiting, exception handling, and graceful shutdown — all automatic.
 

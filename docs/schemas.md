@@ -2,9 +2,9 @@
 
 Schemas are authored with the framework's built-in **chainable schema builder** (`s.*`). One declaration drives three surfaces at once:
 
-1. **Runtime validation** â€” `validateBody` / `validateQuery` / â€¦  middlewares reject malformed requests before your handler runs.
-2. **OpenAPI** â€” `requestBody`, `parameters`, `responses`, examples, defaults, descriptions, components.schemas at `GET /spec`.
-3. **TypeScript types** â€” `Infer<typeof Schema>` extracts the corresponding TS type, so DTOs come from a single source.
+1. **Runtime validation** — `validateBody` / `validateQuery` / …  middlewares reject malformed requests before your handler runs.
+2. **OpenAPI** — `requestBody`, `parameters`, `responses`, examples, defaults, descriptions, components.schemas at `GET /spec`.
+3. **TypeScript types** — `Infer<typeof Schema>` extracts the corresponding TS type, so DTOs come from a single source.
 
 ```typescript
 import { s, type Infer } from 'superman';
@@ -16,7 +16,7 @@ export const CreateUserBody = s.object({
 });
 
 export type CreateUserDto = Infer<typeof CreateUserBody>;
-// â†’ { name: string; email: string; role?: 'admin' | 'editor' | 'viewer' }
+// ➡️ { name: string; email: string; role?: 'admin' | 'editor' | 'viewer' }
 ```
 
 No Zod or any other dep required. The DSL emits plain JSON Schema 2020-12 under the hood and the framework's built-in validator (see [Supported keywords](#supported-keywords)) consumes it.
@@ -24,10 +24,10 @@ No Zod or any other dep required. The DSL emits plain JSON Schema 2020-12 under 
 ## Why a DSL?
 
 - **Fluent and terse.** `s.string().email()` beats `{ type: 'string', format: 'email' }`. Chains read like specs.
-- **Inferred types.** `Infer<typeof Schema>` removes the parallel `interface` declaration â€” TypeScript and runtime can't drift.
+- **Inferred types.** `Infer<typeof Schema>` removes the parallel `interface` declaration — TypeScript and runtime can't drift.
 - **Composable.** `.partial()`, `.pick()`, `.omit()`, `.extend()` cover the common CRUD shape transforms.
-- **Standard output.** `.toJsonSchema()` produces a plain JSON Schema fragment â€” every keyword you emit is valid OpenAPI 3.1 and renderable in Swagger UI, Redoc, Stoplight, Postman, Insomnia.
-- **Pluggable.** Replace the engine with AJV, Zod, or anything else via `defineConfig({ schemaValidator })` â€” schemas keep the same authoring surface.
+- **Standard output.** `.toJsonSchema()` produces a plain JSON Schema fragment — every keyword you emit is valid OpenAPI 3.1 and renderable in Swagger UI, Redoc, Stoplight, Postman, Insomnia.
+- **Pluggable.** Replace the engine with AJV, Zod, or anything else via `defineConfig({ schemaValidator })` — schemas keep the same authoring surface.
 
 ## Factories
 
@@ -35,23 +35,23 @@ No Zod or any other dep required. The DSL emits plain JSON Schema 2020-12 under 
 import { s } from 'superman';
 ```
 
-| Factory | Output type | Chain methods â†’ JSON Schema keyword |
+| Factory | Output type | Chain methods ➡️ JSON Schema keyword |
 |---|---|---|
-| `s.string()` | `string` | `.min(n)` â†’ `minLength`; `.max(n)` â†’ `maxLength`; `.length(n)` â†’ both; `.regex(pattern)` / `.pattern(pattern)` â†’ `pattern`; `.email()` / `.uuid()` / `.url()` / `.datetime()` / `.date()` / `.time()` / `.ipv4()` / `.ipv6()` / `.hostname()` â†’ `format` |
-| `s.number()` | `number` | `.min(n)` â†’ `minimum`; `.max(n)` â†’ `maximum`; `.gt(n)` â†’ `exclusiveMinimum`; `.lt(n)` â†’ `exclusiveMaximum`; `.gte(n)` / `.lte(n)`; `.int()` â†’ `type: 'integer'`; `.multipleOf(n)`; `.positive()` / `.negative()` / `.nonnegative()` / `.nonpositive()` |
+| `s.string()` | `string` | `.min(n)` ➡️ `minLength`; `.max(n)` ➡️ `maxLength`; `.length(n)` ➡️ both; `.regex(pattern)` / `.pattern(pattern)` ➡️ `pattern`; `.email()` / `.uuid()` / `.url()` / `.datetime()` / `.date()` / `.time()` / `.ipv4()` / `.ipv6()` / `.hostname()` ➡️ `format` |
+| `s.number()` | `number` | `.min(n)` ➡️ `minimum`; `.max(n)` ➡️ `maximum`; `.gt(n)` ➡️ `exclusiveMinimum`; `.lt(n)` ➡️ `exclusiveMaximum`; `.gte(n)` / `.lte(n)`; `.int()` ➡️ `type: 'integer'`; `.multipleOf(n)`; `.positive()` / `.negative()` / `.nonnegative()` / `.nonpositive()` |
 | `s.integer()` | `number` | Shorthand for `s.number().int()`. |
-| `s.boolean()` | `boolean` | â€” |
-| `s.null()` | `null` | â€” |
+| `s.boolean()` | `boolean` | — |
+| `s.null()` | `null` | — |
 | `s.literal(v)` | `typeof v` | Emits `const`. |
 | `s.enum([...] as const)` | tuple member | Emits `enum`. |
-| `s.array(child)` | `Infer<child>[]` | `.min(n)` / `.max(n)` / `.length(n)`; `.unique()` â†’ `uniqueItems: true` |
-| `s.object({ k: schema })` | `{ k: Infer<schema> }` | `.strict()` (default â€” `additionalProperties: false`); `.passthrough()`; `.partial()`; `.pick(...keys)`; `.omit(...keys)`; `.extend({...})` |
-| `s.union([a, b, â€¦])` | `Infer<a> \| Infer<b>` | Emits `anyOf`. |
+| `s.array(child)` | `Infer<child>[]` | `.min(n)` / `.max(n)` / `.length(n)`; `.unique()` ➡️ `uniqueItems: true` |
+| `s.object({ k: schema })` | `{ k: Infer<schema> }` | `.strict()` (default — `additionalProperties: false`); `.passthrough()`; `.partial()`; `.pick(...keys)`; `.omit(...keys)`; `.extend({...})` |
+| `s.union([a, b, …])` | `Infer<a> \| Infer<b>` | Emits `anyOf`. |
 | `s.discriminatedUnion(key, [...])` | tagged union | Emits `oneOf` + `discriminator`. |
 | `s.intersection(a, b)` | `Infer<a> & Infer<b>` | Emits `allOf`. |
 | `s.record(child)` | `Record<string, Infer<child>>` | Emits `type:'object'` + `additionalProperties: child`. |
 | `s.any()` / `s.unknown()` | `unknown` | Empty schema `{}`. |
-| `s.raw(jsonSchema)` | `unknown` | Escape hatch â€” wraps a hand-written JSON Schema (see [Escape hatch](#escape-hatch-raw-json-schema)). |
+| `s.raw(jsonSchema)` | `unknown` | Escape hatch — wraps a hand-written JSON Schema (see [Escape hatch](#escape-hatch-raw-json-schema)). |
 
 Every builder also has these universal chain methods:
 
@@ -62,7 +62,7 @@ Every builder also has these universal chain methods:
 | `.default(value)` | Adds `default` to the schema and removes the key from the parent `required[]`. |
 | `.describe(text)` | Sets `description`. |
 | `.example(value)` | Sets `example`. |
-| `.examples([â€¦])` | Sets `examples` (array). |
+| `.examples([…])` | Sets `examples` (array). |
 | `.deprecated()` | Sets `deprecated: true`. |
 | `.toJsonSchema()` | Returns the plain JSON Schema fragment. |
 | `.parse(value)` | Validates; returns the typed value or **throws `BadRequestException` with `metadata: { errors }`**. |
@@ -70,7 +70,7 @@ Every builder also has these universal chain methods:
 
 ## Service-layer usage
 
-The same schema you pass to a middleware can validate ad-hoc inputs inside a service (queue messages, scheduled jobs, webhook payloads, CLI args). `.parse()` throws the **identical** `BadRequestException` the middleware throws â€” your exception filter handles both the same way.
+The same schema you pass to a middleware can validate ad-hoc inputs inside a service (queue messages, scheduled jobs, webhook payloads, CLI args). `.parse()` throws the **identical** `BadRequestException` the middleware throws — your exception filter handles both the same way.
 
 ```typescript
 import { s, type Infer } from 'superman';
@@ -79,16 +79,16 @@ import { CreateUserBody } from './user.schemas';
 export type CreateUserDto = Infer<typeof CreateUserBody>;
 
 export class UsersService {
-  // HTTP path â€” body already validated by validateBody(CreateUserBody)
+  // HTTP path — body already validated by validateBody(CreateUserBody)
   async create(dto: CreateUserDto) { /* dto is fully typed */ }
 
-  // Queue worker â€” validate at the edge
+  // Queue worker — validate at the edge
   async createFromQueue(rawPayload: unknown) {
     const dto = CreateUserBody.parse(rawPayload);     // throws BadRequest on failure
     return this.create(dto);
   }
 
-  // Lenient path â€” keep going on invalid rows
+  // Lenient path — keep going on invalid rows
   async tryImport(rawPayload: unknown) {
     const result = CreateUserBody.safeParse(rawPayload);
     if (!result.success) return { skipped: true, errors: result.errors };
@@ -118,7 +118,7 @@ The built-in validator ([`src/validation/json-schema-validator.ts`](../src/valid
 - `contentMediaType` / `contentEncoding`
 - `if` / `then` / `else`
 
-If you need any of these, plug a full validator into the `schemaValidator` hook â€” see [Replacing the validator](#replacing-the-validator).
+If you need any of these, plug a full validator into the `schemaValidator` hook — see [Replacing the validator](#replacing-the-validator).
 
 ## Coercion
 
@@ -132,17 +132,17 @@ The query, header, cookie, and path-param validators **coerce strings to typed v
 | `'boolean'` | `"true"`, `"false"` | `true`, `false` |
 | `'null'` (or union with null) | `"null"`, `""` | `null` |
 
-Body validation does **not** coerce â€” JSON bodies are already parsed by `express.json()`. Coerced values are written back to `req.query` / `req.params` / `req.cookies`, so your handler reads typed data without manual casts.
+Body validation does **not** coerce — JSON bodies are already parsed by `express.json()`. Coerced values are written back to `req.query` / `req.params` / `req.cookies`, so your handler reads typed data without manual casts.
 
 ## Examples and descriptions flow through
 
 The OpenAPI builder lifts schema annotations into the generated spec automatically:
 
-- **`.describe(text)`** â†’ response/parameter description, fallback for request-body description.
-- **`.example(value)`** â†’ `MediaType.example` (single).
-- **`.examples([â€¦])`** â†’ `MediaType.examples` as a numbered map (`example1`, `example2`, â€¦).
-- **`.default(value)`** â†’ rendered by Swagger UI in form inputs; removes the key from `required[]`.
-- **Per-property** `describe` / `example` / `examples` / `deprecated` â†’ flow through to the corresponding `parameters[]` entries when the schema is used by `validateQuery` / `validateHeaders` / `validateCookies` / `validatePathParams`.
+- **`.describe(text)`** ➡️ response/parameter description, fallback for request-body description.
+- **`.example(value)`** ➡️ `MediaType.example` (single).
+- **`.examples([…])`** ➡️ `MediaType.examples` as a numbered map (`example1`, `example2`, …).
+- **`.default(value)`** ➡️ rendered by Swagger UI in form inputs; removes the key from `required[]`.
+- **Per-property** `describe` / `example` / `examples` / `deprecated` ➡️ flow through to the corresponding `parameters[]` entries when the schema is used by `validateQuery` / `validateHeaders` / `validateCookies` / `validatePathParams`.
 
 ```typescript
 const ListUsersQuery = s.object({
@@ -163,7 +163,7 @@ Renders as:
 }
 ```
 
-## Recipe â€” CRUD module
+## Recipe — CRUD module
 
 A complete schemas file covering the five standard CRUD operations on a `User` resource. Drop this into a real module and you'll have list/read/create/update/delete with full validation + OpenAPI documentation + inferred DTO types.
 
@@ -196,12 +196,12 @@ export type User = Infer<typeof UserResponse>;
 
 // ----- Path / query schemas -----------------------------------------------
 
-/** `:id` path parameter â€” used by GET /:id, PUT /:id, DELETE /:id. */
+/** `:id` path parameter — used by GET /:id, PUT /:id, DELETE /:id. */
 export const UserIdParam = s.object({
   id: s.string().uuid().describe('User id.'),
 });
 
-/** GET /users query â€” pagination + simple search. */
+/** GET /users query — pagination + simple search. */
 export const ListUsersQuery = s.object({
   page:  s.integer().min(1).default(1).describe('Page number.'),
   limit: s.integer().min(1).max(100).default(20).describe('Items per page.'),
@@ -213,7 +213,7 @@ export type ListUsersDto = Infer<typeof ListUsersQuery>;
 
 // ----- Request bodies -----------------------------------------------------
 
-/** POST /users body â€” all required fields. */
+/** POST /users body — all required fields. */
 export const CreateUserBody = s.object({
   name:  s.string().min(1).max(100),
   email: s.string().email(),
@@ -224,7 +224,7 @@ export const CreateUserBody = s.object({
 
 export type CreateUserDto = Infer<typeof CreateUserBody>;
 
-/** PUT /users/:id body â€” partial update; at least one property required. */
+/** PUT /users/:id body — partial update; at least one property required. */
 export const UpdateUserBody = CreateUserBody.partial();
 // `.partial()` makes every key optional but additionalProperties:false carries over,
 // so unknown keys are still rejected.
@@ -233,7 +233,7 @@ export type UpdateUserDto = Infer<typeof UpdateUserBody>;
 
 // ----- Response envelopes -------------------------------------------------
 
-/** GET /users response â€” paginated page of users. */
+/** GET /users response — paginated page of users. */
 export const PaginatedUsersResponse = s.object({
   data:  s.array(UserResponse),
   page:  s.integer().min(1),
@@ -266,14 +266,14 @@ How each schema is used across the five standard CRUD routes:
 
 A few intentional choices worth flagging:
 
-- **`UpdateUserBody = CreateUserBody.partial()`** reuses the create shape and flips every field to optional â€” no duplication.
+- **`UpdateUserBody = CreateUserBody.partial()`** reuses the create shape and flips every field to optional — no duplication.
 - **`.strict()` is the default**, so unknown keys are rejected on writes without an explicit setting.
 - **`role` is an enum with a default**, so the OpenAPI spec advertises the valid values and Swagger UI renders them as a dropdown.
-- **`UserIdParam` is shared** across three routes â€” `:id` validation is declared once.
-- **Error metadata shapes are first-class schemas**, not inline â€” reused if multiple routes can throw the same error.
-- **Auth, 400/401/403/415/429/500/`default` responses, and rate-limit response headers** are auto-injected on every route in this table â€” you don't have to declare any of that.
+- **`UserIdParam` is shared** across three routes — `:id` validation is declared once.
+- **Error metadata shapes are first-class schemas**, not inline — reused if multiple routes can throw the same error.
+- **Auth, 400/401/403/415/429/500/`default` responses, and rate-limit response headers** are auto-injected on every route in this table — you don't have to declare any of that.
 
-## Escape hatch â€” raw JSON Schema
+## Escape hatch — raw JSON Schema
 
 Middlewares and controller options accept **either** an `s.*` builder **or** a plain JSON Schema object. Use this for hand-written schemas, generated schemas (typia, `z.toJSONSchema()`), or features the DSL doesn't cover (e.g., `patternProperties`):
 
@@ -286,7 +286,7 @@ const RawSchema = {
   additionalProperties: false,
 };
 
-// Plain object â€” accepted directly by every validate* middleware.
+// Plain object — accepted directly by every validate* middleware.
 validateBody(RawSchema);
 ```
 
@@ -305,7 +305,7 @@ const Envelope = s.object({
 
 ## Replacing the validator
 
-If you need keywords beyond the built-in subset (`$ref`, `patternProperties`, `if`/`then`/`else`, full Zod refinements, â€¦), plug any compatible validator into the `schemaValidator` hook on `defineConfig`. All `validate*` middlewares delegate to it transparently:
+If you need keywords beyond the built-in subset (`$ref`, `patternProperties`, `if`/`then`/`else`, full Zod refinements, …), plug any compatible validator into the `schemaValidator` hook on `defineConfig`. All `validate*` middlewares delegate to it transparently:
 
 ```typescript
 import Ajv from 'ajv';
@@ -314,7 +314,7 @@ import addFormats from 'ajv-formats';
 const ajv = addFormats(new Ajv({ coerceTypes: true, useDefaults: true }));
 
 defineConfig({
-  // â€¦
+  // …
   schemaValidator: (value, schema, options) => {
     const validate = ajv.compile(schema as object);
     const ok = validate(value);
@@ -331,7 +331,7 @@ defineConfig({
 });
 ```
 
-When the validator is replaced, the **engine** changes but the authoring surface doesn't â€” you keep writing `s.*` schemas, and the framework hands the JSON Schema produced by `.toJsonSchema()` to your custom validator. See [docs/api-config.md](./api-config.md#schemavalidator--replace-the-built-in-validator) for the Zod carrier pattern.
+When the validator is replaced, the **engine** changes but the authoring surface doesn't — you keep writing `s.*` schemas, and the framework hands the JSON Schema produced by `.toJsonSchema()` to your custom validator. See [docs/api-config.md](./api-config.md#schemavalidator--replace-the-built-in-validator) for the Zod carrier pattern.
 
 The framework itself remains dep-free; you opt in.
 
@@ -354,7 +354,7 @@ Every schema you write ends up in **exactly one** place in `/spec`:
 
 ## See also
 
-- [docs/api-middlewares.md](./api-middlewares.md) â€” every shipped middleware factory, what it throws, what it auto-emits.
-- [docs/api-controllers.md](./api-controllers.md) â€” `defineController` options + how middlewares plug in. Companion **Post** and **Comment** examples show auth-aware writes (`user.id` â†’ `authorId`) and nested path params (`/posts/:postId/comments`).
-- [docs/api-config.md](./api-config.md#openapi-security) â€” `defineConfig.openapi.securitySchemes` and the `schemaValidator` hook.
+- [docs/api-middlewares.md](./api-middlewares.md) — every shipped middleware factory, what it throws, what it auto-emits.
+- [docs/api-controllers.md](./api-controllers.md) — `defineController` options + how middlewares plug in. Companion **Post** and **Comment** examples show auth-aware writes (`user.id` ➡️ `authorId`) and nested path params (`/posts/:postId/comments`).
+- [docs/api-config.md](./api-config.md#openapi-security) — `defineConfig.openapi.securitySchemes` and the `schemaValidator` hook.
 

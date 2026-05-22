@@ -2,7 +2,7 @@
 
 ## `app`
 
-The application singleton. No need to instantiate â€” it's created by the framework.
+The application singleton. No need to instantiate — it's created by the framework.
 
 ```typescript
 import { app } from 'superman';
@@ -14,7 +14,7 @@ app.useMiddleware(cors());
 app.listen(() => { /* optional callback */ });
 
 // Graceful shutdown (calls destroy() on all modules, flushes log sinks)
-await app.shutdown(); // async â€” awaits module destroy functions + log flush
+await app.shutdown(); // async — awaits module destroy functions + log flush
 ```
 
 `SIGTERM` and `SIGINT` are handled automatically: the framework emits a
@@ -46,7 +46,7 @@ log.error('Failed', { error: err });
 - Otherwise defaults to `debug`
 - `LOG_LEVEL` overrides all defaults
 
-### Typed events â€” `logger.events.*`
+### Typed events — `logger.events.*`
 
 Structured JSON logs matching the `*Log` interfaces. Routed through the
 configured sinks (console + optional file) and filtered by
@@ -89,18 +89,18 @@ log.events.system({
 
 Infra fields (`@timestamp`, `appName`, `appVersion`, `environment`,
 `serverInstanceUid`, `hostname`, `uptimeMs`, `memoryUsage`, `cpuUsage`,
-`context`) are filled in automatically â€” callers only supply the
+`context`) are filled in automatically — callers only supply the
 event-specific fields.
 
 ## What Happens Automatically
 
-- **Request logging** â€” every incoming/outgoing request produces a `REQUEST` and `RESPONSE` event (method, URL, status, duration, bytes)
-- **Exception handling** â€” every caught error produces an `ERROR` event with stack trace; `HttpException` subclasses return structured JSON, unhandled errors return 500
-- **Audit logs** â€” successful mutations (POST/PUT/PATCH/DELETE with 2xx) produce an `AUDIT` event auto-derived from method + URL (resource, resourceId)
-- **Security logs** â€” responses with status 401, 403, 413, 422, 429 produce a `SECURITY` event (UNAUTHORIZED_ACCESS / FORBIDDEN_ACTION / PAYLOAD_TOO_LARGE / MALFORMED_PAYLOAD / RATE_LIMIT_EXCEEDED)
-- **System logs** â€” `SERVICE_STARTED`, `MANUAL_SHUTDOWN_ACTION`, `SYSTEM_SIGNAL_RECEIVED` on lifecycle transitions
-- **Request/trace IDs** â€” every request gets an `X-Request-Id` (mints via `crypto.randomUUID()` if absent, honours inbound `X-Request-Id`/`X-Trace-Id`), echoed on the response and attached to every log line
-- **Rate limiting** â€” every controller has per-IP throttling (configurable per controller)
+- **Request logging** — every incoming/outgoing request produces a `REQUEST` and `RESPONSE` event (method, URL, status, duration, bytes)
+- **Exception handling** — every caught error produces an `ERROR` event with stack trace; `HttpException` subclasses return structured JSON, unhandled errors return 500
+- **Audit logs** — successful mutations (POST/PUT/PATCH/DELETE with 2xx) produce an `AUDIT` event auto-derived from method + URL (resource, resourceId)
+- **Security logs** — responses with status 401, 403, 413, 422, 429 produce a `SECURITY` event (UNAUTHORIZED_ACCESS / FORBIDDEN_ACTION / PAYLOAD_TOO_LARGE / MALFORMED_PAYLOAD / RATE_LIMIT_EXCEEDED)
+- **System logs** — `SERVICE_STARTED`, `MANUAL_SHUTDOWN_ACTION`, `SYSTEM_SIGNAL_RECEIVED` on lifecycle transitions
+- **Request/trace IDs** — every request gets an `X-Request-Id` (mints via `crypto.randomUUID()` if absent, honours inbound `X-Request-Id`/`X-Trace-Id`), echoed on the response and attached to every log line
+- **Rate limiting** — every controller has per-IP throttling (configurable per controller)
 - **Startup banner**
 
 ```

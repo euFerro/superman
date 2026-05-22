@@ -2,7 +2,7 @@
 
 ## `defineController<TService>(options)`
 
-Generic factory that returns a `ControllerFactory<TService>`. The handler receives a **destructured context object** with `body`, `query`, `params`, `headers`, `cookies`, `user`, `service`, `req`, `res` â€” each typed by the middleware that populates it (no manual casts). Return whatever you want; the framework JSON-encodes it and picks the success status from `responses` (defaults to `200`).
+Generic factory that returns a `ControllerFactory<TService>`. The handler receives a **destructured context object** with `body`, `query`, `params`, `headers`, `cookies`, `user`, `service`, `req`, `res` — each typed by the middleware that populates it (no manual casts). Return whatever you want; the framework JSON-encodes it and picks the success status from `responses` (defaults to `200`).
 
 ```typescript
 // src/modules/users/user.controllers.ts
@@ -20,10 +20,10 @@ import {
 
 const createUserController = defineController<IMyService>({
   middlewares: [
-    requireAuth('bearerAuth'),                // â†’ security + auto 401
-    requireRoles('admin'),                    // â†’ scopes + auto 403
-    validateHeaders(TenancyHeaders),          // â†’ header params + auto 400
-    validateBody(CreateUserBody),             // â†’ requestBody + auto 400
+    requireAuth('bearerAuth'),                // ➡️ security + auto 401
+    requireRoles('admin'),                    // ➡️ scopes + auto 403
+    validateHeaders(TenancyHeaders),          // ➡️ header params + auto 400
+    validateBody(CreateUserBody),             // ➡️ requestBody + auto 400
   ],
   responses: {
     201: { schema: UserResponse },
@@ -44,7 +44,7 @@ const createUserController = defineController<IMyService>({
   summary: 'Create a user',
   handler: async ({ body, service }) => service.create(body),
   //                ^^^^ CreateUserDto (inferred from validateBody)
-  // â†’ framework writes 201 Created with the returned object as the JSON body
+  // ➡️ framework writes 201 Created with the returned object as the JSON body
 });
 ```
 
@@ -67,10 +67,10 @@ handler: async ({ id, name, email, user, service }) =>
 //                â†‘ from params      â†‘ from body          â†‘ from requireAuth
 ```
 
-Both `ctx.params.id` and `ctx.id` reference the same value. **Precedence on key collision** (higher wins): `params > body > query > headers > cookies`. **Reserved structural keys** (`req`, `res`, `service`, `body`, `query`, `params`, `headers`, `cookies`, `user`) are never overwritten by a flattened source â€” `ctx.service` always refers to the injected service, even if a body schema declared a field named `service`. The `user` principal stays structural only â€” its inner fields aren't spread to avoid colliding with path params (`user.id` vs `params.id`).
+Both `ctx.params.id` and `ctx.id` reference the same value. **Precedence on key collision** (higher wins): `params > body > query > headers > cookies`. **Reserved structural keys** (`req`, `res`, `service`, `body`, `query`, `params`, `headers`, `cookies`, `user`) are never overwritten by a flattened source — `ctx.service` always refers to the injected service, even if a body schema declared a field named `service`. The `user` principal stays structural only — its inner fields aren't spread to avoid colliding with path params (`user.id` vs `params.id`).
 
 ```typescript
-// Context form â€” recommended
+// Context form — recommended
 handler: async ({ params, service }) => service.findById(params.id),
 
 // reply() for status / header / mediaType overrides
@@ -86,7 +86,7 @@ handler: async ({ params, service }) => {
   return reply(toXml(user), { mediaType: 'application/xml' });
 },
 
-// Legacy form â€” full control over res
+// Legacy form — full control over res
 handler: async (req, res, service) => {
   res.setHeader('Content-Type', 'text/event-stream');
   for await (const event of service.stream()) res.write(`data: ${JSON.stringify(event)}\n\n`);
@@ -102,7 +102,7 @@ When the context handler returns a value, the framework picks the response statu
 2. Else if `responses` has **exactly one** `2xx` key, use that key.
 3. Else default to `200`.
 
-`responses` is **never obligatory** â€” omit it and successful returns get `200`. The OpenAPI document still shows the framework's auto-injected `429`/`500`/`default` envelopes for the route.
+`responses` is **never obligatory** — omit it and successful returns get `200`. The OpenAPI document still shows the framework's auto-injected `429`/`500`/`default` envelopes for the route.
 
 ### Options
 
@@ -113,20 +113,20 @@ When the context handler returns a value, the framework picks the response statu
 | `middlewares` | `RequestHandler[]` | no | Framework-provided middlewares self-document (see table below). User-defined middlewares run normally but don't appear in the spec. |
 | `responses` | `Record<number, { schema?; contentType?; content?; description?; headers? }>` | no | Success / non-framework responses by status code. Optional `headers` map documents response headers. |
 | `errors` | `Array<{ status; description; metadataSchema? }>` | no | Framework-envelope errors this route may emit *beyond* the middleware auto-errors. Each entry is rendered as `allOf [FrameworkError, { metadata: <your-schema> }]`. |
-| `operationId` | `string` | no | Stable identifier surfaced as `operation.operationId` â€” used by OpenAPI codegen tools |
+| `operationId` | `string` | no | Stable identifier surfaced as `operation.operationId` — used by OpenAPI codegen tools |
 | `summary` | `string` | no | Short summary; overrides `route.description` as the OpenAPI `summary` |
 | `deprecated` | `boolean` | no | Marks the operation as deprecated in the generated spec |
-| `security` | `Array<Record<scheme, scopes[]>>` | no | Per-operation security requirement override. Usually unneeded â€” `requireAuth(...)` middlewares set this automatically. |
+| `security` | `Array<Record<scheme, scopes[]>>` | no | Per-operation security requirement override. Usually unneeded — `requireAuth(...)` middlewares set this automatically. |
 
 ### Middlewares and what they auto-document
 
 | Middleware | Validates at runtime | Auto-emits in OpenAPI |
 |---|---|---|
 | `validateBody(schema \| {mediaType: schema})` | `req.body` | `requestBody` (single or multi-media-type), auto `400` |
-| `validateQuery(schema)` | `req.query` (string â†’ typed) | `parameters[in: 'query']`, auto `400` |
-| `validateHeaders(schema)` | `req.headers` (string â†’ typed) | `parameters[in: 'header']`, auto `400` |
+| `validateQuery(schema)` | `req.query` (string ➡️ typed) | `parameters[in: 'query']`, auto `400` |
+| `validateHeaders(schema)` | `req.headers` (string ➡️ typed) | `parameters[in: 'header']`, auto `400` |
 | `validateCookies(schema)` | `req.cookies` | `parameters[in: 'cookie']`, auto `400` |
-| `validatePathParams(schema)` | `req.params` (string â†’ typed) | refines auto-generated path-param schemas, auto `400` |
+| `validatePathParams(schema)` | `req.params` (string ➡️ typed) | refines auto-generated path-param schemas, auto `400` |
 | `validateContentType(...types)` | `Content-Type` header | `requestBody.content` keys, auto `415` |
 | `requireAuth(scheme \| opts)` | runs verifier; populates `req.user` | `security: [{ scheme: [] }]`, auto `401` |
 | `requireRoles(...roles)` / `authorize({ roles, scopes })` | checks `req.user.roles` / scopes | scopes merge onto preceding scheme, auto `403` |
@@ -140,7 +140,7 @@ The framework **also auto-documents** on every operation, no controller code nee
 
 Declare statuses *beyond* the auto-injected ones via `errors`; a declaration with the same status overrides the auto-injected one.
 
-### Example â€” Post creation (auth-aware writes + custom message)
+### Example — Post creation (auth-aware writes + custom message)
 
 A post is created by an authenticated user; the `authorId` is taken from the `Principal` populated by `requireAuth`. The validation middleware uses a friendlier custom error message:
 
@@ -158,15 +158,15 @@ export const createPostController = defineController<IPostsService>({
 });
 ```
 
-### Example â€” Comments on a post (nested path params + flat destructure)
+### Example — Comments on a post (nested path params + flat destructure)
 
 Comments live under a post (`GET /posts/:postId/comments`). Path params flatten to the context root, so `postId` is destructurable directly:
 
 ```typescript
 export const listCommentsController = defineController<ICommentsService>({
   middlewares: [
-    validatePathParams(PostIdParam),                   // â†’ ctx.postId
-    validateQuery(ListCommentsQuery),                  // â†’ ctx.query
+    validatePathParams(PostIdParam),                   // ➡️ ctx.postId
+    validateQuery(ListCommentsQuery),                  // ➡️ ctx.query
   ],
   responses: { 200: { schema: PaginatedCommentsResponse } },
   operationId: 'listComments',
@@ -177,7 +177,7 @@ export const listCommentsController = defineController<ICommentsService>({
 
 ### Defining schemas in a `*.schemas.ts` file
 
-Park your module's schemas in a co-located file. Use the framework's built-in chainable builder (`s.*`) â€” runtime validation, OpenAPI emission, and TypeScript types all come from one declaration. No Zod or any other dep required (see [docs/schemas.md](./schemas.md) for the full reference, and [docs/api-config.md](./api-config.md#schemavalidator--replace-the-built-in-validator) for swapping the validator).
+Park your module's schemas in a co-located file. Use the framework's built-in chainable builder (`s.*`) — runtime validation, OpenAPI emission, and TypeScript types all come from one declaration. No Zod or any other dep required (see [docs/schemas.md](./schemas.md) for the full reference, and [docs/api-config.md](./api-config.md#schemavalidator--replace-the-built-in-validator) for swapping the validator).
 
 ```typescript
 // src/modules/users/user.schemas.ts
@@ -213,17 +213,17 @@ export const UserResponse = s.object({
 }).describe('A user record.');
 ```
 
-Raw JSON Schema objects are still accepted everywhere `s.*` is â€” see [docs/schemas.md](./schemas.md#escape-hatch--raw-json-schema).
+Raw JSON Schema objects are still accepted everywhere `s.*` is — see [docs/schemas.md](./schemas.md#escape-hatch--raw-json-schema).
 
 ### Parameters: query, headers, cookies, path
 
-- **Path params** (`/users/:id`) are extracted automatically from the route â€” no declaration needed. Pass them to `validatePathParams(schema)` only if you want type coercion (e.g. "`id` must be a UUID") or richer per-param documentation.
+- **Path params** (`/users/:id`) are extracted automatically from the route — no declaration needed. Pass them to `validatePathParams(schema)` only if you want type coercion (e.g. "`id` must be a UUID") or richer per-param documentation.
 - **Query / request-headers / cookies** schemas pass to `validateQuery` / `validateHeaders` / `validateCookies` as **object schemas** (built with `s.object({...})` or a raw JSON Schema). Each top-level property becomes one OpenAPI parameter; properties listed in `required[]` are marked required. Per-property `.describe()`, `.deprecated()`, `.example()`, and `.examples()` flow through.
 - **Authorization, Accept, Content-Type** headers cannot be declared as parameters under OpenAPI 3.1. Use `requireAuth(...)` for `Authorization`, `validateContentType(...)` for the others.
 
 ### Response headers
 
-`X-RateLimit-Remaining` is auto-injected on **every** response, and `Retry-After` is auto-injected on the `429` response â€” the framework actually sets those headers itself, so it documents them too. To declare additional response headers, pass a `headers` map on the status code:
+`X-RateLimit-Remaining` is auto-injected on **every** response, and `Retry-After` is auto-injected on the `429` response — the framework actually sets those headers itself, so it documents them too. To declare additional response headers, pass a `headers` map on the status code:
 
 ```typescript
 responses: {
@@ -245,7 +245,7 @@ Declare reusable security schemes and their verifiers at the app level in `defin
 ```typescript
 middlewares: [
   requireAuth('bearerAuth'),               // uses the verifier registered in defineConfig
-  // â€” or, per-controller override â€”
+  // — or, per-controller override —
   requireAuth({ scheme: 'bearerAuth', verify: async (req) => myCustomVerifier(req) }),
 ],
 ```
@@ -254,7 +254,7 @@ middlewares: [
 
 ### Streaming responses (SSE, NDJSON, file downloads)
 
-OpenAPI 3.1 doesn't model "streaming" as a first-class concept â€” it just sees the media type. Declare your stream's media type via `content`, with a schema describing **one message/chunk**:
+OpenAPI 3.1 doesn't model "streaming" as a first-class concept — it just sees the media type. Declare your stream's media type via `content`, with a schema describing **one message/chunk**:
 
 ```typescript
 responses: {
@@ -274,7 +274,7 @@ The same pattern works for `application/x-ndjson`, `application/octet-stream` (b
 
 ### Multiple media types
 
-**Responses** â€” pass a `content` map on the status:
+**Responses** — pass a `content` map on the status:
 
 ```typescript
 responses: {
@@ -288,7 +288,7 @@ responses: {
 }
 ```
 
-**Request bodies** â€” pass `validateBody` a media-type-keyed map:
+**Request bodies** — pass `validateBody` a media-type-keyed map:
 
 ```typescript
 middlewares: [
@@ -303,8 +303,8 @@ The middleware picks the right schema by inspecting the incoming `Content-Type`.
 
 ## Related
 
-- **[docs/schemas.md](./schemas.md)** â€” JSON Schema authoring guide: validator's supported keywords, coercion rules, the full CRUD-module recipe (routes Ã— middlewares Ã— responses table), TypeScript-types ergonomics, and how to swap in AJV.
-- **[docs/api-middlewares.md](./api-middlewares.md)** â€” exhaustive reference for every shipped middleware (`validateBody`, `validateQuery`, `validateHeaders`, `validateCookies`, `validatePathParams`, `validateContentType`, `requireAuth`, `requireRoles`, `authorize`) and how to write your own.
+- **[docs/schemas.md](./schemas.md)** — JSON Schema authoring guide: validator's supported keywords, coercion rules, the full CRUD-module recipe (routes Ã— middlewares Ã— responses table), TypeScript-types ergonomics, and how to swap in AJV.
+- **[docs/api-middlewares.md](./api-middlewares.md)** — exhaustive reference for every shipped middleware (`validateBody`, `validateQuery`, `validateHeaders`, `validateCookies`, `validatePathParams`, `validateContentType`, `requireAuth`, `requireRoles`, `authorize`) and how to write your own.
 
 ## Error Metadata
 
@@ -320,7 +320,7 @@ throw new NotFoundException('User not found', {
 
 If no metadata is passed, the response is just `{ "error": "message" }`.
 
-To document the *shape* of that metadata in the OpenAPI spec, declare the error in the controller's `errors` array with a `metadataSchema` â€” the generated spec will then render that exact shape under `metadata` so API consumers know what to expect.
+To document the *shape* of that metadata in the OpenAPI spec, declare the error in the controller's `errors` array with a `metadataSchema` — the generated spec will then render that exact shape under `metadata` so API consumers know what to expect.
 
 ## Rate Limiting
 
@@ -353,7 +353,7 @@ defineController<IPostsService>({
 defineController<ICommentsService>({
   middlewares: [
     requireAuth('bearerAuth'),
-    validatePathParams(PostIdParam),                            // â†’ params: { postId }
+    validatePathParams(PostIdParam),                            // ➡️ params: { postId }
     validateBody(CreateCommentBody),
   ],
   responses: { 201: { schema: CommentResponse } },
@@ -366,7 +366,7 @@ Middlewares run after rate limiting and before the handler. If a middleware thro
 
 ## Exceptions
 
-Throw anywhere in handlers or middleware â€” the framework catches and formats the response.
+Throw anywhere in handlers or middleware — the framework catches and formats the response.
 
 ```typescript
 import { NotFoundException, BadRequestException } from 'superman';

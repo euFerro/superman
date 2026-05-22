@@ -18,7 +18,7 @@ why they are enough to cover **development**, **staging**, and **production**, a
 
 | Script | Command | When to run |
 |--------|---------|-------------|
-| `dev`   | `tsx watch src/server.ts` | Local development loop â€” executes TypeScript directly, reloads on save. No build step. |
+| `dev`   | `tsx watch src/server.ts` | Local development loop — executes TypeScript directly, reloads on save. No build step. |
 | `build` | `tsc`                     | Compile to `dist/` before deploying to staging / production. |
 | `start` | `node dist/server.js`     | Run the compiled artifact. Inherits `NODE_ENV` from the shell / env file / orchestrator. |
 | `test`  | `jest`                    | Unit tests (colocation, `*.test.ts` next to source). |
@@ -27,7 +27,7 @@ These four scripts are **all you need**. No `start:staging`, no `start:prod`, no
 
 ## One build, three environments
 
-The framework resolves per-environment behaviour **at runtime** â€” the same compiled artifact works for dev, staging, and prod. You only change the env variable.
+The framework resolves per-environment behaviour **at runtime** — the same compiled artifact works for dev, staging, and prod. You only change the env variable.
 
 ```ts
 // src/server.config.ts
@@ -46,10 +46,10 @@ defineConfig({
 At boot, the framework:
 
 1. Reads `process.env.NODE_ENV` (default: `development`).
-2. Picks the matching `environments[...]` block â€” `config.endpoints.myApi` returns the right URL for that env.
+2. Picks the matching `environments[...]` block — `config.endpoints.myApi` returns the right URL for that env.
 3. Adjusts defaults based on the env: `LOG_LEVEL` falls back to `info` in production and `debug` otherwise; file sink paths / console colouring behave consistently; `config.isProduction()` is available anywhere.
 
-So the single `start` script covers every environment â€” the orchestrator (Docker, k8s, PM2, systemd, GitHub Actions) injects `NODE_ENV` and secrets, and `node dist/server.js` does the right thing:
+So the single `start` script covers every environment — the orchestrator (Docker, k8s, PM2, systemd, GitHub Actions) injects `NODE_ENV` and secrets, and `node dist/server.js` does the right thing:
 
 ```bash
 # Development (live reload, no build needed)
@@ -58,24 +58,24 @@ npm run dev
 # Build once
 npm run build
 
-# Staging â€” loads environments.staging.endpoints
+# Staging — loads environments.staging.endpoints
 NODE_ENV=staging npm start
 
-# Production â€” loads environments.production.endpoints, logger defaults to info
+# Production — loads environments.production.endpoints, logger defaults to info
 NODE_ENV=production LOG_LEVEL=info npm start
 ```
 
 ### Why not separate `start:dev` / `start:staging` / `start:prod` scripts?
 
-Because they would just bake `NODE_ENV` into the `package.json`, which is exactly what orchestrators already manage. Keeping a single `start` avoids drift between local scripts and the actual deploy command. If you need an env-file convention for local overrides, rely on `dotenv/config` â€” do not hard-code the environment in the script.
+Because they would just bake `NODE_ENV` into the `package.json`, which is exactly what orchestrators already manage. Keeping a single `start` avoids drift between local scripts and the actual deploy command. If you need an env-file convention for local overrides, rely on `dotenv/config` — do not hard-code the environment in the script.
 
 ## Why `tsc` (and not `tsup` / `esbuild`) for production
 
 The framework itself ships a single pre-bundled file via `tsup`, so consumer apps don't need to re-bundle. Plain `tsc` is:
 
-- **Simpler** â€” one file (`tsconfig.json`) already drives the whole project.
-- **Debuggable** â€” source maps land next to the emitted JS; stack traces in prod point to your own files, not a bundle.
-- **Fast enough** â€” `tsc` on a typical module-based app is sub-second.
+- **Simpler** — one file (`tsconfig.json`) already drives the whole project.
+- **Debuggable** — source maps land next to the emitted JS; stack traces in prod point to your own files, not a bundle.
+- **Fast enough** — `tsc` on a typical module-based app is sub-second.
 
 The `dist/` folder produced by `tsc` can be copied directly into a Docker image or tarball. The entry point in production is always `node dist/server.js`.
 
@@ -107,7 +107,7 @@ export default config;
 
 ### `tsconfig.json` tweak
 
-If `tsconfig.json` uses `"module": "nodenext"` (recommended), add `"isolatedModules": true` to silence the ts-jest hybrid-module warning â€” both `tsc` and Jest will be happy.
+If `tsconfig.json` uses `"module": "nodenext"` (recommended), add `"isolatedModules": true` to silence the ts-jest hybrid-module warning — both `tsc` and Jest will be happy.
 
 ### Example test
 
@@ -148,12 +148,12 @@ describe('ExampleService', () => {
 npm test
 ```
 
-ts-jest compiles `.ts` files on the fly â€” no pre-build required. Jest's `NODE_ENV=test` already flips the framework logger to `silent`, so your test output stays clean.
+ts-jest compiles `.ts` files on the fly — no pre-build required. Jest's `NODE_ENV=test` already flips the framework logger to `silent`, so your test output stays clean.
 
 ## What this setup does NOT include (on purpose)
 
-- **Linter** â€” add your own ESLint config when you need it; not every app needs it from day one.
-- **Watch mode for tests** â€” `npm test -- --watch` works out of the box.
-- **Integration tests with supertest** â€” add only when you have HTTP-layer behaviour specific to your app. The framework already covers its own HTTP semantics with 200+ internal tests.
-- **Separate staging / prod scripts** â€” see the "One build, three environments" section above.
+- **Linter** — add your own ESLint config when you need it; not every app needs it from day one.
+- **Watch mode for tests** — `npm test -- --watch` works out of the box.
+- **Integration tests with supertest** — add only when you have HTTP-layer behaviour specific to your app. The framework already covers its own HTTP semantics with 200+ internal tests.
+- **Separate staging / prod scripts** — see the "One build, three environments" section above.
 

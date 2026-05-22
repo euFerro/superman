@@ -33,7 +33,7 @@ defineConfig({
     fileOutput:    { enabled: true, directory: '/var/log/superman' }, // default: disabled
     consoleOutput: {                                                  // default: enabled, event bodies hidden
       enabled: true,
-      enableEventDebug: true,                                          // default: false â€” print event JSON bodies in dev
+      enableEventDebug: true,                                          // default: false — print event JSON bodies in dev
     },
   },
 });
@@ -45,14 +45,14 @@ Configure reusable OpenAPI security schemes, their verifiers, and a global defau
 
 ```typescript
 defineConfig({
-  // â€¦
+  // …
   openapi: {
     securitySchemes: {
       bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       apiKey:     { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     },
     security: [{ bearerAuth: [] }],   // applies to every operation unless overridden per-controller
-    auth: {                            // verifier per scheme â€” consulted by `requireAuth(schemeName)`
+    auth: {                            // verifier per scheme — consulted by `requireAuth(schemeName)`
       bearerAuth: async (req) => {
         const token = (req.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
         const claims = await verifyJwt(token);
@@ -77,7 +77,7 @@ defineConfig({
 
 The framework auto-injects a `401` response on every operation where security is required.
 
-### `openapi.docs` â€” built-in interactive docs UI
+### `openapi.docs` — built-in interactive docs UI
 
 Opt-in to a **Scalar HTML rendering** of the OpenAPI document at `GET {prefix}/docs`. Disabled by default. When enabled, the page is rendered from the same `/spec` document, so it can never drift.
 
@@ -86,12 +86,12 @@ defineConfig({
   prefix: '/api',
   openapi: {
     docs: {
-      enabled: true,                         // default: false â€” must be set to expose the route
+      enabled: true,                         // default: false — must be set to expose the route
       // path: '/docs',                      // default: '/docs' (joined with the global prefix)
       // title: 'My API',                    // default: process.env.npm_package_name
       // theme: 'default',                   // forwarded to the Scalar configuration
-      // exposeInProduction: true,           // default: false â€” see "Production guard" below
-      // template: (ctx) => '<html>â€¦</html>',// optional renderer override (see below)
+      // exposeInProduction: true,           // default: false — see "Production guard" below
+      // template: (ctx) => '<html>…</html>',// optional renderer override (see below)
     },
   },
 });
@@ -104,13 +104,13 @@ defineConfig({
 | `title`   | `string`  | `process.env.npm_package_name` | Page `<title>` and the title shown in the rendered UI. |
 | `theme`   | `string`  | `'default'` | Forwarded to the Scalar `data-configuration`. |
 | `exposeInProduction` | `boolean` | `false` | When `config.environment === 'production'` the route returns a plain-text 503 instead of HTML. Set to `true` for internal services where exposing the UI in prod is intentional. |
-| `template`| `(ctx) => string` | â€” | Optional renderer override. When set, fully replaces the default page. |
+| `template`| `(ctx) => string` | — | Optional renderer override. When set, fully replaces the default page. |
 
-**`DOCS` env-var override.** The `DOCS` environment variable wins over `defineConfig` â€” `DOCS=true` force-enables the route, `DOCS=false` force-disables it. Handy for flipping the UI on per-environment without code changes. Accepts `true`/`false`/`1`/`0` (case-insensitive).
+**`DOCS` env-var override.** The `DOCS` environment variable wins over `defineConfig` — `DOCS=true` force-enables the route, `DOCS=false` force-disables it. Handy for flipping the UI on per-environment without code changes. Accepts `true`/`false`/`1`/`0` (case-insensitive).
 
-**Production guard.** Even when `enabled: true`, the framework returns `503 in production docs/ is disabled` (plain text) for production requests unless `exposeInProduction: true`. The default rationale: the docs UI ships a CDN script and full API surface â€” both worth being deliberate about exposing publicly.
+**Production guard.** Even when `enabled: true`, the framework returns `503 in production docs/ is disabled` (plain text) for production requests unless `exposeInProduction: true`. The default rationale: the docs UI ships a CDN script and full API surface — both worth being deliberate about exposing publicly.
 
-**Default rendering â€” no template engine required.** Out of the box the framework returns a self-contained HTML page that boots [Scalar](https://github.com/scalar/scalar) from the jsDelivr CDN. Endpoints (grouped by module/tag), schemas, parameters and a built-in "Send API Request" panel are all rendered client-side from `/spec`. Zero extra runtime deps in the framework.
+**Default rendering — no template engine required.** Out of the box the framework returns a self-contained HTML page that boots [Scalar](https://github.com/scalar/scalar) from the jsDelivr CDN. Endpoints (grouped by module/tag), schemas, parameters and a built-in "Send API Request" panel are all rendered client-side from `/spec`. Zero extra runtime deps in the framework.
 
 **Plug-in a template engine (optional).** Need full control of the HTML (offline assets, custom theme, Pug/EJS/Handlebars templates)? Provide a `template` function. The framework hands it the resolved OpenAPI document plus rendering context; whatever string it returns is served verbatim.
 
@@ -128,11 +128,11 @@ defineConfig({
 });
 ```
 
-The `template` contract is engine-agnostic â€” it's just `(ctx) => string | Promise<string>` â€” so any view library works. The framework ships **no template engine as a dependency**; install only the one you actually use.
+The `template` contract is engine-agnostic — it's just `(ctx) => string | Promise<string>` — so any view library works. The framework ships **no template engine as a dependency**; install only the one you actually use.
 
-### `schemaValidator` â€” replace the built-in validator
+### `schemaValidator` — replace the built-in validator
 
-> **DSL vs. plug-in validator.** The framework's chainable builder (`s.*`, see [docs/schemas.md](./schemas.md)) is the recommended authoring surface â€” it covers the vast majority of API shapes and stays dep-free. Replace the **validator engine** (via `schemaValidator`) only when you genuinely need keywords the built-in engine doesn't support (`$ref`, `patternProperties`, `if`/`then`/`else`, refinements, transforms). Schemas you wrote with `s.*` keep working unchanged â€” the framework hands the JSON Schema produced by `.toJsonSchema()` to your custom validator.
+> **DSL vs. plug-in validator.** The framework's chainable builder (`s.*`, see [docs/schemas.md](./schemas.md)) is the recommended authoring surface — it covers the vast majority of API shapes and stays dep-free. Replace the **validator engine** (via `schemaValidator`) only when you genuinely need keywords the built-in engine doesn't support (`$ref`, `patternProperties`, `if`/`then`/`else`, refinements, transforms). Schemas you wrote with `s.*` keep working unchanged — the framework hands the JSON Schema produced by `.toJsonSchema()` to your custom validator.
 
 The framework ships a small JSON Schema 2020-12 validator (subset: `type`, `enum`, `const`, `oneOf`/`anyOf`/`allOf`/`not`, string formats, number constraints, array constraints, object constraints, coercion). If you need keywords beyond the subset (`$ref`, `patternProperties`, `if`/`then`/`else`, etc.), plug in any compatible validator:
 
@@ -143,7 +143,7 @@ import addFormats from 'ajv-formats';
 const ajv = addFormats(new Ajv({ coerceTypes: true, useDefaults: true }));
 
 defineConfig({
-  // â€¦
+  // …
   schemaValidator: (value, schema, options) => {
     const validate = ajv.compile(schema as object);
     const ok = validate(value);
@@ -160,7 +160,7 @@ defineConfig({
 });
 ```
 
-**Zod (carrier pattern).** Zod has its own runtime DSL, so you can't validate a plain JSON Schema with it directly. The idiomatic pattern is to **author in Zod**, derive the JSON Schema for the OpenAPI doc, and carry the original Zod schema alongside via a vendor extension field (`x-zod`) â€” the validator reads it back at request time. The framework forwards unknown JSON Schema fields verbatim, so `x-zod` shows up in `/spec` as harmless metadata.
+**Zod (carrier pattern).** Zod has its own runtime DSL, so you can't validate a plain JSON Schema with it directly. The idiomatic pattern is to **author in Zod**, derive the JSON Schema for the OpenAPI doc, and carry the original Zod schema alongside via a vendor extension field (`x-zod`) — the validator reads it back at request time. The framework forwards unknown JSON Schema fields verbatim, so `x-zod` shows up in `/spec` as harmless metadata.
 
 ```typescript
 import { z, type ZodTypeAny } from 'zod';
@@ -172,7 +172,7 @@ export const fromZod = <T extends ZodTypeAny>(zodSchema: T): JsonSchema => ({
   'x-zod': zodSchema,                              // ignored by OpenAPI tools; read by the validator
 });
 
-// user.schemas.ts â€” Zod-first, with full inference
+// user.schemas.ts — Zod-first, with full inference
 const CreateUserZ = z.object({
   name:  z.string().min(1).max(100),
   email: z.string().email(),
@@ -192,7 +192,7 @@ const pickZod = (schema: unknown): ZodTypeAny | undefined =>
   (schema as { 'x-zod'?: ZodTypeAny } | null)?.['x-zod'];
 
 defineConfig({
-  // â€¦
+  // …
   schemaValidator: (value, schema, options) => {
     const zodSchema = pickZod(schema);
 
@@ -216,7 +216,7 @@ defineConfig({
 });
 ```
 
-Why the carrier pattern instead of converting JSON Schema â†’ Zod at runtime: Zod schemas can express **refinements, transforms, and discriminated unions** that don't round-trip through JSON Schema cleanly. Keeping the original Zod object means you get Zod's full validation semantics at request time, and the spec consumers still get a perfectly valid JSON Schema document. Pair this with `z.infer<typeof Schema>` in your `*.schemas.ts` files and you get one declaration that drives runtime validation, OpenAPI documentation, and TypeScript types.
+Why the carrier pattern instead of converting JSON Schema ➡️ Zod at runtime: Zod schemas can express **refinements, transforms, and discriminated unions** that don't round-trip through JSON Schema cleanly. Keeping the original Zod object means you get Zod's full validation semantics at request time, and the spec consumers still get a perfectly valid JSON Schema document. Pair this with `z.infer<typeof Schema>` in your `*.schemas.ts` files and you get one declaration that drives runtime validation, OpenAPI documentation, and TypeScript types.
 
 All `validate*` middlewares delegate to whichever validator you wire in. The framework remains dep-free; the user opts in (`ajv`, `zod`, or anything else).
 
@@ -243,7 +243,7 @@ config.jsonLimit             // string
 config.environment           // 'development' | 'staging' | 'production' | ...
 config.endpoints.api         // resolved for active environment
 config.env.DB_URL            // validated env var value (direct record access)
-config.get('DB_URL')         // same value via idiomatic getter â€” returns `string | undefined`
+config.get('DB_URL')         // same value via idiomatic getter — returns `string | undefined`
 config.isProduction()        // boolean
 config.isInitialized()       // boolean
 config.logger                // { enabledEventTypes: Set<EventType>, fileOutput, consoleOutput }
@@ -258,5 +258,5 @@ const apiKey = config.get('API_KEY');              // string | undefined
 const dbUrl  = config.get('DB_URL') ?? 'memory://'; // inline fallback
 ```
 
-For required env vars the framework already throws at startup, so `config.get('DB_URL')` inside application code can be treated as a non-nullable `string` at that point â€” use a non-null assertion or a narrow helper if you want to dodge the `| undefined` for those specific keys.
+For required env vars the framework already throws at startup, so `config.get('DB_URL')` inside application code can be treated as a non-nullable `string` at that point — use a non-null assertion or a narrow helper if you want to dodge the `| undefined` for those specific keys.
 

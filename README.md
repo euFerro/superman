@@ -1,9 +1,9 @@
-﻿<div align="center">
-  <img src="docs/superman-logo.png" alt="Superman Logo" width="180" />
+<div align="center">
+  <img src="assets/superman-logo.png" alt="Superman Logo" width="180" />
 
   <h1><span style="font-weight: 600">Superman</span></h1>
 
-  <p>Web backend framework built for agentic development</code>.</p>
+  <p><strong>The Web backend framework built for the era of AI-assisted development.</strong></p>
 
   <p>
     <a href="docs/guia-arquitetura.md">Website</a> •
@@ -14,25 +14,85 @@
   <hr />
 </div>
 
-Superman is a declarative framework for backend applications focused on low token utilization and high readability specially for coding agents. Define your config, controllers, and modules and the framework handles everything else.
+**Superman** is a next-generation declarative framework for building rock-solid backend applications. Engineered from the ground up for **agentic development**, it features out-of-the-box **Model Context Protocol (MCP)** server generation, incredibly low token utilization, and crystalline readability for both humans and AI agents. 
 
-![alt text](/docs/image.png)
+Simply define your configuration, controllers, and modules—**Superman handles the rest.**
+
+## Features
+
+| 🌟 Feature | 📖 Description | 🚀 Impact |
+| :--- | :--- | :--- |
+| 🏗️ **Declarative Structure** | No hidden side effects or imperative middleware chains. The entire app is defined in ~3 function calls. | Easy to parse for both humans and AI agents in a single pass. |
+| 🤖 **Automatic MCP Server** | Instantly generate a Model Context Protocol server exposing your API to AI tools. | Zero manual configuration for AI agentic integrations. |
+| 🧠 **Low Token Utilization** | ~15-20 lines of pure declarations vs. 50-60 lines of imperative Express code. | AI agents spend ~60% fewer tokens reading and modifying code. |
+| 🛡️ **Predictable Error Handling** | Throw an `HttpException` anywhere, and the framework catches and formats it automatically. | Consistent error responses without hunting for `try/catch` blocks. |
+| 📚 **Auto-Generated OpenAPI 3.1** | A single `/spec` route returns a valid OpenAPI document built directly from your declarations. | No manual docs to maintain or drift out of sync. |
+| ✨ **Interactive Scalar UI** | Built-in Scalar interactive UI rendered from the OpenAPI document (`openapi.docs.enabled`). | Beautiful, out-of-the-box API documentation interface. |
+| 🚦 **Rate Limiting & Throttling** | Built-in per-IP rate limiting configurable per controller with simple presets. | Protect your endpoints automatically with `X-RateLimit` headers. |
+| 📋 **Built-in Schema Validation** | Chainable DSL for validating body, query, headers, cookies, and path parameters. | Typed DTOs inferred directly from schemas. |
+| 🔐 **Auth & Role Guards** | Out-of-the-box `requireAuth` and `requireRoles` middlewares. | Secure your endpoints effortlessly with auto-emitted `401`/`403` docs. |
+| 📝 **Structured Event Logging** | Six categories of typed JSON logs (System, Request, Response, Error, Audit, Security). | Comprehensive observability and logging without boilerplate. |
+| ⚡ **Cross-Runtime Support** | Runs on Node.js (Primary), Bun (Native ESM), and Deno with zero native dependencies. | Deploy anywhere with maximum performance. |...
+
+![alt text](/assets/image.png)
 
 ## Introduction
 
-This framework was designed with the future of AI-assisted development in mind. As AI becomes a core part of how we build and maintain software, codebases need to be **readable, predictable, and consistent** â€” not just for humans, but for AI agents too.
+This framework was designed with the future of **AI-assisted development** in mind. As AI becomes integral to how we build and maintain software, codebases must be **readable, predictable, and consistent**—not just for human developers, but for AI agents as well.
 
-Traditional Express apps scatter configuration, routing, error handling, logging, and rate limiting across dozens of files with imperative patterns that are hard to parse and reason about. This framework replaces all of that with a small set of declarative functions (`defineConfig`, `defineController`, `defineModule`) that make the entire application structure explicit and self-documenting.
+Traditional Express applications often scatter configuration, routing, error handling, logging, and rate limiting across dozens of files. These imperative patterns are hard to parse and reason about. We replace all of that with a small set of powerful declarative functions (`defineConfig`, `defineController`, `defineModule`) that make your entire application structure explicit and self-documenting.
 
-**Why this matters for AI development:**
+**Why this matters for AI (and human) development:**
 
-- **Consistency** â€” Every project follows the same patterns for config, routing, errors, and logging. An AI reading one project instantly understands all of them.
-- **Declarative structure** â€” No hidden side effects, no imperative middleware chains to trace. The entire app is defined in ~3 function calls that AI can parse in a single pass.
-- **Auto-generated OpenAPI 3.1 documentation** â€” The framework exposes a single `/spec` route that returns a valid OpenAPI 3.1 document built from your declarations. Drop it into Swagger UI, Redoc, Postman, or any codegen tool. No manual docs to maintain or drift out of sync. Opt-in `openapi.docs.enabled` to also expose `/docs`, a built-in Scalar interactive UI rendered from the same document (Pug/EJS/Handlebars template hook included).
-- **~60% fewer tokens** â€” A typical module definition in this framework is 15-20 lines of pure declarations vs. 50-60 lines of imperative Express code (router setup, middleware wiring, error handling, handler wrapping). AI agents spend significantly fewer tokens reading, understanding, and modifying the codebase.
-- **Predictable error handling** â€” Throw an `HttpException` anywhere, the framework catches it. No more hunting for missing `try/catch` blocks or inconsistent error responses.
+- 🧩 **Consistency** — Every project follows identical patterns for configuration, routing, errors, and logging. An AI reading one project instantly understands them all.
+- 🏗️ **Declarative Structure** — Say goodbye to hidden side effects and tangled middleware chains. The entire app is defined in ~3 function calls, allowing AI to parse the architecture in a single pass.
+- 🤖 **Auto-generated OpenAPI 3.1** — The framework automatically exposes a `/spec` route that returns a valid OpenAPI document built directly from your declarations. No manual documentation to maintain or drift out of sync. Opt-in to `openapi.docs.enabled` to expose `/docs`, a beautiful built-in Scalar interactive UI.
+- 📉 **~60% Fewer Tokens** — A typical module definition takes only 15-20 lines of pure declarations, compared to 50-60 lines of imperative Express code. This means AI agents spend significantly fewer tokens reading, understanding, and modifying your codebase.
+- 🛡️ **Predictable Error Handling** — Throw an `HttpException` anywhere and the framework catches and formats it automatically. No more hunting for missing `try/catch` blocks or dealing with inconsistent error responses.
 
-The result: a framework that is easier to write, easier to read, and easier to maintain â€” whether you're a human developer or an AI agent working on the code.
+**The result:** A framework that is exponentially easier to write, read, and maintain—empowering both human developers and AI agents to work at their absolute best.
+
+## Framework Comparison
+
+Here's how **Superman** stacks up against the most popular TypeScript server frameworks when it comes to out-of-the-box features tailored for modern, AI-assisted development.
+
+| Feature | 🦸‍♂️ Superman | 🦁 NestJS | 🚄 Fastify | 🦊 Hono | 🚂 Express |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Declarative Structure** | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Automatic MCP Server** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Low Token Utilization (AI)** | ✅ | ❌ | ⚠️ | ✅ | ❌ |
+| **Auto-Generated OpenAPI 3.1** | ✅ | 🔌 | 🔌 | 🔌 | ❌ |
+| **Interactive Scalar UI** | ✅ | 🔌 | 🔌 | 🔌 | ❌ |
+| **Built-in Schema Validation** | ✅ | 🔌 | ✅ | 🔌 | ❌ |
+| **Built-in Rate Limiting** | ✅ | 🔌 | 🔌 | 🔌 | ❌ |
+| **Built-in Auth & Role Guards**| ✅ | ✅ | 🔌 | ❌ | ❌ |
+| **Structured JSON Logging** | ✅ | 🔌 | ✅ | ❌ | ❌ |
+| **Cross-Runtime (Node/Bun/Deno)**| ✅ | ❌ | ❌ | ✅ | ❌ |
+
+> **Legend:**<br>
+> ✅ = Built-in & ready to use<br>
+> ❌ = Not available or requires significant manual implementation<br>
+> 🔌 = Requires installing and configuring third-party plugins or middleware<br>
+> ⚠️ = Partial support or requires boilerplate
+
+## 🚀 Is Superman Really Innovative?
+
+If you look purely at HTTP and JSON, we aren't doing magic. Fastify, NestJS, and Hono already handle HTTP brilliantly. Superman’s true innovation is a paradigm shift in **who** it considers the "developer". 
+
+Historically, frameworks optimized for **human ergonomics**. Superman is the first backend framework engineered for **AI ergonomics**.
+
+### 📉 1. The Token-Optimized Architecture
+When an AI reads a standard Express app, it has to trace tangled middleware chains across dozens of files. This wastes tokens and context windows. 
+> Superman’s declarative structure means an AI can parse a single **`defineController`** block and instantly know the routes, auth guards, rate limits, schemas, and errors. It reduces the "token cost" of understanding your codebase by over **60%**, supercharging your AI coding assistants.
+
+### 🤖 2. Native MCP Integration
+Model Context Protocol (MCP) is the new standard for AI agents interacting with local tools. By automatically exposing your API as an MCP server out-of-the-box, Superman allows AI agents to directly consume your backend as native tools—zero translation layers required. 
+
+### 💎 3. "Zero-Drift" Cohesion
+Instead of gluing together 5 different libraries, Superman unifies them. You declare a route once, and it drives runtime validation, OpenAPI docs, TypeScript types, rate-limiting, and MCP tools automatically. 
+
+### 🏆 The Verdict
+Superman isn't reinventing the HTTP wheel—it's **pioneering the AI-Native backend.** If you are building software where AI agents will assist you, maintain the code, or consume the API, Superman is a massive leap forward.
 
 ## Install
 
@@ -61,12 +121,12 @@ The framework only uses cross-runtime-safe APIs: `process.env`, `process.stdout/
 Services, repositories, gateways, and any other dependency should never receive or reference a concrete class directly. Always depend on an **interface** (contract) and inject the implementation.
 
 ```typescript
-// âœ… Correct â€” depends on interface
+// ✅ Correct — depends on interface
 class UsersService implements IUsersService {
   constructor(private readonly repository: IUsersRepository) {}
 }
 
-// âŒ Wrong â€” depends on concrete class
+// âŒ Wrong — depends on concrete class
 class UsersService {
   constructor(private readonly repository: UsersRepository) {}
 }
@@ -81,11 +141,11 @@ This makes your code testable (swap real implementations for mocks), decoupled (
 
 ## Quick Start
 
-### Step 1 â€” Define your config
+### Step 1 — Define your config
 
 ```typescript
 // src/server.config.ts
-import 'dotenv/config'; // side-effect â€” loads .env into process.env
+import 'dotenv/config'; // side-effect — loads .env into process.env
 import { defineConfig } from 'superman';
 
 defineConfig({
@@ -131,9 +191,9 @@ defineConfig({
 
 The framework validates required env vars on startup, resolves endpoints for the active environment (via `ENV` environment variable), and makes everything available through the `config` singleton. The `prefix` is prepended to all module routes automatically.
 
-### Step 2 â€” Define module schemas
+### Step 2 — Define module schemas
 
-Park your module's schemas in a co-located `*.schemas.ts` file using the framework's chainable schema builder (`s.*`). No Zod or other dep required â€” the builder emits plain JSON Schema 2020-12 under the hood, the framework's built-in validator consumes it at runtime, and the OpenAPI doc is built from the very same object. `Infer<typeof Schema>` gives you the TypeScript type for free, so DTOs can't drift from the schema â€” and the service layer can consume the same inferred types directly.
+Park your module's schemas in a co-located `*.schemas.ts` file using the framework's chainable schema builder (`s.*`). No Zod or other dep required — the builder emits plain JSON Schema 2020-12 under the hood, the framework's built-in validator consumes it at runtime, and the OpenAPI doc is built from the very same object. `Infer<typeof Schema>` gives you the TypeScript type for free, so DTOs can't drift from the schema — and the service layer can consume the same inferred types directly.
 
 ```typescript
 // src/modules/users/user.schemas.ts
@@ -147,7 +207,7 @@ export const UserResponse = s.object({
 }).describe('A user record.');
 
 export type User = Infer<typeof UserResponse>;
-// â†’ { id: string; name: string; email: string; createdAt: string }
+// ➡️ { id: string; name: string; email: string; createdAt: string }
 
 export const CreateUserBody = s.object({
   name:  s.string().min(1).describe('Full name.'),
@@ -155,7 +215,7 @@ export const CreateUserBody = s.object({
 });
 
 export type CreateUserDto = Infer<typeof CreateUserBody>;
-// â†’ { name: string; email: string }
+// ➡️ { name: string; email: string }
 
 export const ListUsersQuery = s.object({
   page:  s.integer().min(1).default(1).describe('Page number.'),
@@ -170,11 +230,11 @@ export const TenancyHeaders = s.object({
 });
 ```
 
-> Raw JSON Schema objects are still accepted everywhere â€” useful for hand-written schemas, generated schemas (typia, `z.toJSONSchema()`), or features the DSL doesn't cover. See [docs/schemas.md](./docs/schemas.md#escape-hatch--raw-json-schema).
+> Raw JSON Schema objects are still accepted everywhere — useful for hand-written schemas, generated schemas (typia, `z.toJSONSchema()`), or features the DSL doesn't cover. See [docs/schemas.md](./docs/schemas.md#escape-hatch--raw-json-schema).
 
-### Step 3 â€” Define a service
+### Step 3 — Define a service
 
-Define an interface for the contract and implement it with a plain class. Controllers depend on the interface, never on the implementation. Use the DTO types inferred from your schemas â€” one declaration drives the schema, the validator, the OpenAPI spec, *and* the service contract.
+Define an interface for the contract and implement it with a plain class. Controllers depend on the interface, never on the implementation. Use the DTO types inferred from your schemas — one declaration drives the schema, the validator, the OpenAPI spec, *and* the service contract.
 
 ```typescript
 // src/modules/users/services/users.services.ts
@@ -208,9 +268,9 @@ class UsersService implements IUsersService {
 }
 ```
 
-### Step 4 â€” Define controllers
+### Step 4 — Define controllers
 
-The middleware list describes *what arrives*. Each framework middleware validates at runtime **and** brands its piece of the context â€” so the handler receives a fully-typed `{ body, query, params, headers, cookies, user, service, req, res }` object with no manual casts. Return whatever you want; the framework writes it as JSON and picks the status from `responses` (defaults to `200`).
+The middleware list describes *what arrives*. Each framework middleware validates at runtime **and** brands its piece of the context — so the handler receives a fully-typed `{ body, query, params, headers, cookies, user, service, req, res }` object with no manual casts. Return whatever you want; the framework writes it as JSON and picks the status from `responses` (defaults to `200`).
 
 ```typescript
 // src/modules/users/controllers/users.controllers.ts
@@ -250,7 +310,7 @@ export const createUserController = defineController<IUsersService>({
   throttleConfig: 'STRICT',
   handler: async ({ body, service }) => service.create(body),
   //                ^^^^ CreateUserDto (inferred from validateBody)
-  //  â†’ 201 Created (framework picks the single declared 2xx status)
+  //  ➡️ 201 Created (framework picks the single declared 2xx status)
 });
 ```
 
@@ -258,18 +318,18 @@ export const createUserController = defineController<IUsersService>({
 >
 > **Multi-media-type responses** (`content: { 'application/json': ..., 'application/xml': ... }`): default returns are JSON-encoded. For real `Accept`-header negotiation either branch on `req.accepts(...)` and return `reply(body, { mediaType: 'application/xml' })` for non-JSON, or drop into `ctx.res.format({...})` directly.
 >
-> **Legacy `(req, res, service)` handlers** still work unchanged â€” the framework detects the 3-arg arity and routes through the old path. Useful for streaming endpoints or any case where you need full control over `res`.
+> **Legacy `(req, res, service)` handlers** still work unchanged — the framework detects the 3-arg arity and routes through the old path. Useful for streaming endpoints or any case where you need full control over `res`.
 
 #### Flat-context shorthand
 
-Leaf properties from `body` / `query` / `params` / `headers` / `cookies` are **also spread at the context root**, so you can destructure values directly without going through the structural slot. Both styles compile, both work at runtime â€” pick whichever reads best per handler:
+Leaf properties from `body` / `query` / `params` / `headers` / `cookies` are **also spread at the context root**, so you can destructure values directly without going through the structural slot. Both styles compile, both work at runtime — pick whichever reads best per handler:
 
 ```ts
 // Structural
 handler: async ({ body, params, user, service }) =>
   service.update(params.id, body, user.id)
 
-// Flat â€” leaves at the root
+// Flat — leaves at the root
 handler: async ({ id, name, email, user, service }) =>
   service.update(id, { name, email }, user.id)
 
@@ -278,15 +338,15 @@ handler: async ({ id, body, user, service }) =>
   service.update(id, body, user.id)
 ```
 
-**Precedence** when the same leaf name appears in multiple sources (higher wins): `params > body > query > headers > cookies`. **Reserved structural keys** (`req`, `res`, `service`, `body`, `query`, `params`, `headers`, `cookies`, `user`) are never overwritten â€” a body field literally called `service` stays accessible at `ctx.body.service`, not `ctx.service`. The `user` principal stays structural only (`ctx.user`) â€” its inner fields don't get spread, since collapsing `user.id` into `ctx.id` would conflict with path params.
+**Precedence** when the same leaf name appears in multiple sources (higher wins): `params > body > query > headers > cookies`. **Reserved structural keys** (`req`, `res`, `service`, `body`, `query`, `params`, `headers`, `cookies`, `user`) are never overwritten — a body field literally called `service` stays accessible at `ctx.body.service`, not `ctx.service`. The `user` principal stays structural only (`ctx.user`) — its inner fields don't get spread, since collapsing `user.id` into `ctx.id` would conflict with path params.
 
-What the framework derives from those middlewares â€” no extra declarations needed:
+What the framework derives from those middlewares — no extra declarations needed:
 
 | Middleware | Validates at runtime | Auto-emits in OpenAPI |
 |---|---|---|
 | `validateBody(schema)` | `req.body` | `requestBody`, auto `400` |
-| `validateQuery(schema)` | `req.query` (string â†’ typed) | `parameters[in:query]`, auto `400` |
-| `validateHeaders(schema)` | `req.headers` (string â†’ typed) | `parameters[in:header]`, auto `400` |
+| `validateQuery(schema)` | `req.query` (string ➡️ typed) | `parameters[in:query]`, auto `400` |
+| `validateHeaders(schema)` | `req.headers` (string ➡️ typed) | `parameters[in:header]`, auto `400` |
 | `validateCookies(schema)` | `req.cookies` | `parameters[in:cookie]`, auto `400` |
 | `validatePathParams(schema)` | `req.params` | refined path-param schemas, auto `400` |
 | `validateContentType(...)` | `Content-Type` header | `requestBody.content` keys, auto `415` |
@@ -297,9 +357,9 @@ The framework still auto-injects `429`, `500`, `default`, and the `X-RateLimit-R
 
 `defineController` is generic and returns a factory. Call the factory with your service implementation to get a `SupermanController`.
 
-### Step 5 â€” Define a module
+### Step 5 — Define a module
 
-The module file is the **composition root** â€” you instantiate implementations, wire dependencies, and declare routes.
+The module file is the **composition root** — you instantiate implementations, wire dependencies, and declare routes.
 
 ```typescript
 // src/modules/users/users.module.ts
@@ -321,7 +381,7 @@ defineModule({
 });
 ```
 
-Each controller factory is called with the service â€” you can see exactly which implementations are being used. Swap a database or service implementation by changing one line.
+Each controller factory is called with the service — you can see exactly which implementations are being used. Swap a database or service implementation by changing one line.
 
 With `prefix: '/api'` in `defineConfig` and `prefix: '/users'` in the module, the framework generates these routes:
 
@@ -331,11 +391,11 @@ GET  /api/users/:id
 POST /api/users
 ```
 
-### Step 6 â€” Main
+### Step 6 — Main
 
 ```typescript
 // src/server.ts
-import './server.config'; // side-effect â€” runs defineConfig()
+import './server.config'; // side-effect — runs defineConfig()
 import { app, config, logger } from 'superman';
 
 const log = logger.child('Server');
@@ -353,35 +413,35 @@ const main = async () => {
 main();
 ```
 
-That's it. Config, logging, rate limiting, exception handling, and graceful shutdown â€” all automatic.
+That's it. Config, logging, rate limiting, exception handling, and graceful shutdown — all automatic.
 
 ## API Summary
 
 | Export | Type | Sync? | Description |
 |--------|------|-------|-------------|
 | `defineConfig()` | function | sync | Registers app config: port, prefix, env vars, environment endpoints, structured logger, OpenAPI security schemes + auth verifiers, custom `schemaValidator` |
-| `defineController()` | function | sync | Generic factory â€” returns `ControllerFactory<TService>` |
+| `defineController()` | function | sync | Generic factory — returns `ControllerFactory<TService>` |
 | `defineModule()` | function | sync | Declares a module with routes. |
-| `config` | singleton | â€” | Access resolved config: `config.port`, `config.env.X` (or `config.get('X')`), `config.endpoints.X`, `config.logger`, `config.openapi`, `config.schemaValidator` |
-| `app` | singleton | â€” | Express app: `app.listen()`, `app.shutdown()`, `app.useMiddleware()` |
-| `logger` | singleton | â€” | Free-form logger (`logger.info()`, `logger.child('Context')`) + typed events (`logger.events.system()`, `.request()`, `.response()`, `.error()`, `.audit()`, `.security()`) |
-| `s` | schema-builder namespace | â€” | Chainable Zod-like DSL: `s.string()`, `s.number()`, `s.object({...})`, `s.array(...)`, `s.union(...)`, etc. Emits JSON Schema under the hood, runs runtime validation, and types DTOs via `Infer`. See [docs/schemas.md](./docs/schemas.md) |
-| `Schema` / `Infer` / `SchemaInput` | types | â€” | `Schema<T>` is the builder base class; `Infer<typeof S>` extracts the TypeScript type from a schema; `SchemaInput = JsonSchema \| Schema<unknown>` is the union every `validate*` middleware accepts |
+| `config` | singleton | — | Access resolved config: `config.port`, `config.env.X` (or `config.get('X')`), `config.endpoints.X`, `config.logger`, `config.openapi`, `config.schemaValidator` |
+| `app` | singleton | — | Express app: `app.listen()`, `app.shutdown()`, `app.useMiddleware()` |
+| `logger` | singleton | — | Free-form logger (`logger.info()`, `logger.child('Context')`) + typed events (`logger.events.system()`, `.request()`, `.response()`, `.error()`, `.audit()`, `.security()`) |
+| `s` | schema-builder namespace | — | Chainable Zod-like DSL: `s.string()`, `s.number()`, `s.object({...})`, `s.array(...)`, `s.union(...)`, etc. Emits JSON Schema under the hood, runs runtime validation, and types DTOs via `Infer`. See [docs/schemas.md](./docs/schemas.md) |
+| `Schema` / `Infer` / `SchemaInput` | types | — | `Schema<T>` is the builder base class; `Infer<typeof S>` extracts the TypeScript type from a schema; `SchemaInput = JsonSchema \| Schema<unknown>` is the union every `validate*` middleware accepts |
 | `Schema.parse()` / `.safeParse()` | methods | sync | Validate ad-hoc data inside services (queue messages, webhooks, cron jobs). `.parse()` throws `BadRequestException` with `metadata.errors`; `.safeParse()` returns a result object |
-| `JsonSchema` | type | â€” | Permissive alias for any JSON Schema 2020-12 object â€” the escape hatch for hand-written or generated schemas. Middlewares accept both `s.*` builders and raw `JsonSchema` |
-| `validateBody` `validateQuery` `validateHeaders` `validateCookies` `validatePathParams` | middleware factories | â€” | Take a `SchemaInput`, validate the corresponding request slot at runtime, contribute the schema to the OpenAPI doc, auto-document `400`. Query/header/cookie/path coerce strings â†’ typed values. See [docs/api-middlewares.md](./docs/api-middlewares.md) |
-| `validateContentType()` | middleware factory | â€” | Guards `Content-Type` to a set of allowed media types. Throws `UnsupportedMediaTypeException` (415); auto-documents `415` |
-| `requireAuth()` | middleware factory | â€” | Auth guard. Looks up the verifier in `config.openapi.auth[scheme]` (or per-call `verify` override), populates `req.user`, throws `UnauthorizedException`. Auto-emits `security` + `401` |
-| `requireRoles()` / `authorize()` | middleware factories | â€” | Role / scope check against `req.user`. Throws `ForbiddenException`. Auto-emits `403`; scopes merge onto the preceding auth scheme |
-| `validateJsonSchema()` | function | sync | The framework's built-in JSON Schema validator. Subset of 2020-12 â€” see [docs/schemas.md](./docs/schemas.md). Plug a full validator (e.g. AJV, Zod) via `defineConfig({ schemaValidator })` |
-| `attachOpenApiMeta()` / `readOpenApiMeta()` | functions | sync | Lets you author **your own self-documenting middleware** â€” attach an `OpenApiMiddlewareMeta` annotation so it contributes to `/spec` just like the built-ins |
+| `JsonSchema` | type | — | Permissive alias for any JSON Schema 2020-12 object — the escape hatch for hand-written or generated schemas. Middlewares accept both `s.*` builders and raw `JsonSchema` |
+| `validateBody` `validateQuery` `validateHeaders` `validateCookies` `validatePathParams` | middleware factories | — | Take a `SchemaInput`, validate the corresponding request slot at runtime, contribute the schema to the OpenAPI doc, auto-document `400`. Query/header/cookie/path coerce strings ➡️ typed values. See [docs/api-middlewares.md](./docs/api-middlewares.md) |
+| `validateContentType()` | middleware factory | — | Guards `Content-Type` to a set of allowed media types. Throws `UnsupportedMediaTypeException` (415); auto-documents `415` |
+| `requireAuth()` | middleware factory | — | Auth guard. Looks up the verifier in `config.openapi.auth[scheme]` (or per-call `verify` override), populates `req.user`, throws `UnauthorizedException`. Auto-emits `security` + `401` |
+| `requireRoles()` / `authorize()` | middleware factories | — | Role / scope check against `req.user`. Throws `ForbiddenException`. Auto-emits `403`; scopes merge onto the preceding auth scheme |
+| `validateJsonSchema()` | function | sync | The framework's built-in JSON Schema validator. Subset of 2020-12 — see [docs/schemas.md](./docs/schemas.md). Plug a full validator (e.g. AJV, Zod) via `defineConfig({ schemaValidator })` |
+| `attachOpenApiMeta()` / `readOpenApiMeta()` | functions | sync | Lets you author **your own self-documenting middleware** — attach an `OpenApiMiddlewareMeta` annotation so it contributes to `/spec` just like the built-ins |
 | `reply()` | function | sync | Return-value wrapper for handlers. `return reply(data, { status, headers, mediaType })` overrides the framework's defaults. Without it, returning a value JSON-encodes with status from `responses` (single `2xx`) or `200` |
-| `HandlerContext` / `HandlerContextOf` / `TypedHandler` | types | â€” | `HandlerContext<TService, Ctx>` is the destructured handler argument; `HandlerContextOf<MWs>` derives `Ctx` from a middleware tuple; `TypedHandler<K, T>` brands custom middlewares so they participate in context inference |
-| `EventType`, `SecurityEvents`, `SystemEvent`, `AuditEvents`, `AuthOutcome`, `EventSeverity` | enums | â€” | Discriminators for typed structured logs (see [Automatic Event Logging](#automatic-event-logging)) |
-| `THROTTLE_CONFIG` | constant | â€” | Rate limit presets: `SECURITY`, `STRICT`, `STANDARD`, `PERMISSIVE`, `EXTRA_PERMISSIVE` |
-| `*Exception` | classes | â€” | 15 HTTP exception classes (400â€“504), including `UnsupportedMediaTypeException` (415). Throw anywhere, caught by framework |
+| `HandlerContext` / `HandlerContextOf` / `TypedHandler` | types | — | `HandlerContext<TService, Ctx>` is the destructured handler argument; `HandlerContextOf<MWs>` derives `Ctx` from a middleware tuple; `TypedHandler<K, T>` brands custom middlewares so they participate in context inference |
+| `EventType`, `SecurityEvents`, `SystemEvent`, `AuditEvents`, `AuthOutcome`, `EventSeverity` | enums | — | Discriminators for typed structured logs (see [Automatic Event Logging](#automatic-event-logging)) |
+| `THROTTLE_CONFIG` | constant | — | Rate limit presets: `SECURITY`, `STRICT`, `STANDARD`, `PERMISSIVE`, `EXTRA_PERMISSIVE` |
+| `*Exception` | classes | — | 15 HTTP exception classes (400–504), including `UnsupportedMediaTypeException` (415). Throw anywhere, caught by framework |
 
-**Lifecycle:** `defineConfig()` â†’ `defineController()` â†’ `defineModule()` â†’ `app.listen()`
+**Lifecycle:** `defineConfig()` ➡️ `defineController()` ➡️ `defineModule()` ➡️ `app.listen()`
 
 **Single source of truth for schemas:** the same `s.*` schema you pass to `validateBody` / `validateQuery` / etc. is what shows up in `GET /spec` *and* what `Infer<typeof Schema>` types your DTOs from *and* what `Schema.parse()` validates inside services. One declaration, four surfaces, no drift. See [docs/schemas.md](./docs/schemas.md) for the full CRUD recipe and the chain-method matrix.
 
@@ -419,8 +479,8 @@ defineConfig({
     ],
     fileOutput:    { enabled: true, directory: '/var/log/superman' }, // default: disabled
     consoleOutput: {
-      enabled: true,                  // default: enabled â€” silences ALL console output (free-form + events) when false
-      enableEventDebug: true,       // default: false â€” when true, prints event JSON bodies to the dev console
+      enabled: true,                  // default: enabled — silences ALL console output (free-form + events) when false
+      enableEventDebug: true,       // default: false — when true, prints event JSON bodies to the dev console
     },
   },
 
@@ -453,14 +513,14 @@ config.jsonLimit             // string
 config.environment           // 'development' | 'staging' | 'production' | ...
 config.endpoints.api         // resolved for active environment
 config.env.MY_VAR            // validated env var value (direct record access)
-config.get('MY_VAR')         // same value â€” idiomatic getter; returns `string | undefined`
+config.get('MY_VAR')         // same value — idiomatic getter; returns `string | undefined`
 config.isProduction()        // boolean
 config.isInitialized()       // boolean
 ```
 
 ### `defineController<TService>(options)`
 
-Generic factory that returns a `ControllerFactory<TService>`. The handler receives `(req, res, service)` â€” the service is injected by `defineModule` at registration time.
+Generic factory that returns a `ControllerFactory<TService>`. The handler receives `(req, res, service)` — the service is injected by `defineModule` at registration time.
 
 ```typescript
 import {
@@ -473,11 +533,11 @@ import {
 
 const createPostController = defineController<IPostsService>({
   middlewares: [
-    requireAuth('bearerAuth'),                                                   // â†’ security + auto 401
-    requireRoles('author', 'admin'),                                             // â†’ scopes + auto 403
-    validateContentType('application/json'),                                     // â†’ content keys + auto 415
-    validateHeaders(TenancyHeaders),                                             // â†’ header parameters + auto 400
-    validateBody(CreatePostBody, { message: 'Please supply a valid post payload.' }),  // â†’ requestBody + auto 400 with custom message
+    requireAuth('bearerAuth'),                                                   // ➡️ security + auto 401
+    requireRoles('author', 'admin'),                                             // ➡️ scopes + auto 403
+    validateContentType('application/json'),                                     // ➡️ content keys + auto 415
+    validateHeaders(TenancyHeaders),                                             // ➡️ header parameters + auto 400
+    validateBody(CreatePostBody, { message: 'Please supply a valid post payload.' }),  // ➡️ requestBody + auto 400 with custom message
   ],
   throttleConfig: 'STANDARD',                                                    // preset or { limit, ttl }
   operationId: 'createPost',
@@ -504,11 +564,11 @@ const createPostController = defineController<IPostsService>({
 });
 ```
 
-The middlewares are the single source of truth: each one validates at runtime *and* contributes its schema/security/error status to the OpenAPI doc. No `request:` field on the controller â€” request shape lives entirely on the middleware list.
+The middlewares are the single source of truth: each one validates at runtime *and* contributes its schema/security/error status to the OpenAPI doc. No `request:` field on the controller — request shape lives entirely on the middleware list.
 
-**Parameters.** `query` / `headers` / `cookies` schemas passed to the corresponding `validate*` middleware are object schemas (`s.object({...})` or raw JSON Schema). Each top-level property becomes one OpenAPI parameter; properties listed in `required[]` are marked required. Path parameters (`/:id`) are extracted automatically; pass them to `validatePathParams(schema)` if you want type coercion (e.g. `id` must be a UUID) and richer documentation. Standard headers (`Authorization`, `Accept`, `Content-Type`) cannot be declared as parameters under OpenAPI 3.1 â€” use `requireAuth(...)` and `validateContentType(...)` for those.
+**Parameters.** `query` / `headers` / `cookies` schemas passed to the corresponding `validate*` middleware are object schemas (`s.object({...})` or raw JSON Schema). Each top-level property becomes one OpenAPI parameter; properties listed in `required[]` are marked required. Path parameters (`/:id`) are extracted automatically; pass them to `validatePathParams(schema)` if you want type coercion (e.g. `id` must be a UUID) and richer documentation. Standard headers (`Authorization`, `Accept`, `Content-Type`) cannot be declared as parameters under OpenAPI 3.1 — use `requireAuth(...)` and `validateContentType(...)` for those.
 
-**Multi-media-type request bodies** â€” pass `validateBody` a media-type map:
+**Multi-media-type request bodies** — pass `validateBody` a media-type map:
 
 ```typescript
 validateBody({
@@ -531,7 +591,7 @@ responses: {
 },
 ```
 
-**Streaming (SSE / NDJSON / file downloads)** â€” just another media type:
+**Streaming (SSE / NDJSON / file downloads)** — just another media type:
 
 ```typescript
 responses: {
@@ -547,11 +607,11 @@ responses: {
 },
 ```
 
-**Custom schema validator** â€” if you need keywords beyond the built-in subset (e.g. `$ref`, `patternProperties`, full Zod refinements), plug in AJV / Zod / any compatible validator via `defineConfig({ schemaValidator })`. All `validate*` middlewares delegate to it transparently; the `s.*` authoring surface keeps working since builders serialise to plain JSON Schema.
+**Custom schema validator** — if you need keywords beyond the built-in subset (e.g. `$ref`, `patternProperties`, full Zod refinements), plug in AJV / Zod / any compatible validator via `defineConfig({ schemaValidator })`. All `validate*` middlewares delegate to it transparently; the `s.*` authoring surface keeps working since builders serialise to plain JSON Schema.
 
 ### `defineModule(options)`
 
-Declares a module with routes. The module is queued and registered automatically when `app.listen()` is called. Routes receive built `SupermanController` instances â€” call your `defineController` factories with the service implementation in the routes array.
+Declares a module with routes. The module is queued and registered automatically when `app.listen()` is called. Routes receive built `SupermanController` instances — call your `defineController` factories with the service implementation in the routes array.
 
 ```typescript
 import { defineModule } from 'superman';
@@ -575,7 +635,7 @@ defineModule({
 
 ### `app`
 
-The application singleton. No need to instantiate â€” it's created by the framework.
+The application singleton. No need to instantiate — it's created by the framework.
 
 ```typescript
 import { app } from 'superman';
@@ -587,14 +647,14 @@ app.useMiddleware(cors());
 app.listen(() => { /* optional callback */ });
 
 // Graceful shutdown (calls destroy() on all modules)
-await app.shutdown(); // async â€” awaits all module destroy functions
+await app.shutdown(); // async — awaits all module destroy functions
 ```
 
 ### `logger`
 
 Two APIs on one singleton:
 
-**Free-form methods** â€” colored console output for developer messages.
+**Free-form methods** — colored console output for developer messages.
 Controlled by `LOG_LEVEL`.
 
 ```typescript
@@ -615,7 +675,7 @@ log.error('Failed', { error: err });
 - Otherwise defaults to `debug`
 - `LOG_LEVEL` overrides all defaults
 
-**Typed events** â€” structured JSON logs that match `SystemLog`, `RequestLog`,
+**Typed events** — structured JSON logs that match `SystemLog`, `RequestLog`,
 `ResponseLog`, `ErrorLog`, `AuditLog`, `SecurityLog`. Goes through the
 configured sinks (console + file) and respects `logger.enabledEventTypes`.
 
@@ -636,16 +696,16 @@ logger.events.security({
 Infra fields (`@timestamp`, `appName`, `appVersion`, `environment`,
 `serverInstanceUid`, `hostname`, `uptimeMs`, `memoryUsage`, `cpuUsage`,
 `context`) are filled in automatically. See [Automatic Event Logging](#automatic-event-logging)
-for the full event model, the status-code â†’ security mapping, and file
+for the full event model, the status-code ➡️ security mapping, and file
 layout.
 
 ## What Happens Automatically
 
-- **Request logging** â€” incoming/outgoing requests with method, URL, status, duration
-- **Exception handling** â€” `HttpException` subclasses return structured JSON; unhandled errors return 500
-- **Rate limiting** â€” every controller has per-IP throttling (configurable per controller)
-- **Startup banner** â€” instance UID, port, environment, debug level, registered modules
-- **Structured event logs** â€” every request, response, error, mutation, security-relevant status, and lifecycle signal is emitted as a typed log (see [Automatic Event Logging](#automatic-event-logging) below)
+- **Request logging** — incoming/outgoing requests with method, URL, status, duration
+- **Exception handling** — `HttpException` subclasses return structured JSON; unhandled errors return 500
+- **Rate limiting** — every controller has per-IP throttling (configurable per controller)
+- **Startup banner** — instance UID, port, environment, debug level, registered modules
+- **Structured event logs** — every request, response, error, mutation, security-relevant status, and lifecycle signal is emitted as a typed log (see [Automatic Event Logging](#automatic-event-logging) below)
 
 ```
 14:32:05.123 INFO  [App] ----------------------------------------
@@ -667,7 +727,7 @@ The framework exposes a single `GET {prefix}/spec` route that returns a valid **
 GET /api/spec
 ```
 
-> **Interactive docs UI (opt-in).** Set `openapi.docs.enabled: true` in `defineConfig` to also expose `GET {prefix}/docs` â€” a Scalar HTML rendering of the same document (endpoints grouped by module/tag in the sidebar, schemas, parameters, "Send API Request" panel). The default page is fully rendered out of the box â€” **no template engine required**. Need full control? Plug a Pug/EJS/Handlebars template via `openapi.docs.template`. Toggle without redeploys via the `DOCS=true/false` env var (wins over `defineConfig`); production requests get a plain-text 503 unless `exposeInProduction: true`. See [`openapi.docs` in docs/api-config.md](./docs/api-config.md#openapidocs--built-in-interactive-docs-ui).
+> **Interactive docs UI (opt-in).** Set `openapi.docs.enabled: true` in `defineConfig` to also expose `GET {prefix}/docs` — a Scalar HTML rendering of the same document (endpoints grouped by module/tag in the sidebar, schemas, parameters, "Send API Request" panel). The default page is fully rendered out of the box — **no template engine required**. Need full control? Plug a Pug/EJS/Handlebars template via `openapi.docs.template`. Toggle without redeploys via the `DOCS=true/false` env var (wins over `defineConfig`); production requests get a plain-text 503 unless `exposeInProduction: true`. See [`openapi.docs` in docs/api-config.md](./docs/api-config.md#openapidocs--built-in-interactive-docs-ui).
 
 ```json
 {
@@ -716,7 +776,7 @@ GET /api/spec
               { "type": "object", "properties": { "metadata": { "type": "object", "properties": { "field": { "type": "string" } } } } }
             ] } } }
           },
-          "429": { "description": "Rate limit exceeded â€” too many requests.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FrameworkError" } } } },
+          "429": { "description": "Rate limit exceeded — too many requests.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FrameworkError" } } } },
           "500": { "description": "Internal server error.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FrameworkError" } } } },
           "default": { "description": "Standard framework error envelope.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FrameworkError" } } } }
         }
@@ -749,10 +809,10 @@ Highlights:
 - **`429`, `500`, and `default`** responses are auto-injected on every operation. When security is required, `401` is auto-injected too. All reference the shared `FrameworkError` schema.
 - **`errors[].metadataSchema`** in `defineController` is rendered as `allOf [FrameworkError, { metadata: <your-schema> }]`, so consumers know exactly what to expect inside `metadata`.
 - **`x-rate-limit`** vendor extension exposes each route's throttle budget so clients can pace themselves.
-- **Parameters** â€” path (`/:id` â†’ `/{id}`), query, request-headers, and cookies are all emitted; each top-level property of the corresponding object schema becomes one parameter.
+- **Parameters** — path (`/:id` ➡️ `/{id}`), query, request-headers, and cookies are all emitted; each top-level property of the corresponding object schema becomes one parameter.
 - **Response headers** are documented under each Response Object's `headers` map.
-- **Security** â€” schemes declared in `defineConfig.openapi.securitySchemes` flow to `components.securitySchemes`; per-op `security` (or the config-level default) attaches the requirement.
-- **Schemas, examples, and descriptions** are forwarded straight from your JSON Schema inputs â€” the schema is the single source of truth.
+- **Security** — schemes declared in `defineConfig.openapi.securitySchemes` flow to `components.securitySchemes`; per-op `security` (or the config-level default) attaches the requirement.
+- **Schemas, examples, and descriptions** are forwarded straight from your JSON Schema inputs — the schema is the single source of truth.
 
 Drop the JSON into Swagger Editor, Redoc, Postman, Insomnia, or any OpenAPI-aware codegen tool.
 
@@ -779,11 +839,11 @@ defineModule({
 
 The `/spec` endpoint is a machine-readable contract of your entire API. You can use it to accelerate AI-assisted development:
 
-- **Client generation** â€” Pass the spec JSON to an AI in plan mode and ask it to generate a typed HTTP client, SDK, or frontend service layer. The AI has every route, method, path, and rate limit â€” it can produce deterministic, correct code without reading the server source.
-- **Test generation** â€” Give the spec to an AI and ask it to generate integration tests for every endpoint. The throttle config tells it exactly how many requests it can make before hitting 429.
-- **Documentation** â€” Feed the spec into an AI to generate human-readable API docs, Postman collections, or OpenAPI schemas.
-- **Cross-service contracts** â€” When building microservices, the spec of one service can be passed to an AI building another service's client. The contract is always up-to-date because it's generated from the actual running code.
-- **Code review** â€” An AI reviewing a PR can fetch `/spec` before and after the change to understand exactly what API surface changed.
+- **Client generation** — Pass the spec JSON to an AI in plan mode and ask it to generate a typed HTTP client, SDK, or frontend service layer. The AI has every route, method, path, and rate limit — it can produce deterministic, correct code without reading the server source.
+- **Test generation** — Give the spec to an AI and ask it to generate integration tests for every endpoint. The throttle config tells it exactly how many requests it can make before hitting 429.
+- **Documentation** — Feed the spec into an AI to generate human-readable API docs, Postman collections, or OpenAPI schemas.
+- **Cross-service contracts** — When building microservices, the spec of one service can be passed to an AI building another service's client. The contract is always up-to-date because it's generated from the actual running code.
+- **Code review** — An AI reviewing a PR can fetch `/spec` before and after the change to understand exactly what API surface changed.
 
 Since the spec is auto-generated from your `defineModule` and `defineController` declarations, it never drifts out of sync with the actual implementation. It's the single source of truth for your API surface.
 
@@ -793,7 +853,7 @@ The framework emits six categories of **typed, structured logs** out of the box.
 Every HTTP request, every exception, every resource mutation, every
 security-relevant status code, and every lifecycle transition is captured as a
 JSON object that matches one of the `*Log` interfaces in
-`superman` â€” no application code required.
+`superman` — no application code required.
 
 ### Enabling
 
@@ -825,10 +885,10 @@ only `SECURITY` + `ERROR` for low-volume security audit trails).
 | `REQUEST`  | Every incoming HTTP request                                    | `RequestLog`     |
 | `RESPONSE` | Every completed HTTP response                                  | `ResponseLog`    |
 | `ERROR`    | Every caught exception (HTTP and runtime)                      | `ErrorLog`       |
-| `AUDIT`    | Successful mutations â€” POST/PUT/PATCH/DELETE with 2xx status   | `AuditLog`       |
+| `AUDIT`    | Successful mutations — POST/PUT/PATCH/DELETE with 2xx status   | `AuditLog`       |
 | `SECURITY` | 401, 403, 413, 422, 429 responses (auto-mapped)                | `SecurityLog`    |
 
-### Status â†’ security event mapping
+### Status ➡️ security event mapping
 
 | HTTP status | `securityEvent`           | `authOutcome`            |
 |-------------|---------------------------|--------------------------|
@@ -838,7 +898,7 @@ only `SECURITY` + `ERROR` for low-volume security audit trails).
 | 422         | `MALFORMED_PAYLOAD`       | `DENIED`                 |
 | 429         | `RATE_LIMIT_EXCEEDED`     | `BLOCKED_TEMPORARILY`    |
 
-### Method â†’ audit event mapping
+### Method ➡️ audit event mapping
 
 | Method  | Status | `auditEvent`          |
 |---------|--------|-----------------------|
@@ -848,7 +908,7 @@ only `SECURITY` + `ERROR` for low-volume security audit trails).
 | DELETE  | 2xx    | `RESOURCE_DELETED`    |
 
 The `resource` is inferred from the first URL segment after your `prefix`
-(e.g. `POST /api/users` â†’ `resource: "users"`), and `resourceId` from
+(e.g. `POST /api/users` ➡️ `resource: "users"`), and `resourceId` from
 `req.params.id` when present.
 
 ### File layout
@@ -866,18 +926,18 @@ per day:
   security-logs-2026-04-17.log
 ```
 
-Each line is a single JSON object â€” ready for Filebeat / Fluentd / Vector /
+Each line is a single JSON object — ready for Filebeat / Fluentd / Vector /
 Datadog agent ingestion. The `directory` option accepts both absolute
 (`/var/log/superman`) and relative (`./logs`, `logs`) paths. If the process
 lacks permission to create the directory, the file sink disables itself with a
-single diagnostic and the app keeps running â€” it never crashes your service.
+single diagnostic and the app keeps running — it never crashes your service.
 
 ### Request / Trace IDs
 
 Every incoming request is tagged with a `X-Request-Id` header (generated via
 `crypto.randomUUID()` when absent, honoured when the client supplies one). The
 id is echoed back on the response and attached to every log line for the same
-request â€” so you can trace `REQUEST â†’ RESPONSE â†’ AUDIT â†’ SECURITY â†’ ERROR`
+request — so you can trace `REQUEST ➡️ RESPONSE ➡️ AUDIT ➡️ SECURITY ➡️ ERROR`
 across logs with a single grep. `X-Trace-Id` is also honoured when present
 (falls back to `requestId` otherwise).
 
@@ -911,7 +971,7 @@ The emitter fills in infra fields automatically (`@timestamp`, `appName`,
 
 On `SIGTERM` / `SIGINT` the framework emits a `SYSTEM_SIGNAL_RECEIVED` event,
 runs every module's `destroy()`, and flushes all file streams before calling
-`process.exit(0)` â€” no truncated NDJSON lines on deployment.
+`process.exit(0)` — no truncated NDJSON lines on deployment.
 
 ## MCP Server (AI tools)
 
@@ -976,7 +1036,7 @@ defineController<IPostsService>({
 defineController<ICommentsService>({
   middlewares: [
     requireAuth('bearerAuth'),
-    validatePathParams(PostIdParam),                            // â†’ params: { postId }
+    validatePathParams(PostIdParam),                            // ➡️ params: { postId }
     validateBody(CreateCommentBody),
   ],
   responses: { 201: { schema: CommentResponse } },
@@ -1000,7 +1060,7 @@ defineModule({
 
 ## Exceptions
 
-Throw anywhere in handlers or middleware â€” the framework catches and formats the response.
+Throw anywhere in handlers or middleware — the framework catches and formats the response.
 
 ```typescript
 import { NotFoundException, BadRequestException } from 'superman';
@@ -1053,7 +1113,7 @@ src/
 
 ## NPM Scripts for Consumer Projects
 
-A project consuming `superman` only needs four scripts. The single `start` script covers **development**, **staging**, and **production** because the framework resolves per-env behaviour at runtime via `NODE_ENV` â€” one build, three environments.
+A project consuming `superman` only needs four scripts. The single `start` script covers **development**, **staging**, and **production** because the framework resolves per-env behaviour at runtime via `NODE_ENV` — one build, three environments.
 
 ```jsonc
 {
@@ -1068,7 +1128,7 @@ A project consuming `superman` only needs four scripts. The single `start` scrip
 
 | Script | Command | When to run |
 |--------|---------|-------------|
-| `dev`   | `tsx watch src/server.ts` | Local dev loop â€” TS direct, reload on save |
+| `dev`   | `tsx watch src/server.ts` | Local dev loop — TS direct, reload on save |
 | `build` | `tsc`                     | Compile to `dist/` before deploying |
 | `start` | `node dist/server.js`     | Run the compiled artifact; inherits `NODE_ENV` from the shell / orchestrator |
 | `test`  | `jest`                    | Unit tests (colocation, `*.test.ts`) |
@@ -1076,11 +1136,11 @@ A project consuming `superman` only needs four scripts. The single `start` scrip
 ```bash
 npm run dev                                      # development
 npm run build
-NODE_ENV=staging npm start                       # staging â€” loads environments.staging.endpoints
+NODE_ENV=staging npm start                       # staging — loads environments.staging.endpoints
 NODE_ENV=production LOG_LEVEL=info npm start     # production
 ```
 
-Full explanation â€” why one `start` is enough, why `tsc` (not `tsup`) for consumer apps, Jest + ts-jest setup, and a full example test â€” in [docs/scripts.md](./docs/scripts.md).
+Full explanation — why one `start` is enough, why `tsc` (not `tsup`) for consumer apps, Jest + ts-jest setup, and a full example test — in [docs/scripts.md](./docs/scripts.md).
 
 ## Framework Development
 
