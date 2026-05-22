@@ -1,4 +1,4 @@
-﻿import * as fs from 'fs';
+import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { FileSink } from './file-sink';
@@ -44,13 +44,14 @@ describe('FileSink', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('should create the target directory on first write', () => {
+  it('should create the target directory on first write', async () => {
     // Arrange
     const targetDir = path.join(tmpDir, 'nested', 'logs');
     const sink = new FileSink({ directory: targetDir, now: () => new Date('2026-04-17') });
 
     // Act
     sink.write(makeLog());
+    await sink.close();
 
     // Assert
     expect(fs.existsSync(targetDir)).toBe(true);
@@ -110,7 +111,9 @@ describe('FileSink', () => {
   it('should silently disable itself and not throw when directory creation fails', () => {
     // Arrange
     const onError = jest.fn();
-    const forbidden = '/root/nope-cannot-mkdir-here-probably';
+    const fileAsDir = path.join(tmpDir, 'file.txt');
+    fs.writeFileSync(fileAsDir, 'not a dir');
+    const forbidden = path.join(fileAsDir, 'nope');
     const sink = new FileSink({ directory: forbidden, onError });
 
     // Act & Assert

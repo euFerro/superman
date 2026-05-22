@@ -1,4 +1,4 @@
-﻿import { EventType } from './superman-logger.types';
+import { EventType } from './superman-logger.types';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
@@ -76,7 +76,7 @@ describe('infra-fields app metadata resolution', () => {
     // Arrange & Act
     const fields = runScenario({
       cwd: '/fake/project',
-      existsSync: (p) => p === '/fake/project/package.json',
+      existsSync: (p) => p.replace(/\\/g, '/').endsWith('/fake/project/package.json'),
       readFileSync: () => JSON.stringify({ name: 'pkg-app', version: '1.2.3' }),
     });
 
@@ -89,7 +89,7 @@ describe('infra-fields app metadata resolution', () => {
     // Arrange & Act
     const fields = runScenario({
       cwd: '/fake/project/nested/sub',
-      existsSync: (p) => p === '/fake/project/package.json',
+      existsSync: (p) => p.replace(/\\/g, '/').endsWith('/fake/project/package.json'),
       readFileSync: () => JSON.stringify({ name: 'parent-app', version: '2.0.0' }),
     });
 
