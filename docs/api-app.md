@@ -5,7 +5,7 @@
 The application singleton. No need to instantiate — it's created by the framework.
 
 ```typescript
-import { app } from 'superman';
+import { app } from '@supersec-ai/superman';
 
 // Add global middleware
 app.useMiddleware(cors());
@@ -29,7 +29,7 @@ Two APIs on one singleton.
 Colored console output for developer messages. Controlled by `LOG_LEVEL`.
 
 ```typescript
-import { logger } from 'superman';
+import { logger } from '@supersec-ai/superman';
 
 logger.info('App started', { port: 3000 });
 
@@ -58,7 +58,7 @@ import {
   SecurityEvents, AuthOutcome,
   SystemEvent,    SystemStatus,
   AuditEvents,
-} from 'superman';
+} from '@supersec-ai/superman';
 
 const log = logger.child('Auth');
 

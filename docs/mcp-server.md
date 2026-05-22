@@ -24,7 +24,7 @@ MCP_DESCRIPTION="..."            # default generic message
 ### Via `defineConfig`
 
 ```ts
-import { defineConfig } from 'superman';
+import { defineConfig } from '@supersec-ai/superman';
 
 defineConfig({
   port: { env: 'PORT', default: 3000 },
@@ -52,7 +52,7 @@ Final URL: `POST /api/mcp` (assuming `prefix: '/api'` + default `path: '/mcp'`).
 The framework exports a lazy singleton `mcpServer`. Import it anywhere and call `registerTool(name, config, handler)`:
 
 ```ts
-import { mcpServer } from 'superman';
+import { mcpServer } from '@supersec-ai/superman';
 import { z } from 'zod';
 
 mcpServer.registerTool(

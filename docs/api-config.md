@@ -6,7 +6,7 @@ Registers application configuration. Call once at the top of your entry point.
 
 ```typescript
 import 'dotenv/config';
-import { defineConfig, EventType } from 'superman';
+import { defineConfig, EventType } from '@supersec-ai/superman';
 
 defineConfig({
   port: 3000,                          // static number
@@ -164,7 +164,7 @@ defineConfig({
 
 ```typescript
 import { z, type ZodTypeAny } from 'zod';
-import type { JsonSchema } from 'superman';
+import type { JsonSchema } from '@supersec-ai/superman';
 
 /** Author in Zod, export a JSON Schema that carries the Zod source. */
 export const fromZod = <T extends ZodTypeAny>(zodSchema: T): JsonSchema => ({
@@ -186,7 +186,7 @@ export type CreateUserDto = z.infer<typeof CreateUserZ>;   // single source for 
 ```typescript
 // server.config.ts
 import { z, type ZodTypeAny } from 'zod';
-import { validateJsonSchema } from 'superman';
+import { validateJsonSchema } from '@supersec-ai/superman';
 
 const pickZod = (schema: unknown): ZodTypeAny | undefined =>
   (schema as { 'x-zod'?: ZodTypeAny } | null)?.['x-zod'];
@@ -235,7 +235,7 @@ All `validate*` middlewares delegate to whichever validator you wire in. The fra
 Singleton with resolved configuration. Available after `defineConfig()`.
 
 ```typescript
-import { config } from 'superman';
+import { config } from '@supersec-ai/superman';
 
 config.port                  // number
 config.prefix                // string (e.g. '/api')

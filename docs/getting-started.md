@@ -5,7 +5,7 @@
 ```typescript
 // src/server.config.ts
 import 'dotenv/config'; // side-effect — loads .env into process.env
-import { defineConfig } from 'superman';
+import { defineConfig } from '@supersec-ai/superman';
 
 defineConfig({
   port: { env: 'PORT', default: 3000 },
@@ -46,7 +46,7 @@ Define an interface for the contract and implement it with a plain class. Contro
 
 ```typescript
 // src/modules/users/services/users.services.ts
-import { NotFoundException } from 'superman';
+import { NotFoundException } from '@supersec-ai/superman';
 
 export interface IUsersService {
   findAll(params: PaginationParams): Promise<PaginatedResult<User>>;
@@ -79,7 +79,7 @@ Schemas are written with the framework's chainable builder (`s.*`) — no Zod or
 
 ```typescript
 // src/modules/users/user.schemas.ts
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 
 export const UserResponse = s.object({
   id:    s.string().uuid(),
@@ -108,7 +108,7 @@ import {
   defineController,
   validateBody, validateQuery,
   requireAuth, requireRoles,
-} from 'superman';
+} from '@supersec-ai/superman';
 import type { IUsersService } from '../services/users.service';
 import { UserResponse, CreateUserBody, ListUsersQuery } from '../user.schemas';
 
@@ -154,7 +154,7 @@ The module file is the **composition root** — you instantiate implementations,
 
 ```typescript
 // src/modules/users/users.module.ts
-import { defineModule } from 'superman';
+import { defineModule } from '@supersec-ai/superman';
 import { listUsersController, findUserController, createUserController } from './controllers/users.controllers';
 
 const usersDb = new UsersPostgresDb();
@@ -187,7 +187,7 @@ POST /api/users
 ```typescript
 // src/server.ts
 import './server.config'; // side-effect — runs defineConfig()
-import { app, config, logger } from 'superman';
+import { app, config, logger } from '@supersec-ai/superman';
 
 const log = logger.child('Server');
 

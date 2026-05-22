@@ -97,9 +97,9 @@ Superman isn't reinventing the HTTP wheel—it's **pioneering the AI-Native back
 ## Install
 
 ```bash
-npm install superman       # Node / npm
-bun add superman           # Bun
-# Deno: import from 'npm:superman'
+npm install @supersec-ai/superman       # Node / npm
+bun add @supersec-ai/superman           # Bun
+# Deno: import from 'npm:@supersec-ai/superman'
 ```
 
 Express is a regular dependency and is installed automatically by the package manager. The bundle itself is ~45 KB and ships both CommonJS (`dist/index.js`) and ES Module (`dist/index.mjs`) entries, resolved via the `exports` map.
@@ -109,8 +109,8 @@ Express is a regular dependency and is installed automatically by the package ma
 | Runtime | Minimum version | Notes |
 |---|---|---|
 | Node.js | 20 | Primary target. CI runs here. |
-| Bun | 1.0 | Consumes the ESM entry natively. `bun add superman` just works. |
-| Deno | any recent | Import via `npm:superman`. Deno's npm compatibility layer resolves the package exports map. |
+| Bun | 1.0 | Consumes the ESM entry natively. `bun add @supersec-ai/superman` just works. |
+| Deno | any recent | Import via `npm:@supersec-ai/superman`. Deno's npm compatibility layer resolves the package exports map. |
 
 The framework only uses cross-runtime-safe APIs: `process.env`, `process.stdout/stderr`, `process.on('SIGTERM'|'SIGINT')`, `process.exit`, `os.hostname`, `fs`, `path`. No `__dirname`, no `require.resolve`, no Node-only native modules.
 
@@ -146,7 +146,7 @@ This makes your code testable (swap real implementations for mocks), decoupled (
 ```typescript
 // src/server.config.ts
 import 'dotenv/config'; // side-effect — loads .env into process.env
-import { defineConfig } from 'superman';
+import { defineConfig } from '@supersec-ai/superman';
 
 defineConfig({
   port: { env: 'PORT', default: 3000 },
@@ -197,7 +197,7 @@ Park your module's schemas in a co-located `*.schemas.ts` file using the framewo
 
 ```typescript
 // src/modules/users/user.schemas.ts
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 
 export const UserResponse = s.object({
   id:        s.string().uuid(),
@@ -238,7 +238,7 @@ Define an interface for the contract and implement it with a plain class. Contro
 
 ```typescript
 // src/modules/users/services/users.services.ts
-import { NotFoundException } from 'superman';
+import { NotFoundException } from '@supersec-ai/superman';
 import type { User, CreateUserDto, ListUsersDto } from '../user.schemas';
 
 export interface PaginatedResult<T> { data: T[]; page: number; limit: number; total: number }
@@ -278,7 +278,7 @@ import {
   defineController,
   validateBody, validateQuery, validateHeaders,
   requireAuth, requireRoles,
-} from 'superman';
+} from '@supersec-ai/superman';
 import type { IUsersService } from '../services/users.service';
 import {
   ListUsersQuery, TenancyHeaders, CreateUserBody, UserResponse,
@@ -363,7 +363,7 @@ The module file is the **composition root** — you instantiate implementations,
 
 ```typescript
 // src/modules/users/users.module.ts
-import { defineModule } from 'superman';
+import { defineModule } from '@supersec-ai/superman';
 import { listUsersController, findUserController, createUserController } from './controllers/users.controllers';
 
 const usersDb = new UsersPostgresDb();
@@ -396,7 +396,7 @@ POST /api/users
 ```typescript
 // src/server.ts
 import './server.config'; // side-effect — runs defineConfig()
-import { app, config, logger } from 'superman';
+import { app, config, logger } from '@supersec-ai/superman';
 
 const log = logger.child('Server');
 
@@ -453,7 +453,7 @@ Registers application configuration. Call once at the top of your entry point.
 
 ```typescript
 import 'dotenv/config';
-import { defineConfig } from 'superman';
+import { defineConfig } from '@supersec-ai/superman';
 
 defineConfig({
   port: 3000,                          // static number
@@ -505,7 +505,7 @@ defineConfig({
 Singleton with resolved configuration. Available after `defineConfig()`.
 
 ```typescript
-import { config } from 'superman';
+import { config } from '@supersec-ai/superman';
 
 config.port                  // number
 config.prefix                // string (e.g. '/api')
@@ -529,7 +529,7 @@ import {
   validateContentType,
   requireAuth, requireRoles,
   s,
-} from 'superman';
+} from '@supersec-ai/superman';
 
 const createPostController = defineController<IPostsService>({
   middlewares: [
@@ -614,7 +614,7 @@ responses: {
 Declares a module with routes. The module is queued and registered automatically when `app.listen()` is called. Routes receive built `SupermanController` instances — call your `defineController` factories with the service implementation in the routes array.
 
 ```typescript
-import { defineModule } from 'superman';
+import { defineModule } from '@supersec-ai/superman';
 
 const ordersService = new OrdersService(new OrdersRepository(db));
 
@@ -638,7 +638,7 @@ defineModule({
 The application singleton. No need to instantiate — it's created by the framework.
 
 ```typescript
-import { app } from 'superman';
+import { app } from '@supersec-ai/superman';
 
 // Add global middleware
 app.useMiddleware(cors());
@@ -658,7 +658,7 @@ Two APIs on one singleton:
 Controlled by `LOG_LEVEL`.
 
 ```typescript
-import { logger } from 'superman';
+import { logger } from '@supersec-ai/superman';
 
 logger.info('App started', { port: 3000 });
 
@@ -680,7 +680,7 @@ log.error('Failed', { error: err });
 configured sinks (console + file) and respects `logger.enabledEventTypes`.
 
 ```typescript
-import { logger, SecurityEvents, AuthOutcome, EventSeverity } from 'superman';
+import { logger, SecurityEvents, AuthOutcome, EventSeverity } from '@supersec-ai/superman';
 
 logger.events.security({
   ip: req.ip,
@@ -858,7 +858,7 @@ JSON object that matches one of the `*Log` interfaces in
 ### Enabling
 
 ```typescript
-import { defineConfig, EventType } from 'superman';
+import { defineConfig, EventType } from '@supersec-ai/superman';
 
 defineConfig({
   port: 3000,
@@ -947,7 +947,7 @@ The typed emitter is also available for app-level logs via
 `logger.events.*`:
 
 ```typescript
-import { logger, SecurityEvents, AuthOutcome, EventSeverity } from 'superman';
+import { logger, SecurityEvents, AuthOutcome, EventSeverity } from '@supersec-ai/superman';
 
 const log = logger.child('Auth');
 
@@ -988,7 +988,7 @@ defineConfig({
 Register tools anywhere:
 
 ```ts
-import { mcpServer } from 'superman';
+import { mcpServer } from '@supersec-ai/superman';
 import { z } from 'zod';
 
 mcpServer.registerTool(
@@ -1063,7 +1063,7 @@ defineModule({
 Throw anywhere in handlers or middleware — the framework catches and formats the response.
 
 ```typescript
-import { NotFoundException, BadRequestException } from 'superman';
+import { NotFoundException, BadRequestException } from '@supersec-ai/superman';
 
 throw new NotFoundException('Order not found');
 // -> 404 { "error": "Order not found" }

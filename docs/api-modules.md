@@ -5,7 +5,7 @@
 Declares a module with routes. The module is queued and registered automatically when `app.listen()` is called. Routes receive built `SupermanController` instances — call your `defineController` factories with the service implementation in the routes array.
 
 ```typescript
-import { defineModule, requireAuth } from 'superman';
+import { defineModule, requireAuth } from '@supersec-ai/superman';
 
 const postsService = new PostsService(new PostsRepository(db));
 

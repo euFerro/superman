@@ -7,7 +7,7 @@ Schemas are authored with the framework's built-in **chainable schema builder** 
 3. **TypeScript types** — `Infer<typeof Schema>` extracts the corresponding TS type, so DTOs come from a single source.
 
 ```typescript
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 
 export const CreateUserBody = s.object({
   name:  s.string().min(1).max(100).describe('Full name.'),
@@ -32,7 +32,7 @@ No Zod or any other dep required. The DSL emits plain JSON Schema 2020-12 under 
 ## Factories
 
 ```typescript
-import { s } from 'superman';
+import { s } from '@supersec-ai/superman';
 ```
 
 | Factory | Output type | Chain methods ➡️ JSON Schema keyword |
@@ -73,7 +73,7 @@ Every builder also has these universal chain methods:
 The same schema you pass to a middleware can validate ad-hoc inputs inside a service (queue messages, scheduled jobs, webhook payloads, CLI args). `.parse()` throws the **identical** `BadRequestException` the middleware throws — your exception filter handles both the same way.
 
 ```typescript
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 import { CreateUserBody } from './user.schemas';
 
 export type CreateUserDto = Infer<typeof CreateUserBody>;
@@ -169,7 +169,7 @@ A complete schemas file covering the five standard CRUD operations on a `User` r
 
 ```typescript
 // src/modules/users/user.schemas.ts
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 
 // ----- Domain shape -------------------------------------------------------
 
@@ -278,7 +278,7 @@ A few intentional choices worth flagging:
 Middlewares and controller options accept **either** an `s.*` builder **or** a plain JSON Schema object. Use this for hand-written schemas, generated schemas (typia, `z.toJSONSchema()`), or features the DSL doesn't cover (e.g., `patternProperties`):
 
 ```typescript
-import { validateBody } from 'superman';
+import { validateBody } from '@supersec-ai/superman';
 
 const RawSchema = {
   type: 'object',
@@ -293,7 +293,7 @@ validateBody(RawSchema);
 The `s.raw(...)` factory wraps a raw schema in a builder so it composes with the rest of the DSL:
 
 ```typescript
-import { s } from 'superman';
+import { s } from '@supersec-ai/superman';
 
 const Custom = s.raw({ type: 'string', pattern: '^[A-Z]{3}-\\d{4}$' });
 

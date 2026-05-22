@@ -13,7 +13,7 @@ import {
   validateBody, validateQuery, validateHeaders, validateCookies, validatePathParams,
   validateContentType,
   requireAuth, requireRoles,
-} from 'superman';
+} from '@supersec-ai/superman';
 
 defineController<IPostsService>({
   middlewares: [
@@ -324,7 +324,7 @@ You can write your own middleware that contributes to the spec by attaching an `
 
 ```typescript
 import type { RequestHandler } from 'express';
-import { attachOpenApiMeta, BadRequestException } from 'superman';
+import { attachOpenApiMeta, BadRequestException } from '@supersec-ai/superman';
 
 export const checkIdempotencyKey = (): RequestHandler => {
   const handler: RequestHandler = (req, _res, next) => {

@@ -10,7 +10,7 @@ import {
   s, defineController,
   validateBody, validateQuery, validateHeaders,
   requireAuth, requireRoles,
-} from 'superman';
+} from '@supersec-ai/superman';
 import {
   ListUsersQuery,
   TenancyHeaders,
@@ -74,7 +74,7 @@ Both `ctx.params.id` and `ctx.id` reference the same value. **Precedence on key 
 handler: async ({ params, service }) => service.findById(params.id),
 
 // reply() for status / header / mediaType overrides
-import { reply } from 'superman';
+import { reply } from '@supersec-ai/superman';
 handler: async ({ body, service }) => {
   const order = await service.checkout(body);
   return reply(order, { status: 202, headers: { Location: `/orders/${order.id}` } });
@@ -181,7 +181,7 @@ Park your module's schemas in a co-located file. Use the framework's built-in ch
 
 ```typescript
 // src/modules/users/user.schemas.ts
-import { s, type Infer } from 'superman';
+import { s, type Infer } from '@supersec-ai/superman';
 
 export const ListUsersQuery = s.object({
   page:  s.integer().min(1).default(1).describe('Page number.'),
@@ -369,7 +369,7 @@ Middlewares run after rate limiting and before the handler. If a middleware thro
 Throw anywhere in handlers or middleware — the framework catches and formats the response.
 
 ```typescript
-import { NotFoundException, BadRequestException } from 'superman';
+import { NotFoundException, BadRequestException } from '@supersec-ai/superman';
 
 throw new NotFoundException('Order not found');
 // -> 404 { "error": "Order not found" }

@@ -9,7 +9,7 @@ no application code required.
 ## Enabling
 
 ```typescript
-import { defineConfig, EventType } from 'superman';
+import { defineConfig, EventType } from '@supersec-ai/superman';
 
 defineConfig({
   port: 3000,
@@ -118,7 +118,7 @@ import {
   SecurityEvents, AuthOutcome,
   AuditEvents,
   SystemEvent,    SystemStatus,
-} from 'superman';
+} from '@supersec-ai/superman';
 
 const log = logger.child('Auth');
 

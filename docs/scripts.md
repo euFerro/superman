@@ -115,7 +115,7 @@ Colocate next to the service. NODE_ENV is `test` inside Jest, so the framework l
 
 ```ts
 // src/modules/example/services/example.service.test.ts
-import { BadRequestException, NotFoundException } from 'superman';
+import { BadRequestException, NotFoundException } from '@supersec-ai/superman';
 import { ExampleService } from './example.service';
 
 describe('ExampleService', () => {
