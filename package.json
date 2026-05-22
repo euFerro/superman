@@ -1,5 +1,5 @@
-﻿{
-  "name": "superman",
+{
+  "name": "@supersec-ai/superman",
   "version": "1.0.0",
   "description": "Express backend framework for Superman backend applications",
   "type": "commonjs",
