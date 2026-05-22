@@ -45,7 +45,16 @@
   "dependencies": {
     "express": "^4.21.2"
   },
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": ">=1.29.0"
+  },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.0",

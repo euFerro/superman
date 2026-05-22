@@ -197,3 +197,16 @@ export type {
 export { FRAMEWORK_ERROR_RESPONSE_FORMAT } from './exceptions/error-response-format';
 export type { FrameworkErrorResponseFormat } from './exceptions/error-response-format';
 
+// MCP (Model Context Protocol) integration — see `docs/mcp-server.md`.
+export {
+  mcpServer,
+  McpServer,
+  getMcpToolNames,
+  createMcpController,
+  mcpEndpointDescription,
+  auditMcpRequest,
+  identifyMcpClient,
+} from './mcp';
+export type { JsonRpcBody, McpClientIdentity } from './mcp';
+export type { McpServerOptions, ResolvedMcpServerConfig } from './config/superman-config';
+

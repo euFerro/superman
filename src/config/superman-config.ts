@@ -1,5 +1,6 @@
 ﻿import { EventSeverity, EventType, EventSeverityName, EventTypeName } from '../logger/superman-logger.types';
 import { resolveEnvironment } from './resolve-environment';
+import { APP_NAME, APP_VERSION } from '../logger/infra-fields';
 
 export interface EnvVarDefinition {
   required?: boolean;
@@ -204,6 +205,36 @@ export type SchemaValidator = (
   options?: { coerce?: boolean },
 ) => { valid: boolean; value: unknown; errors: ReadonlyArray<{ path: string; keyword: string; message: string }> };
 
+/**
+ * MCP (Model Context Protocol) server options. When `enabled`, the framework
+ * auto-registers a `POST {prefix}/{path}` route that hosts a JSON-RPC Streamable
+ * HTTP transport. Consumers register tools on the exported `mcpServer` singleton.
+ *
+ * All fields can be overridden by env vars: `MCP_ENABLED`, `MCP_PATH`, `MCP_NAME`,
+ * `MCP_VERSION`, `MCP_DESCRIPTION`. Env always wins.
+ */
+export interface McpServerOptions {
+  /** Master switch. Default: false. Honors env `MCP_ENABLED=true`. */
+  enabled?: boolean;
+  /** Mount path joined with `config.prefix`. Default: `/mcp`. */
+  path?: string;
+  /** Server identity exposed via MCP `initialize`. Defaults to the app's `package.json` name/version. */
+  name?: string;
+  version?: string;
+  description?: string;
+  /** Throttle preset for the MCP route. Default: `'PERMISSIVE'`. */
+  throttle?: import('../throttle/throttle.constants').ThrottlePreset | import('../throttle/throttle.constants').ThrottleConfig;
+}
+
+export interface ResolvedMcpServerConfig {
+  enabled: boolean;
+  path: string;
+  name: string;
+  version: string;
+  description: string;
+  throttle: import('../throttle/throttle.constants').ThrottlePreset | import('../throttle/throttle.constants').ThrottleConfig;
+}
+
 export interface DefineConfigOptions {
   port?: number | { env: string; default: number };
   prefix?: string;
@@ -212,6 +243,7 @@ export interface DefineConfigOptions {
   env?: Record<string, EnvVarDefinition>;
   logger?: LoggerOptions;
   openapi?: OpenApiConfigOptions;
+  mcpServer?: McpServerOptions;
   /** Override the framework's built-in JSON Schema validator with your own (AJV, Zod-adapter, etc.). */
   schemaValidator?: SchemaValidator;
 }
@@ -311,6 +343,35 @@ const resolveDocsEnabled = (configValue: boolean | undefined): boolean => {
   return configValue === true;
 };
 
+const resolveMcpServerConfig = (
+  options: McpServerOptions | undefined,
+  appName: string,
+  appVersion: string,
+): ResolvedMcpServerConfig => {
+  const envEnabled = process.env.MCP_ENABLED;
+  const enabled =
+    envEnabled === 'true' || envEnabled === '1'
+      ? true
+      : envEnabled === 'false' || envEnabled === '0'
+        ? false
+        : options?.enabled === true;
+
+  const rawPath = process.env.MCP_PATH ?? options?.path ?? '/mcp';
+  const path = rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
+
+  return {
+    enabled,
+    path,
+    name: process.env.MCP_NAME ?? options?.name ?? `${appName}-mcp`,
+    version: process.env.MCP_VERSION ?? options?.version ?? appVersion,
+    description:
+      process.env.MCP_DESCRIPTION
+        ?? options?.description
+        ?? 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
+    throttle: options?.throttle ?? 'PERMISSIVE',
+  };
+};
+
 const resolveDocsConfig = (docs: OpenApiDocsOptions | undefined): ResolvedOpenApiDocsConfig => {
   const resolved: ResolvedOpenApiDocsConfig = {
     enabled: resolveDocsEnabled(docs?.enabled),
@@ -352,6 +413,14 @@ export class SupermanConfig {
     security: [],
     auth: {},
     docs: { enabled: false, path: '/docs', exposeInProduction: false },
+  };
+  private _mcpServer: ResolvedMcpServerConfig = {
+    enabled: false,
+    path: '/mcp',
+    name: 'unknown-app-mcp',
+    version: '0.0.0',
+    description: 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
+    throttle: 'PERMISSIVE',
   };
   private _schemaValidator: SchemaValidator | undefined;
 
@@ -402,6 +471,8 @@ export class SupermanConfig {
       ...(options.openapi?.description !== undefined ? { description: options.openapi.description } : {}),
     };
 
+    this._mcpServer = resolveMcpServerConfig(options.mcpServer, APP_NAME, APP_VERSION);
+
     this._schemaValidator = options.schemaValidator;
 
     this._initialized = true;
@@ -423,6 +494,14 @@ export class SupermanConfig {
       auth: {},
       docs: { enabled: false, path: '/docs', exposeInProduction: false },
     };
+    this._mcpServer = {
+      enabled: false,
+      path: '/mcp',
+      name: 'unknown-app-mcp',
+      version: '0.0.0',
+      description: 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
+      throttle: 'PERMISSIVE',
+    };
     this._schemaValidator = undefined;
   }
 
@@ -434,6 +513,7 @@ export class SupermanConfig {
   get environment(): string { return this._environment; }
   get logger(): ResolvedLoggerOptions { return this._logger; }
   get openapi(): ResolvedOpenApiConfig { return this._openapi; }
+  get mcpServer(): ResolvedMcpServerConfig { return this._mcpServer; }
   get schemaValidator(): SchemaValidator | undefined { return this._schemaValidator; }
 
   isProduction(): boolean { return this._environment === 'production'; }

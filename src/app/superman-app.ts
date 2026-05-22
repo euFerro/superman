@@ -5,8 +5,10 @@ import { SupermanModule } from '../core/superman-module';
 import { logger } from '../logger/superman-logger';
 import { config } from '../config/superman-config';
 import { resolveEnvironment } from '../config/resolve-environment';
-import { flushPendingModules } from '../core/define-module';
+import { defineModule, flushPendingModules } from '../core/define-module';
 import type { DefineModuleOptions } from '../core/define-module';
+import { createMcpController, mcpEndpointDescription } from '../mcp/controller';
+import { getMcpToolNames } from '../mcp/server';
 import { SERVER_INSTANCE_UID } from '../logger/infra-fields';
 import { closeLogRuntime } from '../logger/log-runtime';
 import { SystemEvent, SystemStatus, EventSeverity } from '../logger/superman-logger.types';
@@ -115,6 +117,31 @@ export class SupermanApp {
   }
 
   /** Normalize paths to avoid double slashes */
+  /**
+   * If `config.mcpServer.enabled`, queue a synthetic module exposing the
+   * framework's MCP controller at `{prefix}{config.mcpServer.path}`. The
+   * synthetic module is enqueued via `defineModule(...)` so it flows through
+   * the same spec/openapi/throttle pipeline as user-declared modules.
+   */
+  private registerMcpModule(): void {
+    if (!config.isInitialized() || !config.mcpServer.enabled) return;
+
+    const mcp = config.mcpServer;
+    defineModule({
+      name: 'MCP',
+      description: mcp.description,
+      prefix: '',
+      routes: [
+        {
+          method: 'POST',
+          path: mcp.path,
+          controller: createMcpController(mcp.throttle)(undefined),
+          description: mcpEndpointDescription,
+        },
+      ],
+    });
+  }
+
   private normalizePath(path: string): string {
     return path.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
   }
@@ -205,6 +232,8 @@ export class SupermanApp {
   public listen(callback?: () => void): void {
     this.ensureInit();
 
+    this.registerMcpModule();
+
     // Flush all modules queued via defineModule()
     const pending = flushPendingModules();
 
@@ -265,6 +294,13 @@ export class SupermanApp {
       this.modules.forEach(({ prefix, module }) => {
         log.info(`  -> ${module.name} on ${prefix || '/'}`);
       });
+
+      if (config.isInitialized() && config.mcpServer.enabled) {
+        const tools = getMcpToolNames();
+        log.info(`MCP tools    : ${tools.length} registered`);
+        tools.forEach((name) => log.info(`  -> ${name}`));
+      }
+
       log.info('----------------------------------------');
 
       log.events.system({

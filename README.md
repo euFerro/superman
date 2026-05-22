@@ -116,6 +116,16 @@ defineConfig({
     JWT_SECRET: { required: true },
     MY_CUSTOM_ENV_VAR: { default: 'my_custom_env_var' },
   },
+
+  // Optional — see docs/mcp-server.md
+  mcpServer: {
+    enabled: true,                         // also honors `MCP_ENABLED=true`
+    path: '/mcp',                          // mounts at `{prefix}{path}` → `/api/mcp`
+    name: 'my-app-mcp',                    // default `<package.json name>-mcp`
+    version: '0.1.0',                      // default `<package.json version>`
+    description: 'Read-only AI tools for inspecting customer data.',
+    throttle: 'PERMISSIVE',                // preset name or full ThrottleConfig
+  },
 });
 ```
 
@@ -902,6 +912,38 @@ The emitter fills in infra fields automatically (`@timestamp`, `appName`,
 On `SIGTERM` / `SIGINT` the framework emits a `SYSTEM_SIGNAL_RECEIVED` event,
 runs every module's `destroy()`, and flushes all file streams before calling
 `process.exit(0)` â€” no truncated NDJSON lines on deployment.
+
+## MCP Server (AI tools)
+
+The framework can host a [Model Context Protocol](https://modelcontextprotocol.io)
+server alongside the regular HTTP API. Turn it on:
+
+```ts
+defineConfig({
+  // ...
+  mcpServer: { enabled: true }, // or set MCP_ENABLED=true
+});
+```
+
+Register tools anywhere:
+
+```ts
+import { mcpServer } from 'superman';
+import { z } from 'zod';
+
+mcpServer.registerTool(
+  'lookup_customer_by_id',
+  { title: 'Lookup customer', description: 'Fetch a customer by id.',
+    inputSchema: { id: z.string().describe('Customer id') } },
+  async ({ id }) => ({ content: [{ type: 'text', text: await fetch(`/api/customers/${id}`).then(r => r.text()) }] }),
+);
+```
+
+The framework auto-registers `POST {prefix}/mcp` with Streamable HTTP transport,
+audit events (`MCP_SESSION_STARTED` / `MCP_TOOL_EXECUTED`), and an OpenAPI entry.
+Install `@modelcontextprotocol/sdk` in the consumer.
+
+Full guide: [`docs/mcp-server.md`](./docs/mcp-server.md).
 
 ## Rate Limiting
 
