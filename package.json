@@ -36,9 +36,6 @@
   ],
   "author": "Breno de Arruda Ferro",
   "license": "Apache-2.0",
-  "publishConfig": {
-    "registry": "http://gitea.superman.com.br:3080/api/packages/superman/npm/"
-  },
   "files": [
     "dist"
   ],
@@ -64,4 +61,3 @@
     "typescript": "^5.7.2"
   }
 }
-
