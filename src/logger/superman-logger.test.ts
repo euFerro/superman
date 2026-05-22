@@ -155,7 +155,7 @@ describe('SupermanLogger', () => {
       expect(typeof emitter.security).toBe('function');
     });
 
-    it('should stay silent by default (eventDebug defaults to false)', () => {
+    it('should print summary-only for SYSTEM/AUDIT by default (eventDebug=false hides body)', () => {
       // Arrange
       process.env.NODE_ENV = 'development';
       config.reset();
@@ -171,8 +171,12 @@ describe('SupermanLogger', () => {
         systemMessage: 'test',
       });
 
-      // Assert
-      expect(writeSpy).not.toHaveBeenCalled();
+      // Assert — summary line ('[Test|SYSTEM] …') prints; JSON body does not.
+      expect(writeSpy).toHaveBeenCalled();
+      const output = writeSpy.mock.calls.map(([chunk]) => String(chunk)).join('');
+      const stripped = output.replace(/\x1B\[\d+m/g, '');
+      expect(stripped).toContain('[Test|SYSTEM]');
+      expect(stripped).not.toContain('"systemEvent":');
 
       writeSpy.mockRestore();
     }, 1000);

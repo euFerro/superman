@@ -5,10 +5,17 @@ import { formatEventBody, formatEventHeader, formatEventSummary } from './pretty
 export interface ConsoleSinkOptions {
   isProduction: () => boolean;
   /**
-   * When true, typed events emit their pretty JSON body (plus summary for
-   * SYSTEM/AUDIT/SECURITY) on the dev console. When false, the sink stays
-   * silent for all typed events â€” summary lines from the request interceptor
-   * and exception middleware remain. Default: false.
+   * Controls only the structured JSON **body** of typed events on the dev
+   * console.
+   *   - true  -> events that own their summary (SYSTEM, AUDIT) print
+   *             `header + summary + body`; events whose summary already came
+   *             from the request interceptor (REQUEST/RESPONSE/ERROR/SECURITY)
+   *             print body only.
+   *   - false -> SYSTEM/AUDIT still print their `header + summary` line (the
+   *             only place that prints them); REQUEST/RESPONSE/ERROR/SECURITY
+   *             stay silent in the sink (their summary line is still emitted
+   *             by the request interceptor / exception middleware).
+   * Default: false. Production output ignores this flag — full JSON-per-line.
    */
   eventDebug?: boolean;
   stdout?: NodeJS.WritableStream;
@@ -40,8 +47,22 @@ export class ConsoleSink implements ILogSink {
       stream.write(this.toJsonLine(log) + '\n');
       return;
     }
-    if (this.options.eventDebug !== true) return;
-    stream.write(this.toPrettyOutput(log) + '\n');
+    const eventDebug = this.options.eventDebug === true;
+
+    if (BODY_ONLY_EVENTS.has(log.eventType)) {
+      if (!eventDebug) return;
+      stream.write(formatEventBody(log) + '\n');
+      return;
+    }
+
+    const severity = log.eventSeverity ?? EventSeverity.INFO;
+    const header = formatEventHeader(severity, log.context, log.eventType);
+    const summary = formatEventSummary(log);
+    if (eventDebug) {
+      stream.write(`${header} ${summary}\n${formatEventBody(log)}\n`);
+    } else {
+      stream.write(`${header} ${summary}\n`);
+    }
   }
 
   private isErrorLevel(severity?: EventSeverity): boolean {
@@ -52,15 +73,4 @@ export class ConsoleSink implements ILogSink {
     return JSON.stringify(log);
   }
 
-  private toPrettyOutput(log: FullLog): string {
-    const body = formatEventBody(log);
-    // REQUEST/RESPONSE: the request interceptor already emits the summary line.
-    // Emit body only to avoid duplication.
-    if (BODY_ONLY_EVENTS.has(log.eventType)) return body;
-
-    const severity = log.eventSeverity ?? EventSeverity.INFO;
-    const header = formatEventHeader(severity, log.context, log.eventType);
-    const summary = formatEventSummary(log);
-    return `${header} ${summary}\n${body}`;
-  }
 }

@@ -134,16 +134,50 @@ describe('ConsoleSink', () => {
     expect(stripped).toContain('"securityEvent": "UNAUTHORIZED_ACCESS"');
   });
 
-  it('should stay silent for typed events in dev when eventDebug is false (default)', () => {
+  it('should stay silent for body-only events in dev when eventDebug is false (default)', () => {
     // Arrange
     const sink = new ConsoleSink({ isProduction: () => false, stdout, stderr });
 
-    // Act
-    sink.write(makeLog());
+    // Act — REQUEST/RESPONSE/ERROR/SECURITY rely on the request interceptor
+    // for the summary line, so the sink stays silent without eventDebug.
+    sink.write(makeLog({ eventType: EventType.REQUEST }));
+    sink.write(makeLog({ eventType: EventType.RESPONSE }));
+    sink.write(makeLog({ eventType: EventType.ERROR }));
+    sink.write(makeLog({ eventType: EventType.SECURITY }));
 
     // Assert
     expect(readAll(stdout)).toBe('');
     expect(readAll(stderr)).toBe('');
+  });
+
+  it('should print summary-only (no body) for SYSTEM/AUDIT when eventDebug is false', () => {
+    // Arrange
+    const sink = new ConsoleSink({ isProduction: () => false, stdout, stderr });
+
+    // Act
+    sink.write(makeLog({ eventType: EventType.SYSTEM }));
+    sink.write(makeLog({ eventType: EventType.AUDIT }));
+
+    // Assert — header + summary line present, JSON body absent
+    const stripped = readAll(stdout).replace(/\x1B\[\d+m/g, '');
+    expect(stripped).toContain('[App|SYSTEM]');
+    expect(stripped).toContain('[App|AUDIT]');
+    expect(stripped).not.toContain('{\n');
+    expect(stripped).not.toContain('"eventType":');
+  });
+
+  it('should print summary + body for SYSTEM/AUDIT when eventDebug is true', () => {
+    // Arrange
+    const sink = new ConsoleSink({ isProduction: () => false, eventDebug: true, stdout, stderr });
+
+    // Act
+    sink.write(makeLog({ eventType: EventType.AUDIT }));
+
+    // Assert — header+summary line AND a JSON body block must be present
+    const stripped = readAll(stdout).replace(/\x1B\[\d+m/g, '');
+    expect(stripped).toContain('[App|AUDIT]');
+    expect(stripped).toContain('{\n');
+    expect(stripped).toContain('}\n');
   });
 
   it('should write a single JSON line in production', () => {
