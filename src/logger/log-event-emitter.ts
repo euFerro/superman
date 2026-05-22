@@ -18,7 +18,7 @@ export interface LogEventEmitterOptions {
   /** Resolved per-type config. Types absent from the map are dropped. */
   configs: ReadonlyMap<EventType, ResolvedEventConfig>;
   context: string;
-  /** Random source â€” overridable for deterministic sampling tests. */
+  /** Random source - overridable for deterministic sampling tests. */
   rng?: () => number;
 }
 
@@ -134,7 +134,7 @@ const applyPayloadRules = (
     }
 
     // Detach payload fields from caller-owned references before any later
-    // mutation (redaction, etc.) â€” the framework must never mutate values
+    // mutation (redaction, etc.) - the framework must never mutate values
     // owned by the consumer (e.g. req.body, response payloads).
     let resolved: unknown = value;
     if (typeof resolved === 'object' && resolved !== null) {

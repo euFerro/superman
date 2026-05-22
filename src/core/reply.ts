@@ -5,7 +5,7 @@
  * accordingly:
  *
  *   - `mediaType` unset â†’ `res.json(data)` with the chosen status.
- *   - `mediaType` set   â†’ `res.type(mediaType).send(data)` â€” `data` must be
+ *   - `mediaType` set   â†’ `res.type(mediaType).send(data)` - `data` must be
  *                          a string or `Buffer` the user has already
  *                          encoded.
  */

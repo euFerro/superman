@@ -250,7 +250,7 @@ describe('LogEventEmitter', () => {
       context: 'Test',
     });
 
-    // Act â€” INFO request below WARN threshold
+    // Act - INFO request below WARN threshold
     emitter.request({
       ip: '1.1.1.1',
       requestId: 'r1',
@@ -266,7 +266,7 @@ describe('LogEventEmitter', () => {
   });
 
   it('should sample by sampleRate using the supplied rng', () => {
-    // Arrange â€” rng returns 0.9, sampleRate 0.5 â†’ drop (0.9 >= 0.5)
+    // Arrange - rng returns 0.9, sampleRate 0.5 â†’ drop (0.9 >= 0.5)
     const sink = makeSink();
     const emitter = new LogEventEmitter({
       sinks: [sink],
@@ -369,7 +369,7 @@ describe('LogEventEmitter', () => {
   });
 
   it('should apply captureFields recursively at every depth (strict whitelist model)', () => {
-    // Arrange â€” user must whitelist every container key in the path they want to keep
+    // Arrange - user must whitelist every container key in the path they want to keep
     const sink = makeSink();
     const emitter = new LogEventEmitter({
       sinks: [sink],
@@ -390,7 +390,7 @@ describe('LogEventEmitter', () => {
       },
     });
 
-    // Assert â€” `user` is whitelisted, so we recurse; inside, only `id` survives.
+    // Assert - `user` is whitelisted, so we recurse; inside, only `id` survives.
     // `sessionToken` and `email` and `password` are dropped.
     const log = sink.writes[0] as unknown as { metadata: Record<string, unknown> };
     expect(log.metadata).toEqual({ user: { id: 'u1' } });

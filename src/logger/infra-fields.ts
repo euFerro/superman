@@ -39,7 +39,7 @@ const resolveAppMetadata = (): { name: string; version: string } => {
       dir = parent;
     }
   } catch {
-    // logger not yet ready â€” fall through to fallback
+    // logger not yet ready - fall through to fallback
   }
 
   return fallback;

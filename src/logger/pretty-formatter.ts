@@ -56,7 +56,7 @@ export const formatEventSummary = (log: FullLog): string => {
   const l = log as FullLog & Record<string, unknown>;
   switch (log.eventType) {
     case EventType.SYSTEM:
-      return `${l.systemEvent ?? ''} â€” ${l.systemMessage ?? ''}`.trim();
+      return `${l.systemEvent ?? ''} - ${l.systemMessage ?? ''}`.trim();
     case EventType.REQUEST:
       return `${l.method ?? ''} ${l.url ?? ''}`.trim();
     case EventType.RESPONSE: {

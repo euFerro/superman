@@ -4,7 +4,7 @@
  *   - A phantom output type `T` consumed by `Infer<typeof schema>`.
  *
  * `toJsonSchema()` serialises the builder to a plain JSON Schema 2020-12
- * fragment â€” the exact shape consumed by the framework's middlewares and
+ * fragment - the exact shape consumed by the framework's middlewares and
  * OpenAPI emitter. `parse()` / `safeParse()` run the same JSON Schema
  * validator the middlewares use, so the error envelope is identical.
  */
@@ -24,7 +24,7 @@ const cloneJson = (input: JsonSchema): JsonSchema =>
   JSON.parse(JSON.stringify(input)) as JsonSchema;
 
 export abstract class Schema<T = unknown> {
-  /** Phantom output type â€” consumed by {@link Infer}. */
+  /** Phantom output type - consumed by {@link Infer}. */
   readonly _output!: T;
   /** True when {@link Schema.optional} was applied. */
   readonly _isOptional: boolean;
@@ -444,7 +444,7 @@ export class RawSchema<T = unknown> extends Schema<T> {
 
 /**
  * Extract the inferred TypeScript type from a `Schema<T>` builder. Raw
- * `JsonSchema` inputs resolve to `unknown` â€” the framework's runtime
+ * `JsonSchema` inputs resolve to `unknown` - the framework's runtime
  * validator still runs, but TypeScript can't see the schema's shape.
  */
 export type Infer<T> = T extends Schema<infer U> ? U : unknown;

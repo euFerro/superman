@@ -48,7 +48,7 @@ describe('ConsoleSink', () => {
     const body = bodyLines.join('\n');
     expect(summaryLine).toContain('[App|SYSTEM]');
     expect(summaryLine).toMatch(/^\d{2}:\d{2}:\d{2}\.\d{3} /);
-    expect(summaryLine).toContain('SERVICE_STARTED â€” started');
+    expect(summaryLine).toContain('SERVICE_STARTED - started');
     expect(body.startsWith('{\n')).toBe(true);
     expect(body).toContain('"systemEvent": "SERVICE_STARTED"');
     expect(body).toContain('"systemStatus": "ONLINE"');
@@ -66,7 +66,7 @@ describe('ConsoleSink', () => {
     // Act
     sink.write(log);
 
-    // Assert â€” summary line is emitted by the request interceptor, not the sink
+    // Assert - summary line is emitted by the request interceptor, not the sink
     const stripped = readAll(stdout).replace(/\x1B\[\d+m/g, '');
     expect(stripped).not.toContain('[App|REQUEST]');
     expect(stripped.startsWith('{\n')).toBe(true);
@@ -87,7 +87,7 @@ describe('ConsoleSink', () => {
     // Act
     sink.write(log);
 
-    // Assert â€” summary line is emitted by global-exception middleware (log.error), not by the sink
+    // Assert - summary line is emitted by global-exception middleware (log.error), not by the sink
     const stripped = readAll(stderr).replace(/\x1B\[\d+m/g, '');
     expect(stripped).not.toContain('[App|ERROR]');
     expect(stripped.startsWith('{\n')).toBe(true);
@@ -127,7 +127,7 @@ describe('ConsoleSink', () => {
     // Act
     sink.write(log);
 
-    // Assert â€” summary line is emitted by the request interceptor, not the sink
+    // Assert - summary line is emitted by the request interceptor, not the sink
     const stripped = readAll(stdout).replace(/\x1B\[\d+m/g, '');
     expect(stripped).not.toContain('[App|SECURITY]');
     expect(stripped.startsWith('{\n')).toBe(true);

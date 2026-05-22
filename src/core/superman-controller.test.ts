@@ -279,7 +279,7 @@ describe('SupermanController', () => {
     }, 1000);
   });
 
-  describe('context handler â€” return-value writing', () => {
+  describe('context handler - return-value writing', () => {
     it('should write a returned plain object as JSON with status 200 by default', async () => {
       // Arrange
       const handler = async () => ({ id: 1, name: 'Ada' });
@@ -338,7 +338,7 @@ describe('SupermanController', () => {
       // Act
       await controller.handler(req, res);
 
-      // Assert â€” only the rate-limit header is set; status/json are not called
+      // Assert - only the rate-limit header is set; status/json are not called
       expect(res.status).not.toHaveBeenCalled();
       expect(res.json).not.toHaveBeenCalled();
     }, 1000);
@@ -469,7 +469,7 @@ describe('SupermanController', () => {
       const captured: { ctx?: Record<string, unknown> } = {};
       const controller = new SupermanController(captureCtx(captured) as unknown as (ctx: unknown) => unknown);
       const req = makeReq({
-        body:   { id: 'body-id' },
+        body: { id: 'body-id' },
         params: { id: 'param-id' },
       } as unknown as Partial<Request>);
 
@@ -508,7 +508,7 @@ describe('SupermanController', () => {
       // Act
       await controller.handler(req, makeRes());
 
-      // Assert â€” user stays structural; `id`/`roles` do NOT appear at the root
+      // Assert - user stays structural; `id`/`roles` do NOT appear at the root
       expect(captured.ctx?.user).toEqual(principal);
       expect(captured.ctx?.id).toBeUndefined();
       expect(captured.ctx?.roles).toBeUndefined();
@@ -519,7 +519,7 @@ describe('SupermanController', () => {
       const captured: { ctx?: Record<string, unknown> } = {};
       const controller = new SupermanController(captureCtx(captured) as unknown as (ctx: unknown) => unknown);
       const req = makeReq({
-        body:  { page: 'from-body' },
+        body: { page: 'from-body' },
         query: { page: 'from-query' },
       } as unknown as Partial<Request>);
 

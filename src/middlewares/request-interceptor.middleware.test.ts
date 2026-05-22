@@ -66,7 +66,7 @@ describe('requestInterceptorMiddleware', () => {
     resetLogRuntime();
 
     // Spy on the events namespace of the logger instance used by the middleware
-    // The middleware creates `logger.child('HTTP')` â€” since child() creates new
+    // The middleware creates `logger.child('HTTP')` - since child() creates new
     // instances, stub at the emitter prototype level instead.
     const emitter = hub.events;
     requestSpy = jest.spyOn(emitter.constructor.prototype, 'request').mockImplementation(() => {});

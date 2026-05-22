@@ -66,7 +66,7 @@ export interface BuildOpenApiInput {
   securitySchemes?: Record<string, Record<string, unknown>>;
   /** Default per-operation security requirement when a route has none. */
   defaultSecurity?: ReadonlyArray<SecurityRequirement>;
-  /** Top-level API description â€” surfaced as `info.description` (renders on the docs UI landing page). */
+  /** Top-level API description - surfaced as `info.description` (renders on the docs UI landing page). */
   description?: string;
 }
 
@@ -136,7 +136,7 @@ const DEFAULT_CONTENT_TYPE = 'application/json';
 const METHODS_WITHOUT_BODY: ReadonlySet<string> = new Set(['get', 'head', 'delete', 'options']);
 
 const FRAMEWORK_AUTO_ERROR_STATUSES: ReadonlyArray<{ code: number; description: string }> = [
-  { code: 429, description: 'Rate limit exceeded â€” too many requests.' },
+  { code: 429, description: 'Rate limit exceeded - too many requests.' },
   { code: 500, description: 'Internal server error.' },
 ];
 

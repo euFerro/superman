@@ -181,7 +181,7 @@ export class SupermanApp {
   /**
    * Registers the `/spec` and (optionally) `/docs` global routes against the Express app
    * using the modules already known to `this.moduleSpecs`. Idempotent only at the listen()
-   * boundary â€” calling more than once would attach duplicate handlers.
+   * boundary - calling more than once would attach duplicate handlers.
    */
   public installOpenApiRoutes(): void {
     const globalPrefix = config.isInitialized() ? config.prefix : '';

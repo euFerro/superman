@@ -30,7 +30,7 @@ const startServer = (app: SupermanApp): Promise<{ port: number; close: () => Pro
     });
   });
 
-describe('SupermanApp â€” /docs route', () => {
+describe('SupermanApp - /docs route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     config.reset();

@@ -20,7 +20,7 @@ export type {
 export { logger, SupermanLogger } from './logger/superman-logger';
 export { LogEventEmitter } from './logger/log-event-emitter';
 
-// Logger types â€” enums for typed event logging
+// Logger types - enums for typed event logging
 export {
   LogIndexSuffix,
   EventType,
@@ -35,13 +35,13 @@ export {
   AuthOutcome,
 } from './logger/superman-logger.types';
 
-// Logger types â€” string-literal aliases for use in user-facing config
+// Logger types - string-literal aliases for use in user-facing config
 export type {
   EventTypeName,
   EventSeverityName,
 } from './logger/superman-logger.types';
 
-// Logger types â€” log interfaces
+// Logger types - log interfaces
 export type {
   BaseLog,
   SystemLog,
@@ -52,7 +52,7 @@ export type {
   SecurityLog,
 } from './logger/superman-logger.types';
 
-// Logger types â€” builder input shapes
+// Logger types - builder input shapes
 export type {
   SystemLogInput,
   RequestLogInput,
@@ -173,7 +173,7 @@ export type {
 } from './schema/builder';
 export type { SchemaLike } from './core/superman-controller';
 
-// Middlewares â€” runtime validation + OpenAPI auto-documentation
+// Middlewares - runtime validation + OpenAPI auto-documentation
 export { validateBody } from './middlewares/validation/validate-body';
 export { validateQuery } from './middlewares/validation/validate-query';
 export { validateHeaders } from './middlewares/validation/validate-headers';
@@ -181,7 +181,7 @@ export { validateCookies } from './middlewares/validation/validate-cookies';
 export { validatePathParams } from './middlewares/validation/validate-path-params';
 export { validateContentType } from './middlewares/validation/validate-content-type';
 
-// Middlewares â€” auth + authorization
+// Middlewares - auth + authorization
 export { requireAuth } from './middlewares/auth/require-auth';
 export type { RequireAuthOptions } from './middlewares/auth/require-auth';
 export { requireRoles, authorize } from './middlewares/auth/require-roles';

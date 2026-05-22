@@ -2,7 +2,7 @@
  * Internal factory that wires a JSON Schema validator into an Express
  * middleware and attaches OpenAPI documentation metadata.
  *
- * Each validate* middleware is a thin shell around this â€” they all share
+ * Each validate* middleware is a thin shell around this - they all share
  * the same error envelope (`BadRequestException` with `metadata.errors`)
  * and the same auto-injected `400` response.
  */
@@ -62,7 +62,7 @@ const writeValue = (req: Request, kind: OpenApiMiddlewareKind, value: unknown): 
       return;
     case 'headers':
       // Headers are case-insensitive and lowercase by the time Node parses
-      // them. Don't rewrite â€” coercion result is reported via the validator
+      // them. Don't rewrite - coercion result is reported via the validator
       // result but the original headers stay intact for downstream code.
       return;
     case 'cookies':

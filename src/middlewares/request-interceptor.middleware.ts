@@ -63,7 +63,7 @@ export function requestInterceptorMiddleware(req: Request, res: Response, next: 
   });
 
   // Emit REQUEST log after the request stream is fully consumed (so any body
-  // parser has populated req.body) but before the route handler runs â€” keeps
+  // parser has populated req.body) but before the route handler runs - keeps
   // it isolated from response timing/hangs. setImmediate defers past body
   // parser's microtask that sets req.body.
   let requestEmitted = false;

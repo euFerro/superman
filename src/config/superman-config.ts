@@ -34,7 +34,7 @@ export interface LoggerConsoleOutputOptions {
  * defaults so users can opt into richer control gradually.
  */
 export interface EventConfig {
-  /** Required event type. Use the string literal â€” `'SYSTEM' | 'ERROR' | ...`. */
+  /** Required event type. Use the string literal - `'SYSTEM' | 'ERROR' | ...`. */
   type: EventTypeName;
 
   /**
@@ -70,7 +70,7 @@ export interface EventConfig {
    * `requestBody`, `query`, `changes`). When non-empty, **only** the listed
    * keys survive at any nesting depth inside those payload objects; every
    * other key is stripped before sinks see the log. Top-level log fields
-   * (`@timestamp`, `eventType`, `requestId`, etc.) are not affected â€” the log
+   * (`@timestamp`, `eventType`, `requestId`, etc.) are not affected - the log
    * line stays parseable. Applied before `redactFields`. Default: `[]`
    * (no whitelist; all keys captured).
    *
@@ -159,7 +159,7 @@ export interface OpenApiDocsOptions {
   title?: string;
   /** Forwarded to the default Scalar configuration. */
   theme?: string;
-  /** Plug-in a custom HTML renderer (Pug/EJS/Handlebars/etc.) â€” fully replaces the default Scalar page. */
+  /** Plug-in a custom HTML renderer (Pug/EJS/Handlebars/etc.) - fully replaces the default Scalar page. */
   template?: DocsTemplateFn;
   /**
    * Allow serving the docs UI when `config.environment === 'production'`. Defaults to `false`:
@@ -185,7 +185,7 @@ export interface OpenApiConfigOptions {
   security?: ReadonlyArray<Record<string, ReadonlyArray<string>>>;
   /** Verifier function per security-scheme name. `requireAuth('foo')` looks the verifier up here. */
   auth?: Record<string, AuthVerifier>;
-  /** Top-level API description â€” surfaced as `info.description` and rendered on the docs UI landing page. Supports CommonMark. */
+  /** Top-level API description - surfaced as `info.description` and rendered on the docs UI landing page. Supports CommonMark. */
   description?: string;
   /** Built-in interactive docs UI configuration. Off by default. */
   docs?: OpenApiDocsOptions;

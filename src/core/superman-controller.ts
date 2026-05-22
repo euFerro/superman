@@ -10,14 +10,14 @@ export type RouteHandler = (req: Request, res: Response) => Promise<void> | void
 
 /**
  * Permissive structural type for a JSON Schema 2020-12 object. The framework
- * intentionally does not ship a Zod/JSON-Schema dependency â€” callers convert
+ * intentionally does not ship a Zod/JSON-Schema dependency - callers convert
  * their schemas (e.g. `z.toJSONSchema(MySchema)`) and pass the result here.
  */
 export type JsonSchema = Record<string, unknown>;
 
 /**
  * Structural shape matching a schema-builder instance (`Schema<T>` from
- * `src/schema/builder.ts`). Defined locally to avoid a circular import â€”
+ * `src/schema/builder.ts`). Defined locally to avoid a circular import -
  * any object that exposes a `toJsonSchema()` method is accepted.
  */
 export interface SchemaLike {
@@ -111,14 +111,14 @@ export interface ErrorResponseDefinition {
 }
 
 /**
- * OpenAPI Security Scheme object â€” passthrough. Examples:
+ * OpenAPI Security Scheme object - passthrough. Examples:
  *   { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
  *   { type: 'apiKey', in: 'header', name: 'X-API-Key' }
  */
 export type SecuritySchemeDefinition = Record<string, unknown>;
 
 /**
- * OpenAPI Security Requirement â€” `Array<Record<schemeName, scopes[]>>`.
+ * OpenAPI Security Requirement - `Array<Record<schemeName, scopes[]>>`.
  * Empty scope array means "any scope is acceptable" (typical for bearer/apiKey).
  */
 export type SecurityRequirement = Record<string, ReadonlyArray<string>>;
@@ -129,7 +129,7 @@ export interface ControllerOptions {
   /**
    * Express middlewares to run after rate limiting and before the handler.
    * Framework-provided middlewares (`validateBody`, `validateQuery`,
-   * `requireAuth`, `requireRoles`, â€¦) self-document â€” their schemas and
+   * `requireAuth`, `requireRoles`, â€¦) self-document - their schemas and
    * thrown statuses are surfaced in the auto-generated OpenAPI spec
    * automatically. User-defined middlewares run normally but don't appear
    * in the spec.
@@ -337,7 +337,7 @@ const pickSuccessStatus = (responses: Record<number, ResponseDefinition> | undef
 };
 
 /**
- * Structural keys the context always exposes â€” these are never overwritten
+ * Structural keys the context always exposes - these are never overwritten
  * by a flattened source even if a body/params/query/etc. schema has a
  * field with the same name.
  */
@@ -359,7 +359,7 @@ const buildContext = (req: Request, res: Response, service: unknown): Record<str
     user:    (req as Request & { user?: unknown }).user,
   };
 
-  // Spread leaf properties at the root in precedence order â€” later writes
+  // Spread leaf properties at the root in precedence order - later writes
   // win, so params shadows body, body shadows query, etc. Reserved
   // structural keys are never overwritten.
   const sources: unknown[] = [ctx.cookies, ctx.headers, ctx.query, ctx.body, ctx.params];

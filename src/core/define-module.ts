@@ -15,7 +15,7 @@ export interface DefineModuleOptions {
   name: string;
   prefix: string;
   routes: RouteDefinition[];
-  /** Module-level description. Surfaced as the OpenAPI tag's `description` â€” the docs UI renders it above the operations list. */
+  /** Module-level description. Surfaced as the OpenAPI tag's `description` - the docs UI renders it above the operations list. */
   description?: string;
   /** Express middlewares applied to all routes in this module */
   middlewares?: ReadonlyArray<RequestHandler>;
@@ -23,7 +23,7 @@ export interface DefineModuleOptions {
   destroy?: () => Promise<void> | void;
 }
 
-/** Internal queue â€” flushed by SupermanApp.listen() */
+/** Internal queue - flushed by SupermanApp.listen() */
 const pendingModules: DefineModuleOptions[] = [];
 
 /** Returns and clears the pending module queue. Called by SupermanApp.listen(). */
@@ -37,7 +37,7 @@ export const flushPendingModules = (): DefineModuleOptions[] => {
  * Declares a module with declarative route definitions.
  * The module is queued and registered automatically when app.listen() is called.
  *
- * Synchronous â€” no await needed. Same pattern as defineConfig.
+ * Synchronous - no await needed. Same pattern as defineConfig.
  */
 export const defineModule = (options: DefineModuleOptions): void => {
   pendingModules.push(options);

@@ -6,7 +6,7 @@ import type { HandlerContextOf } from '../middlewares/typed-handler';
 
 /**
  * Legacy positional handler: `(req, res, service) => void`. Returning a
- * value is ignored â€” the handler is expected to call `res.json(...)` (or
+ * value is ignored - the handler is expected to call `res.json(...)` (or
  * similar) itself. Kept for back-compat; arity detection in `SupermanController`
  * routes legacy handlers through unchanged.
  */
@@ -18,7 +18,7 @@ export type LegacyHandler<TService> = (
 
 /**
  * Object-argument typed handler. The context type is derived from the
- * `middlewares` tuple â€” each `validate*` / `requireAuth` middleware brands
+ * `middlewares` tuple - each `validate*` / `requireAuth` middleware brands
  * its slot, and `HandlerContextOf<MWs>` assembles them into a single
  * `{ body, query, params, headers, cookies, user }` object.
  *
