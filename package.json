@@ -1,6 +1,6 @@
 {
   "name": "@supersec-ai/superman",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Express backend framework for Superman backend applications",
   "type": "commonjs",
   "main": "dist/index.js",
@@ -42,11 +42,9 @@
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "express": "^4.21.2"
-  },
   "peerDependencies": {
-    "@modelcontextprotocol/sdk": ">=1.29.0"
+    "@modelcontextprotocol/sdk": ">=1.29.0",
+    "express": ">=4.17.0"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
@@ -58,6 +56,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.0",
+    "express": "^4.21.2",
     "jest": "^30.3.0",
     "ts-jest": "^29.4.9",
     "tsup": "^8.0.0",
