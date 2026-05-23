@@ -2,7 +2,7 @@
 
 This framework was designed with the future of AI-assisted development in mind. As AI becomes a core part of how we build and maintain software, codebases need to be **readable, predictable, and consistent** — not just for humans, but for AI agents too.
 
-Traditional Express apps scatter configuration, routing, error handling, logging, and rate limiting across dozens of files with imperative patterns that are hard to parse and reason about. This framework replaces all of that with a small set of declarative functions (`defineConfig`, `defineController`, `defineModule`) that make the entire application structure explicit and self-documenting.
+Traditional frameworks apps scatter configuration, routing, error handling, logging, and rate limiting across dozens of files with imperative patterns that are hard to parse and reason about. This framework replaces all of that with a small set of declarative functions (`defineConfig`, `defineController`, `defineModule`) that make the entire application structure explicit and self-documenting.
 
 ![Console Logs](/image.png)
 

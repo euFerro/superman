@@ -11,11 +11,14 @@ hero:
     alt: Superman Logo
   actions:
     - theme: brand
-      text: Get Started
+      text: What is Superman?
       link: /introduction
     - theme: alt
-      text: View API Docs
-      link: /api-summary
+      text: Quickstart
+      link: /getting-started
+    - theme: alt
+      text: GitHub
+      link: https://github.com/euFerro/superman
 
 features:
   - title: 🧩 Absolute Consistency

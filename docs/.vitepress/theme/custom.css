@@ -34,3 +34,14 @@
   background: -webkit-linear-gradient(120deg, rgba(255, 65, 86, 0.4) 30%, rgba(42, 97, 214, 0.4));
   filter: blur(50px);
 }
+
+/* Make the primary (Get Started) button blue instead of pink */
+.VPHero .VPButton.brand {
+  background-color: #2a61d6 !important;
+  border-color: #2a61d6 !important;
+}
+
+.VPHero .VPButton.brand:hover {
+  background-color: #1e48a1 !important;
+  border-color: #1e48a1 !important;
+}
