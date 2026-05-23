@@ -43,10 +43,10 @@
   ],
   "author": "Breno de Arruda Ferro",
   "license": "MIT",
-  "homepage": "https://euferro.github.io/superman/",
+  "homepage": "https://supersec-ai.github.io/superman/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/euFerro/superman.git"
+    "url": "https://github.com/supersec-ai/superman.git"
   },
   "files": [
     "dist"

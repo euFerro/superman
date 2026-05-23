@@ -1,13 +1,13 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/euFerro/superman/main/assets/superman-logo.png" alt="Superman Logo" width="180" />
+  <img src="https://raw.githubusercontent.com/supersec-ai/superman/main/assets/superman-logo.png" alt="Superman Logo" width="180" />
 
   <h1><span style="font-weight: 600">Superman</span></h1>
 
   <p><strong>The Web backend framework built for the era of AI-assisted development.</strong></p>
 
   <p>
-    <a href="https://euferro.github.io/superman/">Website</a> •
-    <a href="https://euferro.github.io/superman/introduction.html">Docs</a> •
+    <a href="https://supersec-ai.github.io/superman/">Website</a> •
+    <a href="https://supersec-ai.github.io/superman/introduction.html">Docs</a> •
     <a href="https://brenoaferro.carrd.co">Author</a>
   </p>
 
@@ -34,7 +34,7 @@ Simply define your configuration, controllers, and modules—**Superman handles 
 | 📝 **Structured Event Logging** | Six categories of typed JSON logs (System, Request, Response, Error, Audit, Security). | Comprehensive observability and logging without boilerplate. |
 | ⚡ **Cross-Runtime Support** | Runs on Node.js (Primary), Bun (Native ESM), and Deno with zero native dependencies. | Deploy anywhere with maximum performance. |...
 
-![Console Logs](https://raw.githubusercontent.com/euFerro/superman/main/assets/image.png)
+![Console Logs](https://raw.githubusercontent.com/supersec-ai/superman/main/assets/image.png)
 
 ## Introduction
 

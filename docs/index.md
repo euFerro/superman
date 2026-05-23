@@ -18,7 +18,7 @@ hero:
       link: /getting-started
     - theme: alt
       text: GitHub
-      link: https://github.com/euFerro/superman
+      link: https://github.com/supersec-ai/superman
 
 features:
   - title: 🧩 Absolute Consistency
