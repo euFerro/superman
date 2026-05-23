@@ -1,4 +1,4 @@
-﻿import type { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import {
   AuditEvents,
   AuditLog,
@@ -16,6 +16,7 @@ import {
   SystemStatus,
 } from './superman-logger.types';
 import { HttpException } from '../exceptions/http.exception';
+import { config } from '../config/superman-config';
 
 type InfraFields =
   | '@timestamp'
@@ -184,10 +185,67 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
   const auditEvent = mapMethodToAuditEvent(req.method, res.statusCode);
   if (!auditEvent) return null;
 
-  const resource = extractResource(req.originalUrl, prefix);
-  const resourceId = (req.params?.id as string | undefined) ?? undefined;
+  let resource = extractResource(req.originalUrl, prefix);
+  let resourceId = (req.params?.id as string | undefined) ?? undefined;
+
+  // Attempt dynamic extraction if config is loaded
+  if (config.isInitialized()) {
+    const patterns = config.logger.events.audit.resourceIdPatterns;
+    const sources = [req.params, req.body, req.query];
+    let found = false;
+
+    for (const source of sources) {
+      if (!source || typeof source !== 'object') continue;
+      
+      for (const [key, value] of Object.entries(source)) {
+        if (typeof value !== 'string') continue;
+
+        for (const pattern of patterns) {
+          const lowerKey = key.toLowerCase();
+          const lowerPattern = pattern.toLowerCase();
+          
+          // To prevent short patterns like 'id' from matching 'hidden' or 'width',
+          // we require token matches for short strings, but allow broad includes for longer ones.
+          const isTokenMatch = key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().split(/[-_]+/).includes(lowerPattern);
+          const isMatch = pattern.length > 3 ? lowerKey.includes(lowerPattern) : isTokenMatch;
+
+          if (isMatch) {
+            resourceId = value;
+            const stripped = key.replace(new RegExp(pattern, 'i'), '').replace(/^[-_]+|[-_]+$/g, '');
+            if (stripped.length > 0) {
+              resource = stripped;
+            }
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+  }
+
   const userId = (res.locals?.userId as string | undefined) ?? undefined;
   const userRoles = (res.locals?.userRoles as string[] | undefined) ?? [];
+
+  let changes: Record<string, { before?: unknown; after?: unknown }> | undefined = undefined;
+
+  if (req.method.toUpperCase() !== 'DELETE') {
+    let payloadToLog: unknown = undefined;
+    if (res.locals && typeof res.locals.__responseBody === 'object' && res.locals.__responseBody !== null) {
+      payloadToLog = res.locals.__responseBody;
+    } else if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
+      payloadToLog = req.body;
+    }
+
+    if (payloadToLog) {
+      changes = {
+        payload: {
+          after: payloadToLog,
+        },
+      };
+    }
+  }
 
   return {
     requestId,
@@ -198,6 +256,7 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
     auditMessage: `${auditEvent} on resource "${resource}"${resourceId ? ` (id=${resourceId})` : ''}`,
     resource,
     resourceId,
+    changes,
   };
 };
 

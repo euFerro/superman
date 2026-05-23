@@ -36,7 +36,9 @@ export default withMermaid(defineConfig({
       {
         text: 'Security',
         items: [
-          { text: 'Overview', link: '/security' }
+          { text: 'Overview', link: '/security/overview' },
+          { text: 'Middlewares', link: '/security/middlewares' },
+          { text: 'Logging & Events', link: '/security/events' }
         ]
       },
       {

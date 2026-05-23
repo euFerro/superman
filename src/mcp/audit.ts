@@ -2,6 +2,7 @@ import type { Request } from 'express';
 
 import { logger } from '../logger/superman-logger';
 import { AuditEvents, EventSeverity } from '../logger/superman-logger.types';
+import { config } from '../config/superman-config';
 
 import { identifyMcpClient } from './identity';
 import type { JsonRpcBody } from './types';
@@ -18,8 +19,8 @@ const log = logger.child('Mcp');
  * Even though StreamableHTTPServerTransport handles a single HTTP connection,
  * tracking when the `initialize` request closes allows us to bookend the session.
  *
- * The `resourceId` is best-effort: if the tool argument carries a `codCliente`
- * or `cpfOuCnpj` string, it's surfaced for log filtering. Add your own
+ * The `resourceId` is best-effort: if the tool argument carries a `userId`
+ * or `customerId` string, it's surfaced for log filtering. Add your own
  * conventions by post-processing in your log sink.
  */
 export const auditMcpRequest = (req: Request): void => {
@@ -44,12 +45,37 @@ export const auditMcpRequest = (req: Request): void => {
 
   const toolName = body.params?.name ?? 'unknown';
   const args = body.params?.arguments ?? {};
-  const resourceId =
-    typeof args['codCliente'] === 'string'
-      ? (args['codCliente'] as string)
-      : typeof args['cpfOuCnpj'] === 'string'
-        ? (args['cpfOuCnpj'] as string)
-        : undefined;
+  let resourceId: string | undefined;
+
+  if (config.isInitialized()) {
+    const patterns = config.logger.events.audit.resourceIdPatterns;
+    let found = false;
+    for (const [key, value] of Object.entries(args)) {
+      if (typeof value !== 'string') continue;
+      
+      for (const pattern of patterns) {
+        const lowerKey = key.toLowerCase();
+        const lowerPattern = pattern.toLowerCase();
+        
+        const isTokenMatch = key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().split(/[-_]+/).includes(lowerPattern);
+        const isMatch = pattern.length > 3 ? lowerKey.includes(lowerPattern) : isTokenMatch;
+
+        if (isMatch) {
+          resourceId = value;
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+  } else {
+    resourceId =
+      typeof args['userId'] === 'string'
+        ? (args['userId'] as string)
+        : typeof args['customerId'] === 'string'
+          ? (args['customerId'] as string)
+          : undefined;
+  }
 
   log.events.audit({
     auditEvent: AuditEvents.MCP_TOOL_EXECUTED,

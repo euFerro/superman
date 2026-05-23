@@ -1,4 +1,4 @@
-﻿// App (singleton)
+// App (singleton)
 export { app } from './app/superman-app';
 
 // Config
@@ -28,7 +28,6 @@ export {
   SystemEvent,
   SystemStatus,
   ErrorType,
-  BusinessErrorCode,
   AuditEvents,
   SecurityEvents,
   SecuritySeverity,

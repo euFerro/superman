@@ -1,4 +1,4 @@
-﻿import { config, ResolvedEventConfig, ResolvedLoggerOptions } from '../config/superman-config';
+import { config, ResolvedEventConfig, ResolvedLoggerOptions } from '../config/superman-config';
 import { resolveEnvironment } from '../config/resolve-environment';
 import { EventType, EventSeverity } from './superman-logger.types';
 import { ConsoleSink } from './console-sink';
@@ -29,7 +29,11 @@ const fallbackLoggerOptions = (): ResolvedLoggerOptions => {
   return {
     fileOutput: { enabled: false, directory: '/var/log/superman' },
     consoleOutput: { enabled: true, eventDebug: false },
-    events: { enabled: true, byType },
+    events: { 
+      enabled: true, 
+      byType,
+      audit: { resourceIdPatterns: ['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token'] },
+    },
   };
 };
 

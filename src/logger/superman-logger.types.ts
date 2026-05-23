@@ -110,9 +110,7 @@ export enum ErrorType {
     UNKNOWN_EXCEPTION = 'UNKNOWN_EXCEPTION',
 }
 
-export enum BusinessErrorCode {
-    GENERIC = 'GENERIC',
-}
+
 
 export interface ErrorLog extends BaseLog {
     readonly eventType: EventType.ERROR;
@@ -124,7 +122,6 @@ export interface ErrorLog extends BaseLog {
 
     errorMessage: string;
     stackTrace?: string;
-    businessErrorCode?: BusinessErrorCode;
 }
 
 // -- NETWORK EVENTS -------------------------------------------------------------

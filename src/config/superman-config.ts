@@ -1,4 +1,4 @@
-﻿import { EventSeverity, EventType, EventSeverityName, EventTypeName } from '../logger/superman-logger.types';
+import { EventSeverity, EventType, EventSeverityName, EventTypeName } from '../logger/superman-logger.types';
 import { resolveEnvironment } from './resolve-environment';
 import { APP_NAME, APP_VERSION } from '../logger/infra-fields';
 
@@ -103,6 +103,18 @@ export interface EventsConfig {
    * event types are emitted with default options.
    */
   include?: EventConfig[];
+  /** Audit-specific logging configuration. */
+  audit?: AuditLoggerOptions;
+}
+
+export interface AuditLoggerOptions {
+  /**
+   * Patterns (case-insensitive) used to dynamically identify resource IDs in request payloads.
+   * If a key contains one of these patterns (e.g. 'userId' matching 'id'), its value is
+   * extracted as the resourceId, and the remaining part ('user') becomes the resource name.
+   * Default: `['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token']`
+   */
+  resourceIdPatterns?: string[];
 }
 
 export interface LoggerOptions {
@@ -129,6 +141,9 @@ export interface ResolvedLoggerOptions {
   events: {
     enabled: boolean;
     byType: ReadonlyMap<EventType, ResolvedEventConfig>;
+    audit: {
+      resourceIdPatterns: ReadonlyArray<string>;
+    };
   };
 }
 
@@ -310,12 +325,16 @@ const resolveEventConfig = (cfg: EventConfig): ResolvedEventConfig => {
 
 const resolveEvents = (events?: EventsConfig): ResolvedLoggerOptions['events'] => {
   const enabled = events?.enabled !== false;
+  const defaultPatterns = ['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token'];
+  const userPatterns = events?.audit?.resourceIdPatterns ?? [];
+  const combinedPatterns = Array.from(new Set([...defaultPatterns, ...userPatterns]));
+  const audit = { resourceIdPatterns: combinedPatterns };
 
   const byType = new Map<EventType, ResolvedEventConfig>();
 
   if (events?.include === undefined) {
     for (const t of ALL_EVENT_TYPES) byType.set(t, defaultEventConfig(t));
-    return { enabled, byType };
+    return { enabled, byType, audit };
   }
 
   for (const cfg of events.include) {
@@ -323,7 +342,7 @@ const resolveEvents = (events?: EventsConfig): ResolvedLoggerOptions['events'] =
     byType.set(resolved.type, resolved);
   }
 
-  return { enabled, byType };
+  return { enabled, byType, audit };
 };
 
 const normalizeDocsPath = (raw: string | undefined): string => {
@@ -337,7 +356,7 @@ const resolveDocsEnabled = (configValue: boolean | undefined): boolean => {
   const envRaw = process.env.DOCS;
   if (envRaw !== undefined) {
     const normalized = envRaw.trim().toLowerCase();
-    if (normalized === 'true' || normalized === '1')  return true;
+    if (normalized === 'true' || normalized === '1') return true;
     if (normalized === 'false' || normalized === '0') return false;
   }
   return configValue === true;
@@ -366,8 +385,8 @@ const resolveMcpServerConfig = (
     version: process.env.MCP_VERSION ?? options?.version ?? appVersion,
     description:
       process.env.MCP_DESCRIPTION
-        ?? options?.description
-        ?? 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
+      ?? options?.description
+      ?? 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
     throttle: options?.throttle ?? 'PERMISSIVE',
   };
 };
@@ -384,18 +403,18 @@ const resolveDocsConfig = (docs: OpenApiDocsOptions | undefined): ResolvedOpenAp
   return resolved;
 };
 
-const resolveLoggerOptions = (options?: LoggerOptions): ResolvedLoggerOptions => {
-  const fileEnabled = options?.fileOutput?.enabled === true;
-  const rawDir = options?.fileOutput?.directory?.trim();
-  const directory = rawDir && rawDir.length > 0 ? rawDir : DEFAULT_LOG_DIRECTORY;
+const resolveLogDir = (dir: string | undefined): string => {
+  const trimmed = dir?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : DEFAULT_LOG_DIRECTORY;
+};
 
-  const consoleEnabled = options?.consoleOutput?.enabled !== false;
-  const consoleEventLogging = options?.consoleOutput?.eventDebug === true;
+const resolveLoggerOptions = (options?: LoggerOptions): ResolvedLoggerOptions => {
+  const { fileOutput, consoleOutput, events } = options ?? {};
 
   return {
-    fileOutput: { enabled: fileEnabled, directory },
-    consoleOutput: { enabled: consoleEnabled, eventDebug: consoleEventLogging },
-    events: resolveEvents(options?.events),
+    fileOutput: { enabled: fileOutput?.enabled ?? false, directory: resolveLogDir(fileOutput?.directory) },
+    consoleOutput: { enabled: consoleOutput?.enabled ?? true, eventDebug: consoleOutput?.eventDebug ?? false },
+    events: resolveEvents(events),
   };
 };
 
