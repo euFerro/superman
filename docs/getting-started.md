@@ -37,6 +37,16 @@ defineConfig({
     JWT_SECRET: { required: true },
     MY_CUSTOM_ENV_VAR: { default: 'my_custom_env_var' },
   },
+
+  // Automatically expose a /spec route with OpenAPI 3.1 docs and a Scalar UI
+  openapi: {
+    docs: { enabled: true },
+  },
+
+  // Automatically start an MCP (Model Context Protocol) Server for AI Agents
+  mcp: {
+    enabled: true,
+  },
 });
 ```
 

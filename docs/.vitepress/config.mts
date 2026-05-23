@@ -14,7 +14,8 @@ export default withMermaid(defineConfig({
 
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Docs', link: '/introduction' }
+      { text: 'Docs', link: '/introduction' },
+      { text: 'Agents', link: '/agents' }
     ],
 
     sidebar: [
@@ -31,7 +32,8 @@ export default withMermaid(defineConfig({
       {
         text: 'AI Integration',
         items: [
-          { text: 'MCP Server', link: '/mcp-server' }
+          { text: 'MCP Server', link: '/mcp-server' },
+          { text: 'Agents', link: '/agents' }
         ]
       },
       {

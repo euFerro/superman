@@ -146,23 +146,7 @@ curl -sN -X POST http://localhost:3000/api/mcp \
 
 ---
 
-## Wiring an AI client
 
-Claude Desktop / Claude Code / LM Studio config:
-
-```json
-{
-  "mcpServers": {
-    "my-app": {
-      "url": "http://localhost:3000/api/mcp"
-    }
-  }
-}
-```
-
-No `command`/`args` needed — the URL alone triggers Streamable HTTP transport discovery.
-
----
 
 ## Audit events
 
