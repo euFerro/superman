@@ -42,7 +42,7 @@
     "node"
   ],
   "author": "Breno de Arruda Ferro",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "homepage": "https://supersec-ai.github.io/superman/",
   "repository": {
     "type": "git",
