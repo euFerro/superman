@@ -1,4 +1,4 @@
-﻿import express, { Express } from 'express';
+import express, { Express } from 'express';
 import { globalExceptionMiddleware } from '../middlewares/global-exception.middleware';
 import { requestInterceptorMiddleware } from '../middlewares/request-interceptor.middleware';
 import { SupermanModule } from '../core/superman-module';
@@ -65,6 +65,11 @@ export class SupermanApp {
 
   constructor(options: SupermanAppOptions = {}) {
     this.app = express();
+    this.app.disable('x-powered-by');
+    this.app.use((_req, res, next) => {
+      res.setHeader('X-Powered-By', 'Superman.ai');
+      next();
+    });
     this.options = options;
     this.app.use(requestInterceptorMiddleware);
   }

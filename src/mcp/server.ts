@@ -27,10 +27,10 @@ const buildInstance = (): McpServer => {
   const resolved = config.isInitialized()
     ? config.mcpServer
     : {
-        name: 'unknown-app-mcp',
-        version: '0.0.0',
-        description: 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
-      };
+      name: 'unknown-app-mcp',
+      version: '0.0.0',
+      description: 'MCP (Model Context Protocol) server exposing application tools to AI clients.',
+    };
 
   return new McpServer({
     name: resolved.name,

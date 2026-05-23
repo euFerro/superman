@@ -1,4 +1,4 @@
-﻿# NPM Scripts for Consumer Projects
+# NPM Scripts for Consumer Projects
 
 This page describes the minimum set of scripts a project consuming `superman` should have in its `package.json`, 
 why they are enough to cover **development**, **staging**, and **production**, and how to add **unit tests** with Jest.
@@ -20,7 +20,7 @@ why they are enough to cover **development**, **staging**, and **production**, a
 |--------|---------|-------------|
 | `dev`   | `tsx watch src/server.ts` | Local development loop — executes TypeScript directly, reloads on save. No build step. |
 | `build` | `tsc`                     | Compile to `dist/` before deploying to staging / production. |
-| `start` | `node dist/server.js`     | Run the compiled artifact. Inherits `NODE_ENV` from the shell / env file / orchestrator. |
+| `start` | `node dist/server.js`     | Run the compiled artifact. Inherits `NODE_ENV` (or `ENV`) from the shell / env file / orchestrator. |
 | `test`  | `jest`                    | Unit tests (colocation, `*.test.ts` next to source). |
 
 These four scripts are **all you need**. No `start:staging`, no `start:prod`, no environment-specific commands.
@@ -45,11 +45,11 @@ defineConfig({
 
 At boot, the framework:
 
-1. Reads `process.env.NODE_ENV` (default: `development`).
+1. Reads `process.env.ENV` or `process.env.NODE_ENV` (default: `development`).
 2. Picks the matching `environments[...]` block — `config.endpoints.myApi` returns the right URL for that env.
 3. Adjusts defaults based on the env: `LOG_LEVEL` falls back to `info` in production and `debug` otherwise; file sink paths / console colouring behave consistently; `config.isProduction()` is available anywhere.
 
-So the single `start` script covers every environment — the orchestrator (Docker, k8s, PM2, systemd, GitHub Actions) injects `NODE_ENV` and secrets, and `node dist/server.js` does the right thing:
+So the single `start` script covers every environment — the orchestrator (Docker, k8s, PM2, systemd, GitHub Actions) injects `NODE_ENV` (or `ENV`) and secrets, and `node dist/server.js` does the right thing:
 
 ```bash
 # Development (live reload, no build needed)
@@ -68,16 +68,6 @@ NODE_ENV=production LOG_LEVEL=info npm start
 ### Why not separate `start:dev` / `start:staging` / `start:prod` scripts?
 
 Because they would just bake `NODE_ENV` into the `package.json`, which is exactly what orchestrators already manage. Keeping a single `start` avoids drift between local scripts and the actual deploy command. If you need an env-file convention for local overrides, rely on `dotenv/config` — do not hard-code the environment in the script.
-
-## Why `tsc` (and not `tsup` / `esbuild`) for production
-
-The framework itself ships a single pre-bundled file via `tsup`, so consumer apps don't need to re-bundle. Plain `tsc` is:
-
-- **Simpler** — one file (`tsconfig.json`) already drives the whole project.
-- **Debuggable** — source maps land next to the emitted JS; stack traces in prod point to your own files, not a bundle.
-- **Fast enough** — `tsc` on a typical module-based app is sub-second.
-
-The `dist/` folder produced by `tsc` can be copied directly into a Docker image or tarball. The entry point in production is always `node dist/server.js`.
 
 ## Unit tests with Jest
 

@@ -13,8 +13,10 @@ const log = logger.child('Mcp');
  *   - `initialize`  → `AuditEvents.MCP_SESSION_STARTED` (resource `mcp.session`)
  *   - `tools/call`  → `AuditEvents.MCP_TOOL_EXECUTED`  (resource `mcp.tool/<name>`)
  *
- * `MCP_SESSION_ENDED` is reserved for stateful transports — not emitted by the
- * default stateless `StreamableHTTPServerTransport`.
+ *   - `initialize` connection closes → `AuditEvents.MCP_SESSION_ENDED`
+ *
+ * Even though StreamableHTTPServerTransport handles a single HTTP connection,
+ * tracking when the `initialize` request closes allows us to bookend the session.
  *
  * The `resourceId` is best-effort: if the tool argument carries a `codCliente`
  * or `cpfOuCnpj` string, it's surfaced for log filtering. Add your own
@@ -55,6 +57,22 @@ export const auditMcpRequest = (req: Request): void => {
     auditMessage: `MCP tool executed: ${toolName} by ${client.name}${versionSuffix} (${client.ip})`,
     resource: `mcp.tool/${toolName}`,
     ...(resourceId ? { resourceId } : {}),
+    userRoles: ['mcp-client'],
+  });
+};
+
+export const auditMcpSessionEnded = (req: Request): void => {
+  const body = req.body as JsonRpcBody | undefined;
+  if (!body || typeof body !== 'object') return;
+
+  const client = identifyMcpClient(req, body);
+  const versionSuffix = client.version ? ` v${client.version}` : '';
+
+  log.events.audit({
+    auditEvent: AuditEvents.MCP_SESSION_ENDED,
+    eventSeverity: EventSeverity.INFO,
+    auditMessage: `MCP session ended: ${client.name}${versionSuffix} (${client.ip})`,
+    resource: 'mcp.session',
     userRoles: ['mcp-client'],
   });
 };

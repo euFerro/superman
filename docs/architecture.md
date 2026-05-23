@@ -1,4 +1,4 @@
-﻿# Architecture
+# Architecture
 
 This document describes how `superman` is wired internally — the layers, the lifecycle, and the data flow of structured event logging from `defineConfig` all the way to the console and file sinks.
 
@@ -8,22 +8,22 @@ The framework is a thin, opinionated layer on top of Express. It exposes three d
 
 ```mermaid
 flowchart TD
-    User["User code<br/>defineConfig Â· defineModule<br/>defineController Â· app.listen"]
+    User["User code<br/>defineConfig · defineModule<br/>defineController · app.listen"]
 
-    subgraph App["SupermanApp Â· Express wrapper Â· lifecycle owner"]
+    subgraph App["SupermanApp · Express wrapper · lifecycle owner"]
         direction LR
-        Entry["â¬‡ requestInterceptorMiddleware<br/>entry hook"]
+        Entry["⬇ requestInterceptorMiddleware<br/>entry hook"]
         Routes["registered modules ➡️ routers"]
-        Exit["â¬† globalExceptionMiddleware<br/>exit hook"]
+        Exit["⬆ globalExceptionMiddleware<br/>exit hook"]
         Entry --> Routes --> Exit
     end
 
-    Modules["SupermanModule[]<br/>routes Â· prefix"]
-    Controller["SupermanController<br/>handler Â· throttler Â· middlewares"]
+    Modules["SupermanModule[]<br/>routes · prefix"]
+    Controller["SupermanController<br/>handler · throttler · middlewares"]
 
     Runtime["Logger runtime<br/>singleton"]
     Emitter["LogEventEmitter"]
-    Sinks{{"ConsoleSink &nbsp;Â·&nbsp; FileSink"}}
+    Sinks{{"ConsoleSink &nbsp;·&nbsp; FileSink"}}
 
     User --> App
     App --> Modules --> Controller
@@ -137,16 +137,16 @@ This is the largest subsystem. Three separate concerns live in [src/logger/](../
 
 ```mermaid
 flowchart LR
-    subgraph Human["ðŸ§‘ Human-readable"]
+    subgraph Human["🧑 Human-readable"]
         Info["logger.info<br/>logger.warn<br/>logger.error<br/>logger.debug"]
     end
     HumanOut["pretty CLI (dev)<br/>or<br/>JSON line (prod)"]
     Info --> HumanOut
 
-    subgraph Typed["ðŸ“Š Typed events"]
+    subgraph Typed["📊 Typed events"]
         Events["logger.events.request<br/>logger.events.system<br/>logger.events.response<br/>logger.events.error<br/>logger.events.audit<br/>logger.events.security"]
     end
-    Pipeline[("typed event pipeline<br/>config ➡️ emitter ➡️ sinks<br/>structured Â· persistent")]
+    Pipeline[("typed event pipeline<br/>config ➡️ emitter ➡️ sinks<br/>structured · persistent")]
     Events --> Pipeline
 
     classDef human fill:#d97706,stroke:#78350f,stroke-width:2px,color:#ffffff
@@ -169,10 +169,10 @@ flowchart TD
     Cfg["defineConfig<br/>logger: events: include: ..."]
     Resolver["resolveLoggerOptions<br/>superman-config.ts"]
 
-    subgraph Resolved["ðŸ“¦ ResolvedLoggerOptions"]
+    subgraph Resolved["📦 ResolvedLoggerOptions"]
         direction TB
-        Console["consoleOutput<br/>enabled Â· eventDebug"]
-        File["fileOutput<br/>enabled Â· directory"]
+        Console["consoleOutput<br/>enabled · eventDebug"]
+        File["fileOutput<br/>enabled · directory"]
         EventsBlock["events<br/>enabled (master switch)<br/>byType: Map of EventType to ResolvedEventConfig"]
     end
 
@@ -182,16 +182,16 @@ flowchart TD
 
     UserCall["logger.events.* call"]
 
-    subgraph Emit["âš™ï¸ LogEventEmitter.emit Â· per-event policy"]
+    subgraph Emit["⚙️  LogEventEmitter.emit · per-event policy"]
         direction TB
-        S1["1ï¸âƒ£ master switch"]
-        S2["2ï¸âƒ£ type whitelist Â· configs.has(type)?"]
-        S3["3ï¸âƒ£ minSeverity threshold"]
-        S4["4ï¸âƒ£ sampleRate Â· RNG gate"]
-        S5["5ï¸âƒ£ buildFullLog Â· infra-fields.ts"]
-        S6["6ï¸âƒ£ payload rules<br/>savePayload ➡️ strip<br/>captureFields ➡️ narrow<br/>payloadMaxLength ➡️ truncate"]
-        S7["7ï¸âƒ£ redactFields ➡️ mask"]
-        S8["8ï¸âƒ£ fan-out by sink.kind<br/>console ➡️ cfg.console<br/>file ➡️ cfg.file"]
+        S1["1️⃣ master switch"]
+        S2["2️⃣ type whitelist · configs.has(type)?"]
+        S3["3️⃣ minSeverity threshold"]
+        S4["4️⃣ sampleRate · RNG gate"]
+        S5["5️⃣ buildFullLog · infra-fields.ts"]
+        S6["6️⃣ payload rules<br/>savePayload ➡️ strip<br/>captureFields ➡️ narrow<br/>payloadMaxLength ➡️ truncate"]
+        S7["7️⃣ redactFields ➡️ mask"]
+        S8["8️⃣ fan-out by sink.kind<br/>console ➡️ cfg.console<br/>file ➡️ cfg.file"]
         S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7 --> S8
     end
 

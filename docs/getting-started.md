@@ -1,6 +1,8 @@
-﻿# Getting Started
+# Getting Started
 
 ## Step 1 — Define your config
+
+> **Tip:** To automatically load your local `.env` file variables into `process.env`, install the `dotenv` package (`npm install dotenv`) and add `import 'dotenv/config';` at the very top of your config file.
 
 ```typescript
 // src/server.config.ts
@@ -38,7 +40,7 @@ defineConfig({
 });
 ```
 
-The framework validates required env vars on startup, resolves endpoints for the active environment (via `NODE_ENV`), and makes everything available through the `config` singleton. The `prefix` is prepended to all module routes automatically.
+The framework validates required env vars on startup, resolves endpoints for the active environment (via `NODE_ENV` or simply `ENV`), and makes everything available through the `config` singleton. The `prefix` is prepended to all module routes automatically.
 
 ## Step 2 — Define a service
 
@@ -182,7 +184,39 @@ GET  /api/users/:id
 POST /api/users
 ```
 
-## Step 5 — Main
+## Step 5 — Register an MCP Tool (Optional)
+
+Instantly expose any capability to AI agents by wrapping your service logic in a Model Context Protocol tool. The framework automatically wires up the endpoints and schema translations.
+
+```typescript
+// src/modules/users/mcp/users.tools.ts
+import { mcpServer } from '@supersec-ai/superman';
+import { z } from 'zod';
+import type { IUsersService } from '../services/users.services';
+
+export const registerUsersTools = (service: IUsersService) => {
+  mcpServer.registerTool(
+    'list-users',
+    {
+      title: 'List users',
+      description: 'List all registered users.',
+      inputSchema: { 
+        page: z.number().optional().describe('Page number') 
+      },
+    },
+    async ({ page }) => {
+      const result = await service.findAll({ page: page || 1, limit: 10, q: '' });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+      };
+    }
+  );
+};
+```
+
+Call this registration function in your module's composition root before calling `defineModule`.
+
+## Step 6 — Main
 
 ```typescript
 // src/server.ts
@@ -195,9 +229,10 @@ const main = async () => {
   // Add any db connection or any other logic you need here...
 
   app.listen(() => {
-    log.info(`${process.env.npm_package_name} v${process.env.npm_package_version} started`, {
-      url: `http://localhost:${config.port}/`
-    });
+    log.info(`🚀 Server started successfully!`);
+    log.info(`🌍 API URL: http://localhost:${config.port}${config.prefix}`);
+    log.info(`📚 Swagger Docs: http://localhost:${config.port}${config.prefix}/docs`);
+    log.info(`🤖 MCP Server: http://localhost:${config.port}${config.prefix}/mcp`);
   });
 };
 

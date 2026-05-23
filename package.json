@@ -23,6 +23,10 @@
   },
   "scripts": {
     "build": "tsup",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "lint": "eslint src/**/*.ts",
     "dev": "tsup --watch",
     "test": "jest",
     "test:coverage": "jest --coverage",
@@ -38,7 +42,7 @@
     "node"
   ],
   "author": "Breno de Arruda Ferro",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "files": [
     "dist"
   ],
@@ -58,8 +62,13 @@
     "@types/node": "^22.10.0",
     "express": "^4.21.2",
     "jest": "^30.3.0",
+    "mermaid": "^10.9.3",
+    "pngjs": "^7.0.0",
     "ts-jest": "^29.4.9",
     "tsup": "^8.0.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "vue": "^3.5.34"
   }
 }

@@ -4,6 +4,9 @@ This framework was designed with the future of AI-assisted development in mind. 
 
 Traditional Express apps scatter configuration, routing, error handling, logging, and rate limiting across dozens of files with imperative patterns that are hard to parse and reason about. This framework replaces all of that with a small set of declarative functions (`defineConfig`, `defineController`, `defineModule`) that make the entire application structure explicit and self-documenting.
 
+![Console Logs](/image.png)
+
+
 ## Why this matters for AI development
 
 - **Consistency** — Every project follows the same patterns for config, routing, errors, and logging. An AI reading one project instantly understands all of them.

@@ -1,4 +1,4 @@
-﻿# Controllers
+# Controllers
 
 ## `defineController<TService>(options)`
 
@@ -56,7 +56,7 @@ The framework accepts **two** handler forms, distinguished by arity:
 
 | Shape | Detected by | What you can do |
 |---|---|---|
-| `async ({ body, query, ..., service }) => result` | arity â‰¤ 1 | Return a value (or `reply()`); the framework writes the response. Returning `undefined` after writing to `res` works for streaming. |
+| `async ({ body, query, ..., service }) => result` | arity ≤ 1 | Return a value (or `reply()`); the framework writes the response. Returning `undefined` after writing to `res` works for streaming. |
 | `async (req, res, service) => void` | arity 3 | Legacy positional form. Write to `res` yourself. Useful when you need full control. |
 
 **Flat-context shorthand.** Leaf properties from `body` / `query` / `params` / `headers` / `cookies` are spread at the context root, so you can destructure values directly:
@@ -64,7 +64,7 @@ The framework accepts **two** handler forms, distinguished by arity:
 ```typescript
 handler: async ({ id, name, email, user, service }) =>
   service.update(id, { name, email }, user.id)
-//                â†‘ from params      â†‘ from body          â†‘ from requireAuth
+  //                ↑ from params      ↑ from body          ↑ from requireAuth
 ```
 
 Both `ctx.params.id` and `ctx.id` reference the same value. **Precedence on key collision** (higher wins): `params > body > query > headers > cookies`. **Reserved structural keys** (`req`, `res`, `service`, `body`, `query`, `params`, `headers`, `cookies`, `user`) are never overwritten by a flattened source — `ctx.service` always refers to the injected service, even if a body schema declared a field named `service`. The `user` principal stays structural only — its inner fields aren't spread to avoid colliding with path params (`user.id` vs `params.id`).
@@ -303,7 +303,7 @@ The middleware picks the right schema by inspecting the incoming `Content-Type`.
 
 ## Related
 
-- **[docs/schemas.md](./schemas.md)** — JSON Schema authoring guide: validator's supported keywords, coercion rules, the full CRUD-module recipe (routes Ã— middlewares Ã— responses table), TypeScript-types ergonomics, and how to swap in AJV.
+- **[docs/schemas.md](./schemas.md)** — JSON Schema authoring guide: validator's supported keywords, coercion rules, the full CRUD-module recipe (routes × middlewares × responses table), TypeScript-types ergonomics, and how to swap in AJV.
 - **[docs/api-middlewares.md](./api-middlewares.md)** — exhaustive reference for every shipped middleware (`validateBody`, `validateQuery`, `validateHeaders`, `validateCookies`, `validatePathParams`, `validateContentType`, `requireAuth`, `requireRoles`, `authorize`) and how to write your own.
 
 ## Error Metadata

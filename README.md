@@ -8,7 +8,7 @@
   <p>
     <a href="docs/guia-arquitetura.md">Website</a> •
     <a href="docs/divergencias.md">Docs</a> •
-    <a href="docs/plano-refatoracao.md">Author</a>
+    <a href="https://brenoaferro.carrd.co">Author</a>
   </p>
 
   <hr />
@@ -142,6 +142,8 @@ This makes your code testable (swap real implementations for mocks), decoupled (
 ## Quick Start
 
 ### Step 1 — Define your config
+
+> **Tip:** To automatically load your local `.env` file variables into `process.env`, install the `dotenv` package (`npm install dotenv`) and add `import 'dotenv/config';` at the very top of your config file.
 
 ```typescript
 // src/server.config.ts
@@ -391,7 +393,39 @@ GET  /api/users/:id
 POST /api/users
 ```
 
-### Step 6 — Main
+### Step 6 — Register an MCP Tool (Optional)
+
+Instantly expose any capability to AI agents by wrapping your service logic in a Model Context Protocol tool. The framework automatically wires up the endpoints and schema translations.
+
+```typescript
+// src/modules/users/mcp/users.tools.ts
+import { mcpServer } from '@supersec-ai/superman';
+import { z } from 'zod';
+import type { IUsersService } from '../services/users.services';
+
+export const registerUsersTools = (service: IUsersService) => {
+  mcpServer.registerTool(
+    'list-users',
+    {
+      title: 'List users',
+      description: 'List all registered users.',
+      inputSchema: { 
+        page: z.number().optional().describe('Page number') 
+      },
+    },
+    async ({ page }) => {
+      const result = await service.findAll({ page: page || 1, limit: 10, q: '' });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+      };
+    }
+  );
+};
+```
+
+Call this registration function in your module's composition root before calling `defineModule`.
+
+### Step 7 — Main
 
 ```typescript
 // src/server.ts
@@ -404,9 +438,10 @@ const main = async () => {
   // Add any db connection or any other logic you need here...
 
   app.listen(() => {
-    log.info(`${process.env.npm_package_name} v${process.env.npm_package_version} started`, {
-      url: `http://localhost:${config.port}/`
-    });
+    log.info(`🚀 Server started successfully!`);
+    log.info(`🌍 API URL: http://localhost:${config.port}${config.prefix}`);
+    log.info(`📚 Swagger Docs: http://localhost:${config.port}${config.prefix}/docs`);
+    log.info(`🤖 MCP Server: http://localhost:${config.port}${config.prefix}/mcp`);
   });
 };
 
@@ -1113,7 +1148,7 @@ src/
 
 ## NPM Scripts for Consumer Projects
 
-A project consuming `superman` only needs four scripts. The single `start` script covers **development**, **staging**, and **production** because the framework resolves per-env behaviour at runtime via `NODE_ENV` — one build, three environments.
+A project consuming `superman` only needs four scripts. The single `start` script covers **development**, **staging**, and **production** because the framework resolves per-env behaviour at runtime via `NODE_ENV` (or simply `ENV`) — one build, three environments.
 
 ```jsonc
 {
@@ -1130,7 +1165,7 @@ A project consuming `superman` only needs four scripts. The single `start` scrip
 |--------|---------|-------------|
 | `dev`   | `tsx watch src/server.ts` | Local dev loop — TS direct, reload on save |
 | `build` | `tsc`                     | Compile to `dist/` before deploying |
-| `start` | `node dist/server.js`     | Run the compiled artifact; inherits `NODE_ENV` from the shell / orchestrator |
+| `start` | `node dist/server.js`     | Run the compiled artifact; inherits `NODE_ENV` (or `ENV`) from the shell / orchestrator |
 | `test`  | `jest`                    | Unit tests (colocation, `*.test.ts`) |
 
 ```bash

@@ -5,7 +5,7 @@ import { defineController, type ControllerFactory } from '../core/define-control
 import { logger } from '../logger/superman-logger';
 import type { ThrottleConfig, ThrottlePreset } from '../throttle/throttle.constants';
 
-import { auditMcpRequest } from './audit';
+import { auditMcpRequest, auditMcpSessionEnded } from './audit';
 import { mcpServer } from './server';
 
 const log = logger.child('Mcp');
@@ -56,7 +56,12 @@ export const createMcpController = (throttle: ThrottlePreset | ThrottleConfig): 
       auditMcpRequest(req);
 
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-      res.on('close', () => transport.close());
+      res.on('close', () => {
+        transport.close();
+        if (req.body?.method === 'initialize') {
+          auditMcpSessionEnded(req);
+        }
+      });
       try {
         await mcpServer.connect(transport);
         await transport.handleRequest(req, res, req.body);

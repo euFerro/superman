@@ -172,11 +172,11 @@ The framework emits typed `AUDIT` events automatically:
 |---|---|---|
 | `initialize` JSON-RPC method | `AuditEvents.MCP_SESSION_STARTED` | `mcp.session` |
 | `tools/call` JSON-RPC method | `AuditEvents.MCP_TOOL_EXECUTED`  | `mcp.tool/<name>` |
-| Stateful session close (reserved) | `AuditEvents.MCP_SESSION_ENDED`  | `mcp.session` |
+| `initialize` connection close   | `AuditEvents.MCP_SESSION_ENDED`  | `mcp.session` |
 
-`MCP_SESSION_ENDED` is **not** emitted by the default stateless transport — it's reserved for future stateful implementations.
+`MCP_SESSION_ENDED` is emitted when the HTTP request that carried the `initialize` method gracefully (or abruptly) closes, cleanly bookending the session lifecycle.
 
-Both events include `resourceId` when the tool argument carries a known identifier (`codCliente`, `cpfOuCnpj` — extend with your own conventions inside `auditMcpRequest`).
+Both events include `resourceId` when the tool argument carries a known identifier (`userId`, `customerId` — extend with your own conventions inside `auditMcpRequest`).
 
 The client identity is best-effort:
 - `params.clientInfo` from MCP `initialize` (canonical) — only present on initialize.
