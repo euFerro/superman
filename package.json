@@ -43,6 +43,11 @@
   ],
   "author": "Breno de Arruda Ferro",
   "license": "MIT",
+  "homepage": "https://euferro.github.io/superman/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/euFerro/superman.git"
+  },
   "files": [
     "dist"
   ],

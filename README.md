@@ -6,8 +6,8 @@
   <p><strong>The Web backend framework built for the era of AI-assisted development.</strong></p>
 
   <p>
-    <a href="docs/guia-arquitetura.md">Website</a> •
-    <a href="docs/divergencias.md">Docs</a> •
+    <a href="https://euferro.github.io/superman/">Website</a> •
+    <a href="https://euferro.github.io/superman/introduction.html">Docs</a> •
     <a href="https://brenoaferro.carrd.co">Author</a>
   </p>
 
