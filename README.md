@@ -6,8 +6,8 @@
   <p><strong>The Web backend framework built for the era of AI-assisted development.</strong></p>
 
   <p>
-    <a href="https://supersec-ai.github.io/superman/">Website</a> •
-    <a href="https://supersec-ai.github.io/superman/introduction.html">Docs</a> •
+    <a href="https://supermanframework.com">Website</a> •
+    <a href="https://supermanframework.com/introduction.html">Docs</a> •
     <a href="https://brenoaferro.carrd.co">Author</a>
   </p>
 
