@@ -50,7 +50,8 @@ export default withMermaid(defineConfig({
           { text: 'App', link: '/api-app' },
           { text: 'Config', link: '/api-config' },
           { text: 'Modules', link: '/api-modules' },
-          { text: 'Controllers', link: '/api-controllers' }
+          { text: 'Controllers', link: '/api-controllers' },
+          { text: 'OpenAPI & Docs', link: '/api-openapi' }
         ]
       },
       {
