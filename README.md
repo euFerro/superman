@@ -764,6 +764,8 @@ GET /api/spec
 
 > **Interactive docs UI (opt-in).** Set `openapi.docs.enabled: true` in `defineConfig` to also expose `GET {prefix}/docs` — a Scalar HTML rendering of the same document (endpoints grouped by module/tag in the sidebar, schemas, parameters, "Send API Request" panel). The default page is fully rendered out of the box — **no template engine required**. Need full control? Plug a Pug/EJS/Handlebars template via `openapi.docs.template`. Toggle without redeploys via the `DOCS=true/false` env var (wins over `defineConfig`); production requests get a plain-text 503 unless `exposeInProduction: true`. See [`openapi.docs` in docs/api-config.md](./docs/api-config.md#openapidocs--built-in-interactive-docs-ui).
 
+![Scalar UI](https://raw.githubusercontent.com/supersec-ai/superman/main/assets/openapi-scalar.png)
+
 ```json
 {
   "openapi": "3.1.0",
