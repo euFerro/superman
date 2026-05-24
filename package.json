@@ -1,6 +1,6 @@
 {
   "name": "@supersec-ai/superman",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Express backend framework for Superman backend applications",
   "type": "commonjs",
   "main": "dist/index.js",
