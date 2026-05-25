@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import {
   AuditEvents,
   AuditLog,
@@ -105,8 +105,8 @@ const mapErrorToErrorType = (err: Error): ErrorType => {
   return ErrorType.RUNTIME_ERROR;
 };
 
-const extractIp = (req: Request): string =>
-  req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+const extractIp = (req: FastifyRequest): string =>
+  req.ip ?? req.raw.socket?.remoteAddress ?? 'unknown';
 
 const contentLength = (headerValue: string | string[] | undefined): number => {
   if (!headerValue) return 0;
@@ -124,7 +124,7 @@ const hasUsefulBody = (body: unknown): boolean => {
 };
 
 export interface BuildRequestLogOptions {
-  req: Request;
+  req: FastifyRequest;
   requestId: string;
   traceId: string;
 }
@@ -138,26 +138,26 @@ export const buildRequestLog = ({ req, requestId, traceId }: BuildRequestLogOpti
     requestId,
     traceId,
     method: req.method,
-    url: req.originalUrl,
-    route: req.route?.path ?? req.originalUrl.split('?')[0],
+    url: req.url,
+    route: req.routeOptions?.url ?? req.url.split('?')[0],
     query: query && Object.keys(query).length > 0 ? query : undefined,
     requestBody: hasUsefulBody(body) ? body : undefined,
-    userAgent: req.get('user-agent') ?? undefined,
-    referrer: req.get('referer') ?? req.get('referrer') ?? undefined,
+    userAgent: req.headers['user-agent'] as string | undefined,
+    referrer: (req.headers['referer'] as string | undefined) ?? (req.headers['referrer'] as string | undefined),
     bytesReceived: contentLength(req.headers['content-length']),
   };
 };
 
 export interface BuildResponseLogOptions {
-  req: Request;
-  res: Response;
+  req: FastifyRequest;
+  res: FastifyReply;
   requestId: string;
   responseTimeMs: number;
 }
 
 export const buildResponseLog = ({ req, res, requestId, responseTimeMs }: BuildResponseLogOptions): ResponseLogInput => {
   const statusCode = res.statusCode;
-  const bytesSentHeader = res.getHeader?.('content-length');
+  const bytesSentHeader = res.getHeader('content-length');
   const bytesSent = typeof bytesSentHeader === 'number'
     ? bytesSentHeader
     : contentLength(bytesSentHeader as string | undefined);
@@ -165,18 +165,18 @@ export const buildResponseLog = ({ req, res, requestId, responseTimeMs }: BuildR
   return {
     eventSeverity: responseSeverityOf(statusCode),
     requestId,
-    route: req.route?.path ?? req.originalUrl.split('?')[0],
+    route: req.routeOptions?.url ?? req.url.split('?')[0],
     statusCode,
     statusClass: statusClassOf(statusCode),
     responseTimeMs,
-    responseBody: (res.locals?.__responseBody as unknown) ?? undefined,
+    responseBody: ((res as any).locals?.__responseBody as unknown) ?? undefined,
     bytesSent: bytesSent || undefined,
   };
 };
 
 export interface BuildAuditLogOptions {
-  req: Request;
-  res: Response;
+  req: FastifyRequest;
+  res: FastifyReply;
   requestId: string;
   prefix: string;
 }
@@ -185,8 +185,8 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
   const auditEvent = mapMethodToAuditEvent(req.method, res.statusCode);
   if (!auditEvent) return null;
 
-  let resource = extractResource(req.originalUrl, prefix);
-  let resourceId = (req.params?.id as string | undefined) ?? undefined;
+  let resource = extractResource(req.url, prefix);
+  let resourceId = ((req.params as Record<string, unknown>)?.id as string | undefined) ?? undefined;
 
   // Attempt dynamic extraction if config is loaded
   if (config.isInitialized()) {
@@ -225,15 +225,15 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
     }
   }
 
-  const userId = (res.locals?.userId as string | undefined) ?? undefined;
-  const userRoles = (res.locals?.userRoles as string[] | undefined) ?? [];
+  const userId = ((res as any).locals?.userId as string | undefined) ?? undefined;
+  const userRoles = ((res as any).locals?.userRoles as string[] | undefined) ?? [];
 
   let changes: Record<string, { before?: unknown; after?: unknown }> | undefined = undefined;
 
   if (req.method.toUpperCase() !== 'DELETE') {
     let payloadToLog: unknown = undefined;
-    if (res.locals && typeof res.locals.__responseBody === 'object' && res.locals.__responseBody !== null) {
-      payloadToLog = res.locals.__responseBody;
+    if ((res as any).locals && typeof (res as any).locals.__responseBody === 'object' && (res as any).locals.__responseBody !== null) {
+      payloadToLog = (res as any).locals.__responseBody;
     } else if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
       payloadToLog = req.body;
     }
@@ -261,8 +261,8 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
 };
 
 export interface BuildSecurityLogOptions {
-  req: Request;
-  res: Response;
+  req: FastifyRequest;
+  res: FastifyReply;
   requestId: string;
   traceId: string;
   exceptionName?: string;
@@ -275,7 +275,7 @@ export const buildSecurityLog = ({
   if (!mapping) return null;
 
   const prefix = exceptionName ? `${exceptionName}: ` : '';
-  const securityMessage = `${prefix}${mapping.securityEvent} on ${req.method} ${req.originalUrl}`;
+  const securityMessage = `${prefix}${mapping.securityEvent} on ${req.method} ${req.url}`;
 
   return {
     eventSeverity: mapping.eventSeverity,
@@ -290,13 +290,13 @@ export const buildSecurityLog = ({
 
 export interface BuildErrorLogOptions {
   err: Error;
-  req: Request;
+  req: FastifyRequest;
   requestId: string;
 }
 
 export const buildErrorLog = ({ err, req, requestId }: BuildErrorLogOptions): ErrorLogInput => ({
   eventSeverity: EventSeverity.ERROR,
-  causeUrl: `${req.method} ${req.originalUrl}`,
+  causeUrl: `${req.method} ${req.url}`,
   requestId,
   errorType: mapErrorToErrorType(err),
   errorMessage: err.message,

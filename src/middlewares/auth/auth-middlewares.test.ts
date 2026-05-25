@@ -1,4 +1,4 @@
-﻿import type { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { requireAuth } from './require-auth';
 import { authorize, requireRoles } from './require-roles';
 import { readOpenApiMeta } from '../openapi-meta';
@@ -6,13 +6,16 @@ import { ForbiddenException, UnauthorizedException } from '../../exceptions/http
 import { config } from '../../config/superman-config';
 import type { Principal } from '../../config/superman-config';
 
-const makeReq = (overrides: Partial<Request> = {}): Request => ({ ...overrides } as Request);
-const makeRes = (): Response => ({} as Response);
+const makeReq = (overrides: Partial<FastifyRequest> = {}): FastifyRequest => ({ ...overrides } as FastifyRequest);
+const makeRes = (): FastifyReply => ({} as FastifyReply);
 
-const captureNext = (): { next: NextFunction; err: () => unknown } => {
-  let captured: unknown;
-  const next: NextFunction = (e?: unknown) => { captured = e; };
-  return { next, err: () => captured };
+const executeMw = async (mw: any, req: any): Promise<unknown> => {
+  try {
+    await mw(req, makeRes());
+    return undefined;
+  } catch (err) {
+    return err;
+  }
 };
 
 describe('auth middlewares', () => {
@@ -27,14 +30,13 @@ describe('auth middlewares', () => {
       const principal: Principal = { id: 'u-1', roles: ['admin'] };
       const mw = requireAuth({ scheme: 'bearerAuth', verify: async () => principal });
       const req = makeReq();
-      const { next, err } = captureNext();
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
-      expect((req as Request & { user?: Principal }).user).toBe(principal);
+      expect(err).toBeUndefined();
+      expect((req as FastifyRequest & { user?: Principal }).user).toBe(principal);
     }, 1000);
 
     it('should throw UnauthorizedException when the verifier throws', async () => {
@@ -43,13 +45,12 @@ describe('auth middlewares', () => {
         scheme: 'bearerAuth',
         verify: () => { throw new Error('bad token'); },
       });
-      const { next, err } = captureNext();
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(makeReq(), makeRes(), next);
+      const err = await executeMw(mw, makeReq());
 
       // Assert
-      expect(err()).toBeInstanceOf(UnauthorizedException);
+      expect(err).toBeInstanceOf(UnauthorizedException);
     }, 1000);
 
     it('should fall back to the verifier registered in defineConfig', async () => {
@@ -58,14 +59,13 @@ describe('auth middlewares', () => {
       config.init({ openapi: { auth: { bearerAuth: async () => principal } } });
       const mw = requireAuth('bearerAuth');
       const req = makeReq();
-      const { next, err } = captureNext();
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
-      expect((req as Request & { user?: Principal }).user).toBe(principal);
+      expect(err).toBeUndefined();
+      expect((req as FastifyRequest & { user?: Principal }).user).toBe(principal);
     }, 1000);
 
     it('should annotate the middleware with kind=auth and a security requirement', () => {
@@ -85,28 +85,26 @@ describe('auth middlewares', () => {
       // Arrange
       const mw = requireRoles('admin');
       const req = makeReq();
-      (req as Request & { user?: Principal }).user = { id: 'u', roles: ['admin'] };
-      const { next, err } = captureNext();
+      (req as FastifyRequest & { user?: Principal }).user = { id: 'u', roles: ['admin'] };
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
+      expect(err).toBeUndefined();
     }, 1000);
 
     it('should throw ForbiddenException with required roles in metadata', async () => {
       // Arrange
       const mw = requireRoles('admin');
       const req = makeReq();
-      (req as Request & { user?: Principal }).user = { id: 'u', roles: ['viewer'] };
-      const { next, err } = captureNext();
+      (req as FastifyRequest & { user?: Principal }).user = { id: 'u', roles: ['viewer'] };
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      const error = err() as ForbiddenException;
+      const error = err as ForbiddenException;
       expect(error).toBeInstanceOf(ForbiddenException);
       expect((error.metadata as { requiredRoles: string[] }).requiredRoles).toEqual(['admin']);
     }, 1000);
@@ -115,26 +113,24 @@ describe('auth middlewares', () => {
       // Arrange
       const mw = authorize({ roles: ['admin'], scopes: ['users:write'] });
       const req = makeReq();
-      (req as Request & { user?: Principal }).user = { id: 'u', roles: ['admin'] }; // no scopes
-      const { next, err } = captureNext();
+      (req as FastifyRequest & { user?: Principal }).user = { id: 'u', roles: ['admin'] }; // no scopes
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeInstanceOf(ForbiddenException);
+      expect(err).toBeInstanceOf(ForbiddenException);
     }, 1000);
 
     it('should throw Unauthorized when no principal is attached', async () => {
       // Arrange
       const mw = requireRoles('admin');
-      const { next, err } = captureNext();
 
       // Act
-      await (mw as unknown as (r: Request, s: Response, n: NextFunction) => Promise<void>)(makeReq(), makeRes(), next);
+      const err = await executeMw(mw, makeReq());
 
       // Assert
-      expect(err()).toBeInstanceOf(UnauthorizedException);
+      expect(err).toBeInstanceOf(UnauthorizedException);
     }, 1000);
 
     it('should annotate with kind=roles and an auto-403', () => {

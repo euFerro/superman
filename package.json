@@ -1,6 +1,6 @@
 {
   "name": "@supersec-ai/superman",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "Express backend framework for Superman backend applications",
   "type": "commonjs",
   "main": "dist/index.js",
@@ -53,7 +53,7 @@
   ],
   "peerDependencies": {
     "@modelcontextprotocol/sdk": ">=1.29.0",
-    "express": ">=4.17.0"
+    "fastify": "^5.8.5"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
@@ -62,10 +62,9 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.0",
-    "express": "^4.21.2",
+    "fastify": "^5.8.5",
     "jest": "^30.3.0",
     "mermaid": "^10.9.3",
     "pngjs": "^7.0.0",
@@ -75,5 +74,8 @@
     "vitepress": "^1.6.4",
     "vitepress-plugin-mermaid": "^2.0.17",
     "vue": "^3.5.34"
+  },
+  "dependencies": {
+    "fastify-plugin": "^5.1.0"
   }
 }

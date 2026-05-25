@@ -1,4 +1,5 @@
-﻿import type { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+import Fastify from 'fastify';
 import { SupermanModule } from './superman-module';
 
 describe('SupermanModule', () => {
@@ -6,17 +7,18 @@ describe('SupermanModule', () => {
     jest.clearAllMocks();
   });
 
-  describe('register', () => {
-    it('should call the register function with the router', async () => {
+  describe('plugin', () => {
+    it('should call the register function with fastify instance', async () => {
       // Arrange
       const registerFn = jest.fn();
       const mod = new SupermanModule(registerFn);
+      const fastify = Fastify();
 
       // Act
-      await mod.register();
+      await fastify.register(mod.plugin);
 
       // Assert
-      expect(registerFn).toHaveBeenCalledWith(mod.router);
+      expect(registerFn).toHaveBeenCalledWith(expect.anything());
     }, 1000);
 
     it('should handle async register functions', async () => {
@@ -26,32 +28,38 @@ describe('SupermanModule', () => {
         await Promise.resolve();
         registered = true;
       });
+      const fastify = Fastify();
 
       // Act
-      await mod.register();
+      await fastify.register(mod.plugin);
 
       // Assert
       expect(registered).toBe(true);
     }, 1000);
 
-    it('should apply module middlewares before calling registerFn', async () => {
+    it('should apply module middlewares', async () => {
       // Arrange
       const callOrder: string[] = [];
-      const middleware = (_req: Request, _res: Response, next: NextFunction) => {
+      const middleware = async (_req: FastifyRequest, _res: FastifyReply) => {
         callOrder.push('middleware');
-        next();
       };
       const mod = new SupermanModule(
-        () => { callOrder.push('register'); },
+        (f) => {
+          f.get('/', async () => {
+            callOrder.push('handler');
+            return 'ok';
+          });
+        },
         { middlewares: [middleware] },
       );
+      const fastify = Fastify();
 
       // Act
-      await mod.register();
+      await fastify.register(mod.plugin);
+      await fastify.inject({ method: 'GET', url: '/' });
 
       // Assert
-      expect(callOrder).toEqual(['register']);
-      expect(mod.router.stack).toHaveLength(1);
+      expect(callOrder).toEqual(['middleware', 'handler']);
     }, 1000);
   });
 
@@ -110,14 +118,5 @@ describe('SupermanModule', () => {
       // Assert
       expect(mod.name).toBe('UsersModule');
     }, 1000);
-
-    it('should have a router instance', () => {
-      // Arrange & Act
-      const mod = new SupermanModule(jest.fn());
-
-      // Assert
-      expect(mod.router).toBeDefined();
-    }, 1000);
   });
 });
-

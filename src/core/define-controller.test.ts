@@ -1,19 +1,19 @@
-﻿import type { Request, RequestHandler, Response } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { defineController } from './define-controller';
 import { SupermanController } from './superman-controller';
 
-const makeReq = (): Request =>
-  ({ ip: '127.0.0.1', socket: { remoteAddress: '127.0.0.1' } } as unknown as Request);
+const makeReq = (): FastifyRequest =>
+  ({ ip: '127.0.0.1', raw: { socket: { remoteAddress: '127.0.0.1' } } } as unknown as FastifyRequest);
 
-const makeRes = (): Response => {
+const makeRes = (): FastifyReply => {
   const headers: Record<string, string> = {};
   return {
-    setHeader: jest.fn((key: string, value: string) => { headers[key] = value; }),
+    header: jest.fn((key: string, value: string) => { headers[key] = value; return this; }),
     getHeader: jest.fn((key: string) => headers[key]),
-    headersSent: false,
+    sent: false,
     status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-  } as unknown as Response;
+    send: jest.fn().mockReturnThis(),
+  } as unknown as FastifyReply;
 };
 
 interface IMockService {
@@ -65,7 +65,7 @@ describe('defineController', () => {
     // Arrange
     const factory = defineController<IMockService>({
       handler: async (_req, res, service) => {
-        res.json({ result: service.getData() });
+        res.send({ result: service.getData() });
       },
     });
     const controller = factory(mockService);
@@ -75,7 +75,7 @@ describe('defineController', () => {
     await controller.handler(makeReq(), res);
 
     // Assert
-    expect(res.json).toHaveBeenCalledWith({ result: 'test-data' });
+    expect(res.send).toHaveBeenCalledWith({ result: 'test-data' });
   }, 1000);
 
   it('should apply throttle config', async () => {
@@ -91,7 +91,7 @@ describe('defineController', () => {
     await controller.handler(makeReq(), res);
 
     // Assert
-    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '4');
+    expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '4');
   }, 1000);
 
   it('should apply custom throttle config', async () => {
@@ -107,7 +107,7 @@ describe('defineController', () => {
     await controller.handler(makeReq(), res);
 
     // Assert
-    expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
+    expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
   }, 1000);
 
   it('should run middlewares before the handler', async () => {
@@ -115,7 +115,7 @@ describe('defineController', () => {
     const callOrder: string[] = [];
     const factory = defineController<IMockService>({
       handler: () => { callOrder.push('handler'); },
-      middlewares: [((_req, _res, next) => { callOrder.push('mw'); next(); }) as RequestHandler],
+      middlewares: [async (_req, _res) => { callOrder.push('mw'); }],
     });
     const controller = factory(mockService);
 

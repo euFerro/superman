@@ -1,23 +1,22 @@
-﻿import { Router } from 'express';
-import type { RequestHandler } from 'express';
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import type { FastifyMiddleware } from '../middlewares/typed-handler';
 
-export type RegisterFn = (router: Router) => Promise<void> | void;
+export type RegisterFn = (fastify: FastifyInstance) => Promise<void> | void;
 
 export interface ModuleOptions {
   /** Display name for startup banner logs */
   name?: string;
   /** Called on graceful shutdown. Clean up intervals, connections, etc. */
   destroy?: () => Promise<void> | void;
-  /** Express middlewares applied to all routes in this module. */
-  middlewares?: ReadonlyArray<RequestHandler>;
+  /** Fastify middlewares applied to all routes in this module. */
+  middlewares?: ReadonlyArray<FastifyMiddleware>;
 }
 
 export class SupermanModule {
-  public readonly router: Router = Router();
   public readonly name: string;
   private readonly registerFn: RegisterFn;
   private readonly destroyFn?: () => Promise<void> | void;
-  private readonly middlewares: ReadonlyArray<RequestHandler>;
+  private readonly middlewares: ReadonlyArray<FastifyMiddleware>;
 
   constructor(register: RegisterFn, options?: ModuleOptions) {
     this.registerFn = register;
@@ -26,10 +25,21 @@ export class SupermanModule {
     this.middlewares = options?.middlewares ?? [];
   }
 
-  /** Called by SupermanExpressApp during startup. */
-  async register(): Promise<void> {
-    this.middlewares.forEach((mw) => this.router.use(mw));
-    await this.registerFn(this.router);
+  get plugin(): FastifyPluginAsync {
+    return async (fastify: FastifyInstance) => {
+      if (this.middlewares.length > 0) {
+        fastify.addHook('preHandler', async (request, reply) => {
+          for (const mw of this.middlewares) {
+            const result = mw(request, reply);
+            if (result instanceof Promise) {
+              await result;
+            }
+            if (reply.sent) return reply;
+          }
+        });
+      }
+      await this.registerFn(fastify);
+    };
   }
 
   /** Called on graceful shutdown. */

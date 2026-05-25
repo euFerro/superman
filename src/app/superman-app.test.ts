@@ -1,4 +1,4 @@
-﻿import { SupermanApp, SupermanExpressApp } from './superman-app';
+import { SupermanApp, SupermanExpressApp } from './superman-app';
 import { SupermanModule } from '../core/superman-module';
 
 describe('SupermanApp', () => {
@@ -40,7 +40,7 @@ describe('SupermanApp', () => {
       await app.registerModule('/test', mod);
 
       // Assert
-      expect(registerFn).toHaveBeenCalledWith(mod.router);
+      expect(registerFn).toHaveBeenCalledWith(expect.any(Object));
     }, 1000);
 
     it('should return the app instance for chaining', async () => {
@@ -84,22 +84,22 @@ describe('SupermanApp', () => {
     }, 1000);
   });
 
-  describe('getExpressApp', () => {
-    it('should return the underlying Express app', () => {
+  describe('getFastifyApp', () => {
+    it('should return the underlying Fastify app', () => {
       // Arrange
       const app = new SupermanApp();
 
       // Act
-      const expressApp = app.getExpressApp();
+      const fastifyApp = app.getFastifyApp();
 
       // Assert
-      expect(expressApp).toBeDefined();
-      expect(typeof expressApp.use).toBe('function');
+      expect(fastifyApp).toBeDefined();
+      expect(typeof fastifyApp.route).toBe('function');
     }, 1000);
   });
 
   describe('useMiddleware', () => {
-    it('should add middleware to the Express app', () => {
+    it('should add middleware to the Fastify app', () => {
       // Arrange
       const app = new SupermanApp();
       const middleware = jest.fn();

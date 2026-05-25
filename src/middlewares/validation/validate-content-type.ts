@@ -1,4 +1,4 @@
-﻿import type { RequestHandler } from 'express';
+import type { FastifyMiddleware } from '../typed-handler';
 import { UnsupportedMediaTypeException } from '../../exceptions/http.exception';
 import { attachOpenApiMeta } from '../openapi-meta';
 import type { JsonSchema } from '../../core/superman-controller';
@@ -41,13 +41,13 @@ const normalise = (value: string | undefined): string =>
  *   validateContentType('application/json', 'multipart/form-data')
  *   validateContentType({ types: ['application/json'], message: 'JSON only' })
  */
-export function validateContentType(...types: string[]): RequestHandler;
+export function validateContentType(...types: string[]): FastifyMiddleware;
 export function validateContentType(
   options: { types: string[] } & ValidateContentTypeOptions,
-): RequestHandler;
+): FastifyMiddleware;
 export function validateContentType(
   ...args: [({ types: string[] } & ValidateContentTypeOptions)] | string[]
-): RequestHandler {
+): FastifyMiddleware {
   let types: string[];
   let message: string | undefined;
 
@@ -61,17 +61,14 @@ export function validateContentType(
   const allowed = types.map((t) => t.toLowerCase());
   const allowedSet = new Set(allowed);
 
-  const handler: RequestHandler = (req, _res, next) => {
+  const handler: FastifyMiddleware = async (req, _res) => {
     const incoming = normalise(req.headers['content-type'] as string | undefined);
     if (!allowedSet.has(incoming)) {
-      return next(
-        new UnsupportedMediaTypeException(
+      throw new UnsupportedMediaTypeException(
           message ?? `Unsupported Content-Type: ${incoming || '(none)'}`,
           { supported: allowed },
-        ),
       );
     }
-    next();
   };
 
   return attachOpenApiMeta(handler, {

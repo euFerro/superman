@@ -10,13 +10,15 @@
  * still return plain Express `RequestHandler`s.
  */
 
-import type { RequestHandler } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+
+export type FastifyMiddleware = (req: FastifyRequest, res: FastifyReply) => Promise<void> | void;
 
 declare const __brand: unique symbol;
 
 export type ContextKey = 'body' | 'query' | 'params' | 'headers' | 'cookies' | 'user';
 
-export type TypedHandler<K extends ContextKey, T> = RequestHandler & {
+export type TypedHandler<K extends ContextKey, T> = FastifyMiddleware & {
   readonly [__brand]?: { kind: K; type: T };
 };
 

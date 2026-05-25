@@ -1,4 +1,4 @@
-﻿import http from 'http';
+import http from 'http';
 import type { AddressInfo } from 'net';
 import { SupermanApp } from './superman-app';
 import { config } from '../config/superman-config';
@@ -19,15 +19,18 @@ const get = (port: number, path: string): Promise<{ status: number; type: string
   });
 
 const startServer = (app: SupermanApp): Promise<{ port: number; close: () => Promise<void> }> =>
-  new Promise((resolve) => {
-    const server = http.createServer(app.getExpressApp());
-    server.listen(0, '127.0.0.1', () => {
-      const port = (server.address() as AddressInfo).port;
+  new Promise(async (resolve, reject) => {
+    const fastify = app.getFastifyApp();
+    try {
+      await fastify.listen({ port: 0, host: '127.0.0.1' });
+      const port = (fastify.server.address() as AddressInfo).port;
       resolve({
         port,
-        close: () => new Promise((r) => server.close(() => r())),
+        close: async () => { await fastify.close(); }
       });
-    });
+    } catch (e) {
+      reject(e);
+    }
   });
 
 describe('SupermanApp - /docs route', () => {

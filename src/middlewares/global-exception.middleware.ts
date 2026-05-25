@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { HttpException } from '../exceptions/http.exception';
 import { logger } from '../logger/superman-logger';
 import { buildErrorLog, responseSeverityOf } from '../logger/log-builders';
@@ -8,16 +8,16 @@ const log = logger.child('Exception');
 
 export function globalExceptionMiddleware(
   err: Error,
-  req: Request,
-  res: Response,
-  _next: NextFunction,
+  req: FastifyRequest,
+  res: FastifyReply,
 ): void {
-  res.locals.exceptionName = err.constructor.name;
+  const locals = (res as any).locals || ((res as any).locals = {});
+  locals.exceptionName = err.constructor.name;
 
-  const requestId = (res.locals.requestId as string | undefined) ?? 'unknown';
+  const requestId = (locals.requestId as string | undefined) ?? 'unknown';
 
   if (err instanceof HttpException) {
-    res.locals.exceptionMetadata = err.metadata;
+    locals.exceptionMetadata = err.metadata;
     const severity = responseSeverityOf(err.statusCode);
     const meta = { statusCode: err.statusCode, ...(err.metadata ?? {}) };
 
@@ -30,14 +30,14 @@ export function globalExceptionMiddleware(
     const body: Record<string, unknown> = { error: err.message };
     if (err.metadata) body.metadata = err.metadata;
 
-    res.status(err.statusCode).json(body);
+    res.status(err.statusCode).send(body);
     if (severity === EventSeverity.ERROR) {
-      log.events.error(buildErrorLog({ err, req, requestId }));
+      log.events.error(buildErrorLog({ err, req: req as any, requestId }));
     }
     return;
   }
 
   log.error(err.message, { stack: err.stack?.split('\n')[1]?.trim() });
-  log.events.error(buildErrorLog({ err, req, requestId }));
-  res.status(500).json({ error: 'Internal Server Error' });
+  log.events.error(buildErrorLog({ err, req: req as any, requestId }));
+  res.status(500).send({ error: 'Internal Server Error' });
 }

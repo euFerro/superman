@@ -1,7 +1,7 @@
-import type { RequestHandler } from 'express';
+import type { FastifyMiddleware } from './typed-handler';
 import { attachOpenApiMeta, readOpenApiMeta } from './openapi-meta';
 
-const makeHandler = (): RequestHandler => (_req, _res, next) => next();
+const makeHandler = (): FastifyMiddleware => async (_req, _res) => {};
 
 describe('openapi-meta', () => {
   beforeEach(() => {

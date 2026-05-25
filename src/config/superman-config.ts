@@ -154,7 +154,7 @@ export interface Principal {
   [key: string]: unknown;
 }
 
-export type AuthVerifier = (req: import('express').Request) => Promise<Principal> | Principal;
+export type AuthVerifier = (req: import('fastify').FastifyRequest) => Promise<Principal> | Principal;
 
 export interface DocsTemplateContext {
   spec: import('../app/build-openapi').OpenApiDocument;

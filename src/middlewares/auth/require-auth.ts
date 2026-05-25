@@ -1,4 +1,5 @@
-﻿import type { Request, RequestHandler } from 'express';
+import type { FastifyRequest } from 'fastify';
+import type { FastifyMiddleware } from '../typed-handler';
 import { UnauthorizedException } from '../../exceptions/http.exception';
 import { config, type AuthVerifier, type Principal } from '../../config/superman-config';
 import { attachOpenApiMeta } from '../openapi-meta';
@@ -43,23 +44,22 @@ export const requireAuth = (schemeOrOpts: string | RequireAuthOptions): TypedHan
     ? { scheme: schemeOrOpts }
     : schemeOrOpts;
 
-  const handler: RequestHandler = async (req, _res, next) => {
+  const handler: FastifyMiddleware = async (req, _res) => {
     const verify = resolveVerifier(opts.scheme, opts.verify);
     if (!verify) {
-      return next(new UnauthorizedException(`No verifier registered for scheme "${opts.scheme}".`));
+      throw new UnauthorizedException(`No verifier registered for scheme "${opts.scheme}".`);
     }
     try {
       const principal = await verify(req);
       if (!principal) {
-        return next(new UnauthorizedException());
+        throw new UnauthorizedException();
       }
-      (req as Request & { user?: Principal }).user = principal;
-      next();
+      (req as FastifyRequest & { user?: Principal }).user = principal;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
-        return next(error);
+        throw error;
       }
-      return next(new UnauthorizedException((error as Error)?.message || 'Unauthorized'));
+      throw new UnauthorizedException((error as Error)?.message || 'Unauthorized');
     }
   };
 

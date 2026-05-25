@@ -1,4 +1,4 @@
-﻿import type { RequestHandler, Request } from 'express';
+import type { FastifyRequest } from 'fastify';
 import { BadRequestException } from '../../exceptions/http.exception';
 import { config } from '../../config/superman-config';
 import {
@@ -10,7 +10,7 @@ import type { JsonSchema, MediaTypeDefinition } from '../../core/superman-contro
 import { attachOpenApiMeta } from '../openapi-meta';
 import { VALIDATION_ERROR_METADATA_SCHEMA } from './validation-error-schema';
 import { Schema, toJsonSchemaInput, type SchemaInput, type Infer } from '../../schema/builder';
-import type { TypedHandler } from '../typed-handler';
+import type { TypedHandler, FastifyMiddleware } from '../typed-handler';
 import type { ValidateMiddlewareOptions } from './validate-builder';
 
 const AUTO_400 = {
@@ -39,7 +39,7 @@ const isSingleSchema = (input: SchemaInput | Record<string, SchemaInput>): input
 };
 
 const pickSchemaForRequest = (
-  req: Request,
+  req: FastifyRequest,
   schemaOrMap: SchemaInput | Record<string, SchemaInput>,
 ): JsonSchema | null => {
   if (isSingleSchema(schemaOrMap)) return toJsonSchemaInput(schemaOrMap);
@@ -85,19 +85,18 @@ export function validateBody<M extends Record<string, SchemaInput>>(
 export function validateBody(
   schemaOrMap: SchemaInput | Record<string, SchemaInput>,
   options: ValidateMiddlewareOptions = {},
-): RequestHandler {
+): FastifyMiddleware {
   const message = options.message ?? 'Request body validation failed.';
-  const handler: RequestHandler = (req, _res, next) => {
+  const handler: FastifyMiddleware = async (req, _res) => {
     const schema = pickSchemaForRequest(req, schemaOrMap);
     if (!schema) {
-      return next(new BadRequestException(options.message ?? 'Unsupported request body for this Content-Type.'));
+      throw new BadRequestException(options.message ?? 'Unsupported request body for this Content-Type.');
     }
     const result = runValidator(req.body, schema, { coerce: false });
     if (!result.valid) {
-      return next(new BadRequestException(message, { errors: result.errors }));
+      throw new BadRequestException(message, { errors: result.errors });
     }
     req.body = result.value;
-    next();
   };
 
   const meta = buildBodyContent(schemaOrMap);

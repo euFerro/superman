@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 import { defineController, type ControllerFactory } from '../core/define-controller';
@@ -52,23 +52,24 @@ export const createMcpController = (throttle: ThrottlePreset | ThrottleConfig): 
     responses: {
       200: { description: 'JSON-RPC response (single JSON or SSE stream depending on client Accept).' },
     },
-    handler: async (req: Request, res: Response) => {
+    handler: async (req: FastifyRequest, res: FastifyReply) => {
       auditMcpRequest(req);
 
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-      res.on('close', () => {
+      res.raw.on('close', () => {
         transport.close();
-        if (req.body?.method === 'initialize') {
+        if ((req.body as any)?.method === 'initialize') {
           auditMcpSessionEnded(req);
         }
       });
       try {
         await mcpServer.connect(transport);
-        await transport.handleRequest(req, res, req.body);
+        await transport.handleRequest(req.raw, res.raw, req.body);
+        return res.hijack();
       } catch (error) {
         log.error('MCP request failed', { error: error as Error });
-        if (!res.headersSent) {
-          res.status(500).json({
+        if (!res.sent) {
+          res.status(500).send({
             jsonrpc: '2.0',
             error: { code: -32603, message: 'Internal MCP error' },
             id: null,

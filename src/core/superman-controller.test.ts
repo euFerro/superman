@@ -1,20 +1,21 @@
-﻿import type { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { SupermanController } from './superman-controller';
 import { TooManyRequestsException } from '../exceptions/http.exception';
 import { reply } from './reply';
 
-const makeReq = (overrides: Partial<Request> = {}): Request =>
-  ({ ip: '127.0.0.1', socket: { remoteAddress: '127.0.0.1' }, ...overrides } as unknown as Request);
+const makeReq = (overrides: Partial<FastifyRequest> = {}): FastifyRequest =>
+  ({ ip: '127.0.0.1', raw: { socket: { remoteAddress: '127.0.0.1' } }, ...overrides } as unknown as FastifyRequest);
 
-const makeRes = (): Response => {
+const makeRes = (): FastifyReply => {
   const headers: Record<string, string> = {};
-  return {
-    setHeader: jest.fn((key: string, value: string) => { headers[key] = value; }),
+  const res: any = {
+    header: jest.fn((key: string, value: string) => { headers[key] = value; return res; }),
     getHeader: jest.fn((key: string) => headers[key]),
-    headersSent: false,
+    sent: false,
     status: jest.fn().mockReturnThis(),
-    json: jest.fn().mockReturnThis(),
-  } as unknown as Response;
+    send: jest.fn().mockImplementation(() => { res.sent = true; return res; }),
+  };
+  return res as FastifyReply;
 };
 
 describe('SupermanController', () => {
@@ -47,7 +48,7 @@ describe('SupermanController', () => {
       await controller.handler(req, res);
 
       // Assert
-      expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '9');
+      expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '9');
     }, 1000);
 
     it('should throw TooManyRequestsException when rate limited', async () => {
@@ -73,7 +74,7 @@ describe('SupermanController', () => {
       try { await controller.handler(req, res2); } catch { /* expected */ }
 
       // Assert
-      expect(res2.setHeader).toHaveBeenCalledWith('Retry-After', expect.any(String));
+      expect(res2.header).toHaveBeenCalledWith('Retry-After', expect.any(String));
     }, 1000);
 
     it('should use fallback IP from socket when req.ip is undefined', async () => {
@@ -95,9 +96,8 @@ describe('SupermanController', () => {
     it('should run middlewares before the handler', async () => {
       // Arrange
       const callOrder: string[] = [];
-      const middleware = (_req: Request, _res: Response, next: NextFunction) => {
+      const middleware = async (_req: FastifyRequest, _res: FastifyReply) => {
         callOrder.push('middleware');
-        next();
       };
       const handlerFn = () => { callOrder.push('handler'); };
       const controller = new SupermanController(handlerFn, { middlewares: [middleware] });
@@ -112,13 +112,11 @@ describe('SupermanController', () => {
     it('should run multiple middlewares in order', async () => {
       // Arrange
       const callOrder: string[] = [];
-      const mw1 = (_req: Request, _res: Response, next: NextFunction) => {
+      const mw1 = async (_req: FastifyRequest, _res: FastifyReply) => {
         callOrder.push('mw1');
-        next();
       };
-      const mw2 = (_req: Request, _res: Response, next: NextFunction) => {
+      const mw2 = async (_req: FastifyRequest, _res: FastifyReply) => {
         callOrder.push('mw2');
-        next();
       };
       const handlerFn = () => { callOrder.push('handler'); };
       const controller = new SupermanController(handlerFn, { middlewares: [mw1, mw2] });
@@ -133,8 +131,8 @@ describe('SupermanController', () => {
     it('should stop the chain when middleware sends a response without calling next', async () => {
       // Arrange
       const handlerFn = jest.fn();
-      const blockingMiddleware = (_req: Request, res: Response) => {
-        res.status(403).json({ error: 'Forbidden' });
+      const blockingMiddleware = async (_req: FastifyRequest, res: FastifyReply) => {
+        res.status(403).send({ error: 'Forbidden' });
       };
       const controller = new SupermanController(handlerFn, { middlewares: [blockingMiddleware] });
 
@@ -158,8 +156,8 @@ describe('SupermanController', () => {
 
     it('should propagate errors passed to next(err)', async () => {
       // Arrange
-      const errorMiddleware = (_req: Request, _res: Response, next: NextFunction) => {
-        next(new Error('Next error'));
+      const errorMiddleware = async (_req: FastifyRequest, _res: FastifyReply) => {
+        throw new Error('Next error');
       };
       const controller = new SupermanController(jest.fn(), { middlewares: [errorMiddleware] });
 
@@ -170,9 +168,8 @@ describe('SupermanController', () => {
     it('should handle async middlewares that call next', async () => {
       // Arrange
       const handlerFn = jest.fn();
-      const asyncMiddleware = async (_req: Request, _res: Response, next: NextFunction) => {
+      const asyncMiddleware = async (_req: FastifyRequest, _res: FastifyReply) => {
         await Promise.resolve();
-        next();
       };
       const controller = new SupermanController(handlerFn, { middlewares: [asyncMiddleware] });
 
@@ -186,9 +183,9 @@ describe('SupermanController', () => {
     it('should handle async middlewares that send response without next', async () => {
       // Arrange
       const handlerFn = jest.fn();
-      const asyncBlockingMiddleware = async (_req: Request, res: Response) => {
+      const asyncBlockingMiddleware = async (_req: FastifyRequest, res: FastifyReply) => {
         await Promise.resolve();
-        res.status(400).json({ error: 'Bad' });
+        res.status(400).send({ error: 'Bad' });
       };
       const controller = new SupermanController(handlerFn, { middlewares: [asyncBlockingMiddleware] });
 
@@ -211,7 +208,7 @@ describe('SupermanController', () => {
       await controller.handler(req, res);
 
       // Assert
-      expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '99');
+      expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '99');
     }, 1000);
 
     it('should accept a preset string', async () => {
@@ -224,7 +221,7 @@ describe('SupermanController', () => {
       await controller.handler(req, res);
 
       // Assert
-      expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '4');
+      expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '4');
     }, 1000);
 
     it('should accept a custom config object', async () => {
@@ -237,7 +234,7 @@ describe('SupermanController', () => {
       await controller.handler(req, res);
 
       // Assert
-      expect(res.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
+      expect(res.header).toHaveBeenCalledWith('X-RateLimit-Remaining', '49');
     }, 1000);
   });
 
@@ -292,7 +289,7 @@ describe('SupermanController', () => {
 
       // Assert
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ id: 1, name: 'Ada' });
+      expect(res.send).toHaveBeenCalledWith({ id: 1, name: 'Ada' });
     }, 1000);
 
     it('should pick the single 2xx key declared in responses as the success status', async () => {
@@ -309,7 +306,7 @@ describe('SupermanController', () => {
 
       // Assert
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ id: 1 });
+      expect(res.send).toHaveBeenCalledWith({ id: 1 });
     }, 1000);
 
     it('should default to 200 when multiple 2xx keys are declared', async () => {
@@ -340,7 +337,7 @@ describe('SupermanController', () => {
 
       // Assert - only the rate-limit header is set; status/json are not called
       expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(res.send).not.toHaveBeenCalled();
     }, 1000);
 
     it('should not touch res when headersSent is already true', async () => {
@@ -348,14 +345,14 @@ describe('SupermanController', () => {
       const handler = async () => ({ ignored: true });
       const controller = new SupermanController(handler);
       const req = makeReq();
-      const res = { ...makeRes(), headersSent: true } as Response;
+      const res = { ...makeRes(), sent: true } as unknown as FastifyReply;
 
       // Act
       await controller.handler(req, res);
 
       // Assert
       expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(res.send).not.toHaveBeenCalled();
     }, 1000);
   });
 
@@ -372,7 +369,7 @@ describe('SupermanController', () => {
 
       // Assert
       expect(res.status).toHaveBeenCalledWith(202);
-      expect(res.json).toHaveBeenCalledWith({ id: 1 });
+      expect(res.send).toHaveBeenCalledWith({ id: 1 });
     }, 1000);
 
     it('should set headers from reply()', async () => {
@@ -386,7 +383,7 @@ describe('SupermanController', () => {
       await controller.handler(req, res);
 
       // Assert
-      expect(res.setHeader).toHaveBeenCalledWith('X-Trace-Id', 'abc');
+      expect(res.header).toHaveBeenCalledWith('X-Trace-Id', 'abc');
     }, 1000);
 
     it('should send body verbatim when reply() declares a mediaType', async () => {
@@ -397,7 +394,7 @@ describe('SupermanController', () => {
       const handler = async () => reply(xml, { mediaType: 'application/xml' });
       const controller = new SupermanController(handler);
       const req = makeReq();
-      const res = { ...makeRes(), type, send } as unknown as Response;
+      const res = { ...makeRes(), type, send } as unknown as FastifyReply;
 
       // Act
       await controller.handler(req, res);
@@ -412,7 +409,7 @@ describe('SupermanController', () => {
     it('should still receive (req, res, service) positionally', async () => {
       // Arrange
       const calls: Array<[unknown, unknown, unknown]> = [];
-      const handler = async (req: Request, res: Response, service: unknown) => {
+      const handler = async (req: FastifyRequest, res: FastifyReply, service: unknown) => {
         calls.push([req, res, service]);
       };
       const mockService = { hello: 'world' };
@@ -437,7 +434,7 @@ describe('SupermanController', () => {
       // Arrange
       const captured: { ctx?: Record<string, unknown> } = {};
       const controller = new SupermanController(captureCtx(captured) as unknown as (ctx: unknown) => unknown);
-      const req = makeReq({ body: { name: 'Ada', email: 'ada@example.com' } } as Partial<Request>);
+      const req = makeReq({ body: { name: 'Ada', email: 'ada@example.com' } } as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());
@@ -454,7 +451,7 @@ describe('SupermanController', () => {
       // Arrange
       const captured: { ctx?: Record<string, unknown> } = {};
       const controller = new SupermanController(captureCtx(captured) as unknown as (ctx: unknown) => unknown);
-      const req = makeReq({ params: { id: '42' } } as unknown as Partial<Request>);
+      const req = makeReq({ params: { id: '42' } } as unknown as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());
@@ -471,7 +468,7 @@ describe('SupermanController', () => {
       const req = makeReq({
         body: { id: 'body-id' },
         params: { id: 'param-id' },
-      } as unknown as Partial<Request>);
+      } as unknown as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());
@@ -488,7 +485,7 @@ describe('SupermanController', () => {
         captureCtx(captured) as unknown as (ctx: unknown) => unknown,
         mockService,
       );
-      const req = makeReq({ body: { service: 'evil', body: 'inner-body' } } as Partial<Request>);
+      const req = makeReq({ body: { service: 'evil', body: 'inner-body' } } as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());
@@ -503,7 +500,7 @@ describe('SupermanController', () => {
       const captured: { ctx?: Record<string, unknown> } = {};
       const controller = new SupermanController(captureCtx(captured) as unknown as (ctx: unknown) => unknown);
       const principal = { id: 'u1', roles: ['admin'] };
-      const req = makeReq({ user: principal } as unknown as Partial<Request>);
+      const req = makeReq({ user: principal } as unknown as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());
@@ -521,7 +518,7 @@ describe('SupermanController', () => {
       const req = makeReq({
         body: { page: 'from-body' },
         query: { page: 'from-query' },
-      } as unknown as Partial<Request>);
+      } as unknown as Partial<FastifyRequest>);
 
       // Act
       await controller.handler(req, makeRes());

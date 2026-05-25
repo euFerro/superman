@@ -1,4 +1,4 @@
-﻿import type { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { globalExceptionMiddleware } from './global-exception.middleware';
 import {
   BadRequestException,
@@ -12,24 +12,23 @@ import { config } from '../config/superman-config';
 
 interface MockRes {
   status: jest.Mock;
-  json: jest.Mock;
+  send: jest.Mock;
   locals: Record<string, unknown>;
 }
 
 const makeRes = (locals: Record<string, unknown> = {}): MockRes => ({
   status: jest.fn().mockReturnThis() as unknown as jest.Mock,
-  json: jest.fn().mockReturnThis() as unknown as jest.Mock,
+  send: jest.fn().mockReturnThis() as unknown as jest.Mock,
   locals,
 });
 
-const makeReq = (): Request => ({
+const makeReq = (): FastifyRequest => ({
   method: 'GET',
-  originalUrl: '/api/users',
+  url: '/api/users',
   ip: '127.0.0.1',
   headers: {},
-  socket: { remoteAddress: '127.0.0.1' } as unknown,
-  get: () => undefined,
-} as unknown as Request);
+  raw: { socket: { remoteAddress: '127.0.0.1' } } as unknown,
+} as unknown as FastifyRequest);
 
 describe('globalExceptionMiddleware', () => {
   let errorSpy: jest.SpyInstance;
@@ -51,11 +50,11 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes();
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid email' });
+    expect(res.send).toHaveBeenCalledWith({ error: 'Invalid email' });
   }, 1000);
 
   it('should return 500 for generic errors', () => {
@@ -64,11 +63,11 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes();
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+    expect(res.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
   }, 1000);
 
   it('should preserve the status code from HttpException', () => {
@@ -77,11 +76,11 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes();
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(503);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Service down' });
+    expect(res.send).toHaveBeenCalledWith({ error: 'Service down' });
   }, 1000);
 
   it('should stash exceptionName on res.locals for the response-finish hook', () => {
@@ -90,7 +89,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes();
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(res.locals.exceptionName).toBe('BadRequestException');
@@ -102,7 +101,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes({ requestId: 'req-1' });
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -114,7 +113,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes({ requestId: 'req-1' });
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -126,7 +125,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes({ requestId: 'req-1' });
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -138,7 +137,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes({ requestId: 'req-1' });
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(errorSpy).toHaveBeenCalledTimes(1);
@@ -150,7 +149,7 @@ describe('globalExceptionMiddleware', () => {
     const res = makeRes({ requestId: 'req-1' });
 
     // Act
-    globalExceptionMiddleware(err, makeReq(), res as unknown as Response, jest.fn() as unknown as NextFunction);
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
 
     // Assert
     expect(errorSpy).not.toHaveBeenCalled();

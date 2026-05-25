@@ -1,4 +1,4 @@
-﻿import type { Request, Response } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import {
   buildAuditLog,
   buildErrorLog,
@@ -37,18 +37,17 @@ interface ReqOverrides {
   body?: unknown;
 }
 
-const makeReq = (overrides: ReqOverrides = {}): Request => ({
+const makeReq = (overrides: ReqOverrides = {}): FastifyRequest => ({
   method: overrides.method ?? 'GET',
-  originalUrl: overrides.originalUrl ?? '/api/users',
+  url: overrides.originalUrl ?? '/api/users',
   ip: overrides.ip ?? '127.0.0.1',
   headers: overrides.headers ?? {},
   params: overrides.params ?? {},
   query: overrides.query ?? {},
-  route: overrides.route,
+  routeOptions: overrides.route ? { url: overrides.route.path } : undefined,
   body: overrides.body,
-  socket: { remoteAddress: '127.0.0.1' },
-  get: (name: string) => overrides.headers?.[name.toLowerCase()],
-} as unknown as Request);
+  raw: { socket: { remoteAddress: '127.0.0.1' } },
+} as unknown as FastifyRequest);
 
 interface ResOverrides {
   statusCode?: number;
@@ -56,11 +55,11 @@ interface ResOverrides {
   contentLength?: number;
 }
 
-const makeRes = (overrides: ResOverrides = {}): Response => ({
+const makeRes = (overrides: ResOverrides = {}): FastifyReply => ({
   statusCode: overrides.statusCode ?? 200,
   locals: overrides.locals ?? {},
   getHeader: (name: string) => (name.toLowerCase() === 'content-length' ? overrides.contentLength : undefined),
-} as unknown as Response);
+} as unknown as FastifyReply);
 
 describe('statusClassOf', () => {
   test.each([

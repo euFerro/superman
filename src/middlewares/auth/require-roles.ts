@@ -1,4 +1,5 @@
-﻿import type { Request, RequestHandler } from 'express';
+import type { FastifyRequest } from 'fastify';
+import type { FastifyMiddleware } from '../typed-handler';
 import { ForbiddenException, UnauthorizedException } from '../../exceptions/http.exception';
 import type { Principal } from '../../config/superman-config';
 import { attachOpenApiMeta } from '../openapi-meta';
@@ -30,20 +31,19 @@ const hasAll = (held: ReadonlyArray<string> | undefined, required: ReadonlyArray
   return required.every((r) => set.has(r));
 };
 
-const buildHandler = ({ roles = [], scopes = [] }: AuthorizeOptions): RequestHandler => async (req, _res, next) => {
-  const user = (req as Request & { user?: Principal }).user;
+const buildHandler = ({ roles = [], scopes = [] }: AuthorizeOptions): FastifyMiddleware => async (req, _res) => {
+  const user = (req as FastifyRequest & { user?: Principal }).user;
   if (!user) {
-    return next(new UnauthorizedException('Authentication required before authorization.'));
+    throw new UnauthorizedException('Authentication required before authorization.');
   }
   const okRoles = hasAll(user.roles, roles);
   const okScopes = hasAll(user.scopes, scopes);
   if (!okRoles || !okScopes) {
-    return next(new ForbiddenException('Insufficient permissions.', {
+    throw new ForbiddenException('Insufficient permissions.', {
       requiredRoles: [...roles],
       requiredScopes: [...scopes],
-    }));
+    });
   }
-  next();
 };
 
 /**
@@ -57,7 +57,7 @@ const buildHandler = ({ roles = [], scopes = [] }: AuthorizeOptions): RequestHan
  * `security` requirement by the spec builder (merged onto the closest
  * `requireAuth` scheme).
  */
-export const authorize = (options: AuthorizeOptions): RequestHandler => {
+export const authorize = (options: AuthorizeOptions): FastifyMiddleware => {
   const handler = buildHandler(options);
   return attachOpenApiMeta(handler, {
     kind: 'roles',
@@ -76,5 +76,5 @@ export const authorize = (options: AuthorizeOptions): RequestHandler => {
 };
 
 /** Convenience wrapper: `requireRoles('admin', 'editor')`. */
-export const requireRoles = (...roles: string[]): RequestHandler => authorize({ roles });
+export const requireRoles = (...roles: string[]): FastifyMiddleware => authorize({ roles });
 

@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { validateBody } from './validate-body';
 import { validateQuery } from './validate-query';
 import { validateHeaders } from './validate-headers';
@@ -8,21 +8,24 @@ import { validateContentType } from './validate-content-type';
 import { readOpenApiMeta } from '../openapi-meta';
 import { BadRequestException, UnsupportedMediaTypeException } from '../../exceptions/http.exception';
 
-const makeReq = (overrides: Partial<Request> = {}): Request => ({
+const makeReq = (overrides: Partial<FastifyRequest> = {}): FastifyRequest => ({
   body: {},
   query: {},
   params: {},
   headers: {},
   cookies: {},
   ...overrides,
-} as Request);
+} as FastifyRequest);
 
-const makeRes = (): Response => ({} as Response);
+const makeRes = (): FastifyReply => ({} as FastifyReply);
 
-const captureNext = (): { next: NextFunction; err: () => unknown } => {
-  let captured: unknown;
-  const next: NextFunction = (e?: unknown) => { captured = e; };
-  return { next, err: () => captured };
+const executeMw = async (mw: any, req: any): Promise<unknown> => {
+  try {
+    await mw(req, makeRes());
+    return undefined;
+  } catch (err) {
+    return err;
+  }
 };
 
 describe('validate middlewares', () => {
@@ -31,30 +34,28 @@ describe('validate middlewares', () => {
   });
 
   describe('validateBody', () => {
-    it('should call next with no error when the body matches the schema', () => {
+    it('should pass with no error when the body matches the schema', async () => {
       // Arrange
       const mw = validateBody({ type: 'object', properties: { name: { type: 'string' } }, required: ['name'] });
       const req = makeReq({ body: { name: 'Ada' } });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
+      expect(err).toBeUndefined();
     }, 1000);
 
-    it('should call next with a BadRequestException carrying metadata.errors on failure', () => {
+    it('should throw BadRequestException carrying metadata.errors on failure', async () => {
       // Arrange
       const mw = validateBody({ type: 'object', properties: { name: { type: 'string' } }, required: ['name'] });
       const req = makeReq({ body: {} });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      const error = err() as BadRequestException;
+      const error = err as BadRequestException;
       expect(error).toBeInstanceOf(BadRequestException);
       expect((error.metadata as { errors: unknown[] }).errors).toHaveLength(1);
     }, 1000);
@@ -70,20 +71,19 @@ describe('validate middlewares', () => {
       expect(readOpenApiMeta(mw)).toMatchObject({ kind: 'body', schema });
     }, 1000);
 
-    it('should support a media-type schema map', () => {
+    it('should support a media-type schema map', async () => {
       // Arrange
       const mw = validateBody({
         'application/json': { type: 'object', properties: { a: { type: 'string' } }, required: ['a'] },
         'application/xml':  { type: 'string' },
       });
-      const req = makeReq({ body: 'not-json-form', headers: { 'content-type': 'application/xml' } as Request['headers'] });
-      const { next, err } = captureNext();
+      const req = makeReq({ body: 'not-json-form', headers: { 'content-type': 'application/xml' } as FastifyRequest['headers'] });
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
+      expect(err).toBeUndefined();
       const meta = readOpenApiMeta(mw)!;
       expect(meta.bodyContent).toEqual({
         'application/json': { schema: { type: 'object', properties: { a: { type: 'string' } }, required: ['a'] } },
@@ -93,31 +93,29 @@ describe('validate middlewares', () => {
   });
 
   describe('validateQuery', () => {
-    it('should coerce numeric strings on success', () => {
+    it('should coerce numeric strings on success', async () => {
       // Arrange
       const mw = validateQuery({ type: 'object', properties: { page: { type: 'integer', minimum: 1 } } });
-      const req = makeReq({ query: { page: '3' } as Request['query'] });
-      const { next, err } = captureNext();
+      const req = makeReq({ query: { page: '3' } as unknown as FastifyRequest['query'] });
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
-      expect(req.query.page).toBe(3);
+      expect(err).toBeUndefined();
+      expect((req.query as Record<string, unknown>).page).toBe(3);
     }, 1000);
 
-    it('should reject out-of-range values', () => {
+    it('should reject out-of-range values', async () => {
       // Arrange
       const mw = validateQuery({ type: 'object', properties: { page: { type: 'integer', minimum: 1 } } });
-      const req = makeReq({ query: { page: '0' } as Request['query'] });
-      const { next, err } = captureNext();
+      const req = makeReq({ query: { page: '0' } as unknown as FastifyRequest['query'] });
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeInstanceOf(BadRequestException);
+      expect(err).toBeInstanceOf(BadRequestException);
     }, 1000);
   });
 
@@ -138,47 +136,44 @@ describe('validate middlewares', () => {
       expect(readOpenApiMeta(mw)?.kind).toBe('cookies');
     }, 1000);
 
-    it('should annotate validatePathParams with kind=path and coerce ids', () => {
+    it('should annotate validatePathParams with kind=path and coerce ids', async () => {
       // Arrange
       const mw = validatePathParams({ type: 'object', properties: { id: { type: 'integer' } } });
       const req = makeReq({ params: { id: '42' } });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
-      expect(req.params.id as unknown).toBe(42);
+      expect(err).toBeUndefined();
+      expect((req.params as Record<string, unknown>).id).toBe(42);
       expect(readOpenApiMeta(mw)?.kind).toBe('path');
     }, 1000);
   });
 
   describe('validateContentType', () => {
-    it('should pass through a matching Content-Type', () => {
+    it('should pass through a matching Content-Type', async () => {
       // Arrange
       const mw = validateContentType('application/json');
-      const req = makeReq({ headers: { 'content-type': 'application/json; charset=utf-8' } as Request['headers'] });
-      const { next, err } = captureNext();
+      const req = makeReq({ headers: { 'content-type': 'application/json; charset=utf-8' } as FastifyRequest['headers'] });
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect(err()).toBeUndefined();
+      expect(err).toBeUndefined();
     }, 1000);
 
-    it('should throw UnsupportedMediaTypeException with metadata.supported on mismatch', () => {
+    it('should throw UnsupportedMediaTypeException with metadata.supported on mismatch', async () => {
       // Arrange
       const mw = validateContentType('application/json', 'multipart/form-data');
-      const req = makeReq({ headers: { 'content-type': 'text/plain' } as Request['headers'] });
-      const { next, err } = captureNext();
+      const req = makeReq({ headers: { 'content-type': 'text/plain' } as FastifyRequest['headers'] });
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      const error = err() as UnsupportedMediaTypeException;
+      const error = err as UnsupportedMediaTypeException;
       expect(error).toBeInstanceOf(UnsupportedMediaTypeException);
       expect((error.metadata as { supported: string[] }).supported).toEqual(['application/json', 'multipart/form-data']);
     }, 1000);
@@ -198,57 +193,54 @@ describe('validate middlewares', () => {
   });
 
   describe('custom message override', () => {
-    it('should override the default BadRequestException message in validateBody', () => {
+    it('should override the default BadRequestException message in validateBody', async () => {
       // Arrange
       const mw = validateBody(
         { type: 'object', properties: { email: { type: 'string', format: 'email' } }, required: ['email'] },
         { message: 'Please supply a valid user payload.' },
       );
       const req = makeReq({ body: {} });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      const e = err() as BadRequestException;
+      const e = err as BadRequestException;
       expect(e).toBeInstanceOf(BadRequestException);
       expect(e.message).toBe('Please supply a valid user payload.');
       expect(e.metadata).toHaveProperty('errors');
     }, 1000);
 
-    it('should keep the default message when options.message is omitted', () => {
+    it('should keep the default message when options.message is omitted', async () => {
       // Arrange
       const mw = validateBody({
         type: 'object', properties: { email: { type: 'string' } }, required: ['email'],
       });
       const req = makeReq({ body: {} });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect((err() as BadRequestException).message).toBe('Request body validation failed.');
+      expect((err as BadRequestException).message).toBe('Request body validation failed.');
     }, 1000);
 
-    it('should override the message in validateQuery', () => {
+    it('should override the message in validateQuery', async () => {
       // Arrange
       const mw = validateQuery(
         { type: 'object', properties: { page: { type: 'integer', minimum: 1 } }, required: ['page'] },
         { message: 'Invalid pagination.' },
       );
       const req = makeReq({ query: {} });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      expect((err() as BadRequestException).message).toBe('Invalid pagination.');
+      expect((err as BadRequestException).message).toBe('Invalid pagination.');
     }, 1000);
 
-    it('should override the message in validateHeaders / validateCookies / validatePathParams', () => {
+    it('should override the message in validateHeaders / validateCookies / validatePathParams', async () => {
       // Arrange
       const headersMw = validateHeaders(
         { type: 'object', properties: { 'x-tenant-id': { type: 'string' } }, required: ['x-tenant-id'] },
@@ -264,33 +256,29 @@ describe('validate middlewares', () => {
       );
 
       // Act
-      const headersErr = captureNext();
-      headersMw(makeReq({ headers: {} }), makeRes(), headersErr.next);
-      const cookiesErr = captureNext();
-      cookiesMw(makeReq({ cookies: {} }), makeRes(), cookiesErr.next);
-      const pathErr = captureNext();
-      pathMw(makeReq({ params: { id: 'not-a-uuid' } } as unknown as Partial<Request>), makeRes(), pathErr.next);
+      const headersErr = await executeMw(headersMw, makeReq({ headers: {} }));
+      const cookiesErr = await executeMw(cookiesMw, makeReq({ cookies: {} } as any));
+      const pathErr = await executeMw(pathMw, makeReq({ params: { id: 'not-a-uuid' } }));
 
       // Assert
-      expect((headersErr.err() as BadRequestException).message).toBe('Tenant header required.');
-      expect((cookiesErr.err() as BadRequestException).message).toBe('Session cookie missing.');
-      expect((pathErr.err() as BadRequestException).message).toBe('Bad route id.');
+      expect((headersErr as BadRequestException).message).toBe('Tenant header required.');
+      expect((cookiesErr as BadRequestException).message).toBe('Session cookie missing.');
+      expect((pathErr as BadRequestException).message).toBe('Bad route id.');
     }, 1000);
 
-    it('should override the UnsupportedMediaTypeException message in validateContentType', () => {
+    it('should override the UnsupportedMediaTypeException message in validateContentType', async () => {
       // Arrange
       const mw = validateContentType({
         types: ['application/json'],
         message: 'This endpoint only accepts JSON.',
       });
       const req = makeReq({ headers: { 'content-type': 'application/xml' } });
-      const { next, err } = captureNext();
 
       // Act
-      mw(req, makeRes(), next);
+      const err = await executeMw(mw, req);
 
       // Assert
-      const e = err() as UnsupportedMediaTypeException;
+      const e = err as UnsupportedMediaTypeException;
       expect(e).toBeInstanceOf(UnsupportedMediaTypeException);
       expect(e.message).toBe('This endpoint only accepts JSON.');
       expect(e.metadata).toEqual({ supported: ['application/json'] });

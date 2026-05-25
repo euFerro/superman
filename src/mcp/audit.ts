@@ -1,4 +1,4 @@
-import type { Request } from 'express';
+import type { FastifyRequest } from 'fastify';
 
 import { logger } from '../logger/superman-logger';
 import { AuditEvents, EventSeverity } from '../logger/superman-logger.types';
@@ -23,7 +23,7 @@ const log = logger.child('Mcp');
  * or `customerId` string, it's surfaced for log filtering. Add your own
  * conventions by post-processing in your log sink.
  */
-export const auditMcpRequest = (req: Request): void => {
+export const auditMcpRequest = (req: FastifyRequest): void => {
   const body = req.body as JsonRpcBody | undefined;
   if (!body || typeof body !== 'object') return;
 
@@ -87,7 +87,7 @@ export const auditMcpRequest = (req: Request): void => {
   });
 };
 
-export const auditMcpSessionEnded = (req: Request): void => {
+export const auditMcpSessionEnded = (req: FastifyRequest): void => {
   const body = req.body as JsonRpcBody | undefined;
   if (!body || typeof body !== 'object') return;
 

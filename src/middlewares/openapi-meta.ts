@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Mechanism that lets framework middlewares attach OpenAPI documentation
  * metadata to themselves. SupermanController walks its `middlewares` array,
  * reads each annotation, and synthesizes the OpenAPI inputs (request body,
@@ -9,7 +9,7 @@
  * ignored by the doc layer (they still run at request time).
  */
 
-import type { RequestHandler } from 'express';
+import type { FastifyMiddleware } from './typed-handler';
 import type {
   JsonSchema,
   SecurityRequirement,
@@ -52,7 +52,7 @@ interface AnnotatedHandler {
   [OPENAPI_META]?: OpenApiMiddlewareMeta;
 }
 
-export const attachOpenApiMeta = <H extends RequestHandler>(
+export const attachOpenApiMeta = <H extends FastifyMiddleware>(
   handler: H,
   meta: OpenApiMiddlewareMeta,
 ): H => {
@@ -60,6 +60,6 @@ export const attachOpenApiMeta = <H extends RequestHandler>(
   return handler;
 };
 
-export const readOpenApiMeta = (handler: RequestHandler): OpenApiMiddlewareMeta | undefined =>
+export const readOpenApiMeta = (handler: FastifyMiddleware): OpenApiMiddlewareMeta | undefined =>
   (handler as unknown as AnnotatedHandler)[OPENAPI_META];
 

@@ -1,4 +1,4 @@
-import type { Request } from 'express';
+import type { FastifyRequest } from 'fastify';
 
 import type { JsonRpcBody, McpClientIdentity } from './types';
 
@@ -14,7 +14,7 @@ import type { JsonRpcBody, McpClientIdentity } from './types';
  * `initialize` requests; subsequent `tools/call` requests will resolve identity
  * from `User-Agent` alone.
  */
-export const identifyMcpClient = (req: Request, body: JsonRpcBody | undefined): McpClientIdentity => {
+export const identifyMcpClient = (req: FastifyRequest, body: JsonRpcBody | undefined): McpClientIdentity => {
   const userAgent = String(req.headers['user-agent'] ?? 'unknown');
   const ip = String(req.ip ?? req.socket.remoteAddress ?? 'unknown');
   const clientInfo = body?.params?.clientInfo;

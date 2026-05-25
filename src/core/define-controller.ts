@@ -1,8 +1,8 @@
-﻿import { SupermanController } from './superman-controller';
+import { SupermanController } from './superman-controller';
 import type { ResponseDefinition, ErrorResponseDefinition, SecurityRequirement } from './superman-controller';
-import type { Request, Response, RequestHandler } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import type { ThrottlePreset, ThrottleConfig } from '../throttle/throttle.constants';
-import type { HandlerContextOf } from '../middlewares/typed-handler';
+import type { HandlerContextOf, FastifyMiddleware } from '../middlewares/typed-handler';
 
 /**
  * Legacy positional handler: `(req, res, service) => void`. Returning a
@@ -11,8 +11,8 @@ import type { HandlerContextOf } from '../middlewares/typed-handler';
  * routes legacy handlers through unchanged.
  */
 export type LegacyHandler<TService> = (
-  req: Request,
-  res: Response,
+  req: FastifyRequest,
+  res: FastifyReply,
   service: TService,
 ) => Promise<void> | void;
 
@@ -27,8 +27,8 @@ export type LegacyHandler<TService> = (
  * control.
  */
 export interface HandlerContextBase<TService> {
-  req:     Request;
-  res:     Response;
+  req:     FastifyRequest;
+  res:     FastifyReply;
   service: TService;
   body:    unknown;
   query:   unknown;
@@ -56,7 +56,7 @@ export type ControllerFactory<TService> = (service: TService) => SupermanControl
 
 export interface DefineControllerOptions<
   TService,
-  MWs extends ReadonlyArray<RequestHandler> = ReadonlyArray<RequestHandler>,
+  MWs extends ReadonlyArray<FastifyMiddleware> = ReadonlyArray<FastifyMiddleware>,
 > {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   // MWs flows in via the `middlewares` field; it drives the handler's
@@ -93,7 +93,7 @@ export interface DefineControllerOptions<
  */
 export const defineController = <
   TService,
-  const MWs extends ReadonlyArray<RequestHandler> = ReadonlyArray<RequestHandler>,
+  const MWs extends ReadonlyArray<FastifyMiddleware> = ReadonlyArray<FastifyMiddleware>,
 >(
   options: DefineControllerOptions<TService, MWs>,
 ): ControllerFactory<TService> => {

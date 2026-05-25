@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
 export default withMermaid(defineConfig({
-  title: "Superman Framework",
+  title: "Superman",
   description: "An epic, declarative backend framework forged for the age of autonomous AI agents.",
   ignoreDeadLinks: true,
   head: [

@@ -1,4 +1,5 @@
-﻿import type { Request, Response, RequestHandler, NextFunction } from 'express';
+import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyMiddleware } from '../middlewares/typed-handler';
 import { TooManyRequestsException } from '../exceptions/http.exception';
 import { ControllerThrottler } from '../throttle/controller-throttler';
 import { THROTTLE_CONFIG } from '../throttle/throttle.constants';
@@ -6,7 +7,7 @@ import type { ThrottleConfig, ThrottlePreset } from '../throttle/throttle.consta
 import { readOpenApiMeta, type OpenApiMiddlewareMeta } from '../middlewares/openapi-meta';
 import { isReply, type Reply } from './reply';
 
-export type RouteHandler = (req: Request, res: Response) => Promise<void> | void;
+export type RouteHandler = (req: FastifyRequest, res: FastifyReply) => Promise<void> | void;
 
 /**
  * Permissive structural type for a JSON Schema 2020-12 object. The framework
@@ -134,7 +135,7 @@ export interface ControllerOptions {
    * automatically. User-defined middlewares run normally but don't appear
    * in the spec.
    */
-  middlewares?: ReadonlyArray<RequestHandler>;
+  middlewares?: ReadonlyArray<FastifyMiddleware>;
   /** Response definitions by status code (success/non-framework responses). */
   responses?: Record<number, ResponseDefinition>;
   /** Framework-envelope errors this route may emit beyond auto-injected ones. */
@@ -178,7 +179,7 @@ interface SynthResult {
  *   - Each middleware's `errorStatuses[]` becomes an auto-error response,
  *     deduplicated by status code (first wins).
  */
-const synthesiseFromMiddlewares = (middlewares: ReadonlyArray<RequestHandler>): SynthResult => {
+const synthesiseFromMiddlewares = (middlewares: ReadonlyArray<FastifyMiddleware>): SynthResult => {
   let body: RequestBodyDefinition | undefined;
   let query: JsonSchema | undefined;
   let headers: JsonSchema | undefined;
@@ -284,38 +285,20 @@ const mergeErrors = (
 };
 
 /**
- * Runs a single Express middleware as a promise.
- * Returns true if next() was called (continue chain), false otherwise (response sent).
+ * Runs a single Fastify middleware/hook as a promise.
+ * Returns true if the chain should continue, false if response was sent.
  */
-function runMiddleware(mw: RequestHandler, req: Request, res: Response): Promise<boolean> {
+function runMiddleware(mw: FastifyMiddleware, req: FastifyRequest, res: FastifyReply): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    let settled = false;
-
-    const next: NextFunction = (err?: unknown) => {
-      if (settled) return;
-      settled = true;
-      if (err) return reject(err instanceof Error ? err : new Error(String(err)));
-      resolve(true);
-    };
-
     try {
-      const result = mw(req, res, next);
+      const result = mw(req, res);
       if (result instanceof Promise) {
-        result.then(() => {
-          if (settled) return;
-          settled = true;
-          resolve(false);
-        }).catch(reject);
-        return;
+        result.then(() => resolve(!res.sent)).catch(reject);
+      } else {
+        resolve(!res.sent);
       }
     } catch (error) {
       reject(error);
-      return;
-    }
-
-    if (!settled) {
-      settled = true;
-      resolve(false);
     }
   });
 }
@@ -346,7 +329,7 @@ const RESERVED_CONTEXT_KEYS: ReadonlySet<string> = new Set([
   'body', 'query', 'params', 'headers', 'cookies', 'user',
 ]);
 
-const buildContext = (req: Request, res: Response, service: unknown): Record<string, unknown> => {
+const buildContext = (req: FastifyRequest, res: FastifyReply, service: unknown): Record<string, unknown> => {
   const ctx: Record<string, unknown> = {
     req,
     res,
@@ -355,8 +338,8 @@ const buildContext = (req: Request, res: Response, service: unknown): Record<str
     query:   req.query,
     params:  req.params,
     headers: req.headers,
-    cookies: (req as Request & { cookies?: unknown }).cookies,
-    user:    (req as Request & { user?: unknown }).user,
+    cookies: (req as FastifyRequest & { cookies?: unknown }).cookies,
+    user:    (req as FastifyRequest & { user?: unknown }).user,
   };
 
   // Spread leaf properties at the root in precedence order - later writes
@@ -374,33 +357,33 @@ const buildContext = (req: Request, res: Response, service: unknown): Record<str
   return ctx;
 };
 
-const writeReply = (res: Response, value: Reply<unknown> | unknown, fallbackStatus: number): void => {
-  if (res.headersSent) return;
+const writeReply = (res: FastifyReply, value: Reply<unknown> | unknown, fallbackStatus: number): void => {
+  if (res.sent) return;
   if (value === undefined) return;
 
   if (isReply(value)) {
     const { data, options } = value;
     if (options.headers) {
-      for (const [k, v] of Object.entries(options.headers)) res.setHeader(k, v);
+      for (const [k, v] of Object.entries(options.headers)) res.header(k, v);
     }
     const status = options.status ?? fallbackStatus;
     res.status(status);
     if (options.mediaType) {
       res.type(options.mediaType).send(data as string | Buffer);
     } else {
-      res.json(data);
+      res.send(data);
     }
     return;
   }
 
-  res.status(fallbackStatus).json(value);
+  res.status(fallbackStatus).send(value);
 };
 
 export class SupermanController {
   private readonly handleFn: AnyHandler;
   private readonly service: unknown;
   private readonly throttleConfig: ThrottlePreset | ThrottleConfig;
-  private readonly middlewares: ReadonlyArray<RequestHandler>;
+  private readonly middlewares: ReadonlyArray<FastifyMiddleware>;
   private readonly _responses?: Record<number, ResponseDefinition>;
   private readonly _errors?: ReadonlyArray<ErrorResponseDefinition>;
   private readonly _operationId?: string;
@@ -477,17 +460,16 @@ export class SupermanController {
     return this._throttler;
   }
 
-  /** Bound handler with rate limiting and middleware chain, ready for Express router */
   get handler(): RouteHandler {
-    return async (req: Request, res: Response) => {
-      const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+    return async (req: FastifyRequest, res: FastifyReply) => {
+      const ip = req.ip ?? 'unknown';
 
       if (!this.throttler.check(ip)) {
-        res.setHeader('Retry-After', String(this.throttler.retryAfter(ip)));
+        res.header('Retry-After', String(this.throttler.retryAfter(ip)));
         throw new TooManyRequestsException();
       }
 
-      res.setHeader('X-RateLimit-Remaining', String(this.throttler.remaining(ip)));
+      res.header('X-RateLimit-Remaining', String(this.throttler.remaining(ip)));
 
       for (const mw of this.middlewares) {
         const shouldContinue = await runMiddleware(mw, req, res);
@@ -496,7 +478,7 @@ export class SupermanController {
 
       // Arity sniff: 3 â†’ legacy (req, res, service); â‰¤2 â†’ context handler.
       if (this.handleFn.length >= 3) {
-        await (this.handleFn as (req: Request, res: Response, service: unknown) => Promise<void> | void)(
+        await (this.handleFn as (req: FastifyRequest, res: FastifyReply, service: unknown) => Promise<void> | void)(
           req, res, this.service,
         );
         return;
@@ -517,10 +499,9 @@ export class SupermanController {
         return;
       }
 
-      // Arity 2 â†’ legacy `(req, res)` form (used by internal tests / direct
+      // Arity 2 -> legacy `(req, res)` form (used by internal tests / direct
       // SupermanController instantiation without a service).
-      await (this.handleFn as (req: Request, res: Response) => Promise<void> | void)(req, res);
+      await (this.handleFn as (req: FastifyRequest, res: FastifyReply) => Promise<void> | void)(req, res);
     };
   }
 }
-

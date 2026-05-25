@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Internal factory that wires a JSON Schema validator into an Express
  * middleware and attaches OpenAPI documentation metadata.
  *
@@ -7,7 +7,8 @@
  * and the same auto-injected `400` response.
  */
 
-import type { Request, RequestHandler } from 'express';
+import type { FastifyRequest } from 'fastify';
+import type { FastifyMiddleware } from '../typed-handler';
 import { BadRequestException } from '../../exceptions/http.exception';
 import { config } from '../../config/superman-config';
 import {
@@ -35,24 +36,24 @@ const runValidator = (value: unknown, schema: JsonSchema, options: ValidateOptio
   return validateJsonSchema(value, schema, options);
 };
 
-const extractValue = (req: Request, kind: OpenApiMiddlewareKind): unknown => {
+const extractValue = (req: FastifyRequest, kind: OpenApiMiddlewareKind): unknown => {
   switch (kind) {
     case 'body':    return req.body;
     case 'query':   return req.query;
     case 'headers': return req.headers;
-    case 'cookies': return (req as Request & { cookies?: unknown }).cookies;
+    case 'cookies': return (req as FastifyRequest & { cookies?: unknown }).cookies;
     case 'path':    return req.params;
     default:        return undefined;
   }
 };
 
-const writeValue = (req: Request, kind: OpenApiMiddlewareKind, value: unknown): void => {
+const writeValue = (req: FastifyRequest, kind: OpenApiMiddlewareKind, value: unknown): void => {
   switch (kind) {
     case 'body':
       req.body = value;
       return;
     case 'query':
-      // Express's req.query is sometimes read-only via Object.defineProperty.
+      // Fastify's req.query is sometimes read-only via Object.defineProperty.
       // Mutate field-by-field so we don't trip the setter.
       if (value && typeof value === 'object') {
         for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
@@ -66,7 +67,7 @@ const writeValue = (req: Request, kind: OpenApiMiddlewareKind, value: unknown): 
       // result but the original headers stay intact for downstream code.
       return;
     case 'cookies':
-      (req as Request & { cookies?: unknown }).cookies = value;
+      (req as FastifyRequest & { cookies?: unknown }).cookies = value;
       return;
     case 'path':
       if (value && typeof value === 'object') {
@@ -97,19 +98,16 @@ export const buildValidatorMiddleware = ({
   schema,
   coerce,
   message,
-}: BuildValidatorOptions): RequestHandler => {
+}: BuildValidatorOptions): FastifyMiddleware => {
   const jsonSchema = toJsonSchemaInput(schema);
   const defaultMessage = 'Request validation failed.';
-  const handler: RequestHandler = (req, _res, next) => {
+  const handler: FastifyMiddleware = async (req, _res) => {
     const value = extractValue(req, kind);
     const result = runValidator(value, jsonSchema, { coerce });
     if (!result.valid) {
-      return next(
-        new BadRequestException(message ?? defaultMessage, { errors: result.errors }),
-      );
+      throw new BadRequestException(message ?? defaultMessage, { errors: result.errors });
     }
     writeValue(req, kind, result.value);
-    next();
   };
 
   return attachOpenApiMeta(handler, {
