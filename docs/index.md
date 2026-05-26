@@ -23,7 +23,7 @@ hero:
 features:
   - title: 🦸‍♂️ Native MCP Server
     details: Built from the ground up to integrate with the Model Context Protocol. Effortlessly expose your application capabilities directly to AI agents.
-  - title: 🧩 Absolute Consistency
+  - title: 🧩 Native Observability
     details: Identical patterns for configuration, routing, and logging. Build codebases that AI agents can predict and master instantly.
   - title: 🤖 Zero-Drifting Documentation
     details: Instantly serves a beautiful Scalar API reference generated directly from your OpenAPI 3.1 spec, ensuring zero manual drift.
@@ -34,3 +34,33 @@ features:
   - title: 🏗️ Declarative Architecture
     details: Define your entire application structure in a few explicit function calls, allowing AI to parse the architecture in a single pass.
 ---
+
+<div class="features-comparison">
+
+## Feature-by-Feature Comparison
+
+Compare how **Superman** stacks up against traditional Node.js backend frameworks:
+
+<div class="table-container">
+
+| Feature / Capability | 🦸‍♂️ Superman | 🦁 NestJS | 🔥 Hono | 🔮 Encore | 🚀 Fastify | 🟢 Express |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Native MCP Server** | ✅ | ❌ | 🔌 | ❌ | 🔌 | 🔌 |
+| **Native Observability** | ✅ | ⚠️ | ❌ | ✅ | ❌ | ❌ |
+| **Zero-Drifting Docs** | ✅ | ⚠️ | 🔌 | ✅ | 🔌 | ❌ |
+| **Agent-Ready JSON Logs** | ✅ | ⚠️ | ❌ | ✅ | 🔌 | ❌ |
+| **High Performance** | ✅ | ⚠️ | ✅ | ✅ | ✅ | ⚠️ |
+| **Declarative Architecture**| ✅ | ⚠️ | ❌ | ✅ | ❌ | ❌ |
+
+</div>
+
+<div class="legend-list">
+
+- ✅ **Native / Out-of-the-box support**
+- 🔌 **Supported via plugin / extension**
+- ⚠️ **Partial / Complex configuration**
+- ❌ **No support**
+
+</div>
+
+</div>
