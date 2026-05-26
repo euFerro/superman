@@ -1,4 +1,4 @@
-﻿# Schemas
+# Schemas
 
 Schemas are authored with the framework's built-in **chainable schema builder** (`s.*`). One declaration drives three surfaces at once:
 
@@ -132,7 +132,7 @@ The query, header, cookie, and path-param validators **coerce strings to typed v
 | `'boolean'` | `"true"`, `"false"` | `true`, `false` |
 | `'null'` (or union with null) | `"null"`, `""` | `null` |
 
-Body validation does **not** coerce — JSON bodies are already parsed by `express.json()`. Coerced values are written back to `req.query` / `req.params` / `req.cookies`, so your handler reads typed data without manual casts.
+Body validation does **not** coerce — JSON bodies are already parsed by Fastify. Coerced values are written back to `req.query` / `req.params` / `req.cookies`, so your handler reads typed data without manual casts.
 
 ## Examples and descriptions flow through
 

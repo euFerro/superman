@@ -1,7 +1,7 @@
 {
   "name": "@supersec-ai/superman",
   "version": "2.0.0",
-  "description": "Express backend framework for Superman backend applications",
+  "description": "The agentic backend framework for building the future of AI applications.",
   "type": "commonjs",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -35,7 +35,7 @@
   "keywords": [
     "superman",
     "framework",
-    "express",
+    "fastify",
     "ai",
     "backend",
     "typescript",

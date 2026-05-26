@@ -102,7 +102,7 @@ bun add @supersec-ai/superman           # Bun
 # Deno: import from 'npm:@supersec-ai/superman'
 ```
 
-Express is a regular dependency and is installed automatically by the package manager. The bundle itself is ~45 KB and ships both CommonJS (`dist/index.js`) and ES Module (`dist/index.mjs`) entries, resolved via the `exports` map.
+Fastify is a peer dependency and must be installed in the consuming application. The bundle itself is ~45 KB and ships both CommonJS (`dist/index.js`) and ES Module (`dist/index.mjs`) entries, resolved via the `exports` map.
 
 ### Supported runtimes
 
@@ -458,7 +458,7 @@ That's it. Config, logging, rate limiting, exception handling, and graceful shut
 | `defineController()` | function | sync | Generic factory — returns `ControllerFactory<TService>` |
 | `defineModule()` | function | sync | Declares a module with routes. |
 | `config` | singleton | — | Access resolved config: `config.port`, `config.env.X` (or `config.get('X')`), `config.endpoints.X`, `config.logger`, `config.openapi`, `config.schemaValidator` |
-| `app` | singleton | — | Express app: `app.listen()`, `app.shutdown()`, `app.useMiddleware()` |
+| `app` | singleton | — | Server singleton: `app.listen()`, `app.shutdown()`, `app.useMiddleware()` |
 | `logger` | singleton | — | Free-form logger (`logger.info()`, `logger.child('Context')`) + typed events (`logger.events.system()`, `.request()`, `.response()`, `.error()`, `.audit()`, `.security()`) |
 | `s` | schema-builder namespace | — | Chainable Zod-like DSL: `s.string()`, `s.number()`, `s.object({...})`, `s.array(...)`, `s.union(...)`, etc. Emits JSON Schema under the hood, runs runtime validation, and types DTOs via `Infer`. See [docs/schemas.md](./docs/schemas.md) |
 | `Schema` / `Infer` / `SchemaInput` | types | — | `Schema<T>` is the builder base class; `Infer<typeof S>` extracts the TypeScript type from a schema; `SchemaInput = JsonSchema \| Schema<unknown>` is the union every `validate*` middleware accepts |
@@ -494,7 +494,7 @@ defineConfig({
   port: 3000,                          // static number
   port: { env: 'PORT', default: 3000 },// or from env var with fallback
   prefix: '/api',                      // prepended to all module prefixes
-  jsonLimit: '10mb',                   // Express JSON body limit
+  jsonLimit: '10mb',                   // JSON body limit
 
   environments: {                      // endpoint sets per NODE_ENV
     development: { endpoints: { api: 'https://dev.api.com' } },

@@ -1,4 +1,4 @@
-﻿# Middlewares
+# Middlewares
 
 The framework ships a set of **self-documenting middlewares** that do two things at once:
 
@@ -110,7 +110,7 @@ validateBody({
 - Map form ➡️ one entry per media type under `requestBody.content`
 - Always adds a `400` response referencing `FrameworkError` with `metadata: { errors }`.
 
-**Why no coercion?** Bodies arrive parsed by `express.json()` / `multer` / etc — numbers are already numbers, booleans are booleans. Coercion would mask real client bugs.
+**Why no coercion?** Bodies arrive parsed by Fastify / multipart parsers / etc — numbers are already numbers, booleans are booleans. Coercion would mask real client bugs.
 
 ---
 
@@ -323,17 +323,16 @@ middlewares: [
 You can write your own middleware that contributes to the spec by attaching an `OpenApiMiddlewareMeta` annotation:
 
 ```typescript
-import type { RequestHandler } from 'express';
+import type { FastifyMiddleware } from '@supersec-ai/superman';
 import { attachOpenApiMeta, BadRequestException } from '@supersec-ai/superman';
 
-export const checkIdempotencyKey = (): RequestHandler => {
-  const handler: RequestHandler = (req, _res, next) => {
+export const checkIdempotencyKey = (): FastifyMiddleware => {
+  const handler: FastifyMiddleware = async (req, _res) => {
     if (!req.headers['idempotency-key']) {
-      return next(new BadRequestException('Missing Idempotency-Key.', {
+      throw new BadRequestException('Missing Idempotency-Key.', {
         errors: [{ path: '/headers/idempotency-key', keyword: 'required', message: 'Required header.' }],
-      }));
+      });
     }
-    next();
   };
 
   return attachOpenApiMeta(handler, {

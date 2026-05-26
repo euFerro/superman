@@ -4,13 +4,13 @@ This document describes how `superman` is wired internally — the layers, the l
 
 ## 1. Overview
 
-The framework is a thin, opinionated layer on top of Express. It exposes three declarative entry points (`defineConfig`, `defineController`, `defineModule`) and one runtime singleton (`app`). Everything else — request interception, exception handling, structured logging, throttling, graceful shutdown — happens automatically.
+The framework is a thin, opinionated layer on top of Fastify. It exposes three declarative entry points (`defineConfig`, `defineController`, `defineModule`) and one runtime singleton (`app`). Everything else — request interception, exception handling, structured logging, throttling, graceful shutdown — happens automatically.
 
 ```mermaid
 flowchart TD
     User["User code<br/>defineConfig · defineModule<br/>defineController · app.listen"]
 
-    subgraph App["SupermanApp · Express wrapper · lifecycle owner"]
+    subgraph App["SupermanApp · Server wrapper · lifecycle owner"]
         direction LR
         Entry["⬇ requestInterceptorMiddleware<br/>entry hook"]
         Routes["registered modules ➡️ routers"]
@@ -58,7 +58,7 @@ flowchart TD
 
 The framework rests on four design rules that shape every module:
 
-1. **Declarative over imperative.** Apps are described in three function calls (`defineConfig`, `defineModule`, `defineController`); the framework wires the Express plumbing. No middleware chains to trace, no manual error handling, no router boilerplate.
+1. **Declarative over imperative.** Apps are described in three function calls (`defineConfig`, `defineModule`, `defineController`); the framework wires the Fastify plumbing. No middleware chains to trace, no manual error handling, no router boilerplate.
 
 2. **Depend on interfaces, not implementations.** Controllers receive service interfaces; services receive repository/gateway interfaces. The `defineController<TService>` generic enforces this — see [docs/principles.md](./principles.md).
 
@@ -74,11 +74,11 @@ The framework rests on four design rules that shape every module:
 
 1. `defineConfig({…})` — synchronous, populates the config singleton (port, prefix, env, logger options). Pending modules accumulate in a queue.
 2. `app.listen()` calls `ensureInit()`:
-   - Mounts `cors`, `express.json({ limit })` based on resolved config.
+   - Mounts cors, body limit (jsonLimit) based on resolved config.
    - Drains the pending-module queue via `flushPendingModules()`.
    - For each module: `register()` ➡️ resolves routes, applies module middlewares, mounts under `/${config.prefix}/${module.prefix}`.
    - Mounts the single global `/spec` route that serves the OpenAPI 3.1 document.
-   - Mounts `globalExceptionMiddleware` last (Express requires error middleware after routes).
+   - Mounts globalExceptionMiddleware last (framework global error handler).
 3. Installs `SIGTERM` / `SIGINT` handlers (idempotent).
 4. Emits a `SYSTEM` event (`SERVICE_STARTED`).
 5. Calls `httpServer.listen(port)`.

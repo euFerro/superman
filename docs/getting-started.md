@@ -1,5 +1,18 @@
 # Getting Started
 
+## Installation
+
+First, install the package using your preferred package manager:
+
+```bash
+npm install @supersec-ai/superman
+```
+
+> **Note:** The framework uses Fastify under the hood and integrates with the Model Context Protocol. Make sure to install the required peer dependencies in your application:
+> ```bash
+> npm install fastify @modelcontextprotocol/sdk
+> ```
+
 ## Step 1 — Define your config
 
 > **Tip:** To automatically load your local `.env` file variables into `process.env`, install the `dotenv` package (`npm install dotenv`) and add `import 'dotenv/config';` at the very top of your config file.

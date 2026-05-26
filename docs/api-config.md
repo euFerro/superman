@@ -1,4 +1,4 @@
-﻿# Configuration
+# Configuration
 
 ## `defineConfig(options)`
 
@@ -12,7 +12,7 @@ defineConfig({
   port: 3000,                          // static number
   port: { env: 'PORT', default: 3000 },// or from env var with fallback
   prefix: '/api',                      // prepended to all module prefixes
-  jsonLimit: '10mb',                   // Express JSON body limit
+  jsonLimit: '10mb',                   // JSON body limit
 
   environments: {                      // endpoint sets per NODE_ENV
     development: { endpoints: { api: 'https://dev.api.com' } },
