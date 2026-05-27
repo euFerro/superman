@@ -127,6 +127,16 @@ Superman is built on top of the Fastify HTTP engine, inheriting its top-tier thr
 
 <div class="docs-screenshot">
 
+## Built for AI Agents
+
+Superman is forged for the age of autonomous agents — a native MCP server, predictable declarative structure, and agent-ready tooling let AI agents understand and operate your backend with minimal context.
+
+![Superman AI Agents](/agents-illustration.png)
+
+</div>
+
+<div class="docs-screenshot">
+
 ## Interactive API Reference
 
 Superman automatically serves a gorgeous, interactive Scalar UI populated directly from your OpenAPI 3.1 schema. Simply enable `openapi.docs.enabled: true` in your configuration and head to `/docs`.

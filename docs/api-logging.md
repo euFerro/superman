@@ -6,6 +6,8 @@ security-relevant status code, and every lifecycle transition is captured as
 a JSON object that matches one of the `*Log` interfaces in `superman` —
 no application code required.
 
+![Superman Observability](/observability-illustration.png)
+
 ## Enabling
 
 ```typescript

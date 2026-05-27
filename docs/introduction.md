@@ -16,3 +16,9 @@ Traditional frameworks apps scatter configuration, routing, error handling, logg
 - **Predictable error handling** — Throw an `HttpException` anywhere, the framework catches it. No more hunting for missing `try/catch` blocks or inconsistent error responses.
 
 The result: a framework that is easier to write, easier to read, and easier to maintain — whether you're a human developer or an AI agent working on the code.
+
+## Built for AI agents
+
+A native MCP server, predictable declarative structure, and agent-ready tooling mean AI agents can understand and operate your backend with minimal context — reading, reasoning about, and modifying the codebase in a single pass.
+
+![Superman AI Agents](/agents-illustration.png)
