@@ -6,7 +6,8 @@ export default withMermaid(defineConfig({
   description: "An epic, declarative backend framework forged for the age of autonomous AI agents.",
   ignoreDeadLinks: true,
   head: [
-    ['link', { rel: 'icon', href: '/superman-logo.png' }]
+    ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/favicon.png' }]
   ],
   themeConfig: {
     logo: '/superman-logo.png',
