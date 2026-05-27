@@ -16,14 +16,20 @@ export const FRAMEWORK_ERROR_RESPONSE_FORMAT = {
       metadata: {
         type: 'object',
         additionalProperties: true,
-        description: 'Optional metadata attached to the exception (present only when the thrower supplies it).',
+        description: 'Optional metadata attached to the exception. For ERROR-severity responses (5xx, 400, 422) it always carries an `errorId` (the `err_`-prefixed id also recorded on the matching ERROR log) plus any metadata the thrower supplied.',
+        properties: {
+          errorId: {
+            type: 'string',
+            description: 'Short `err_`-prefixed id correlating this response to the server-side ERROR log; safe to surface to end users for support tickets.',
+          },
+        },
       },
     },
     required: ['error'],
   },
   example: {
     error: 'Validation failed',
-    metadata: { field: 'email' },
+    metadata: { field: 'email', errorId: 'err_3f2a9c8e' },
   },
 } as const;
 

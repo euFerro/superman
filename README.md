@@ -830,7 +830,7 @@ GET /api/spec
           "metadata": { "type": "object", "additionalProperties": true }
         },
         "required": ["error"],
-        "example": { "error": "Validation failed", "metadata": { "field": "email" } }
+        "example": { "error": "Validation failed", "metadata": { "field": "email", "errorId": "err_3f2a9c8e" } }
       }
     },
     "securitySchemes": {
@@ -945,8 +945,18 @@ only `SECURITY` + `ERROR` for low-volume security audit trails).
 | DELETE  | 2xx    | `RESOURCE_DELETED`    |
 
 The `resource` is inferred from the first URL segment after your `prefix`
-(e.g. `POST /api/users` ➡️ `resource: "users"`), and `resourceId` from
-`req.params.id` when present.
+(e.g. `POST /api/users` ➡️ `resource: "users"`).
+
+The audit log is a **correlation-only marker** — it records the action, the
+`resource` type, the actor, and a `requestId`; it does **not** carry the
+affected id or a payload/diff. Recover "what changed" by joining to the
+correlated `REQUEST` / `RESPONSE` logs via their shared `requestId`. So change
+detail survives only while those bodies are persisted: disabling `savePayload`
+on `REQUEST` drops them. As a safeguard, when the `AUDIT` event keeps its
+payload (`savePayload: true`, the default), the `REQUEST` log **retains its
+`requestBody` for mutating methods (POST/PUT/PATCH/DELETE)** even if `REQUEST`'s
+own `savePayload` is `false`. See [docs/api-logging.md](docs/api-logging.md) for
+details.
 
 ### File layout
 

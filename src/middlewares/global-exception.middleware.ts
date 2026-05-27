@@ -1,7 +1,7 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { HttpException } from '../exceptions/http.exception';
 import { logger } from '../logger/superman-logger';
-import { buildErrorLog, responseSeverityOf } from '../logger/log-builders';
+import { buildErrorLog, generateErrorId, responseSeverityOf } from '../logger/log-builders';
 import { EventSeverity } from '../logger/superman-logger.types';
 
 const log = logger.child('Exception');
@@ -20,24 +20,27 @@ export function globalExceptionMiddleware(
     locals.exceptionMetadata = err.metadata;
     const severity = responseSeverityOf(err.statusCode);
     const meta = { statusCode: err.statusCode, ...(err.metadata ?? {}) };
-
-    if (severity === EventSeverity.ERROR) {
-      log.error(err.message, meta);
-    } else {
-      log.warn(err.message, meta);
-    }
-
     const body: Record<string, unknown> = { error: err.message };
-    if (err.metadata) body.metadata = err.metadata;
 
-    res.status(err.statusCode).send(body);
     if (severity === EventSeverity.ERROR) {
-      log.events.error(buildErrorLog({ err, req: req as any, requestId }));
+      // ERROR-severity exceptions are recorded as ERROR events; the shared
+      // `errorId` is surfaced via response metadata so the client can quote it.
+      const errorId = generateErrorId();
+      log.error(err.message, meta);
+      body.metadata = { ...(err.metadata ?? {}), errorId };
+      res.status(err.statusCode).send(body);
+      log.events.error(buildErrorLog({ err, req: req as any, requestId, errorId }));
+      return;
     }
+
+    log.warn(err.message, meta);
+    if (err.metadata) body.metadata = err.metadata;
+    res.status(err.statusCode).send(body);
     return;
   }
 
+  const errorId = generateErrorId();
   log.error(err.message, { stack: err.stack?.split('\n')[1]?.trim() });
-  log.events.error(buildErrorLog({ err, req: req as any, requestId }));
-  res.status(500).send({ error: 'Internal Server Error' });
+  log.events.error(buildErrorLog({ err, req: req as any, requestId, errorId }));
+  res.status(500).send({ error: 'Internal Server Error', metadata: { errorId } });
 }

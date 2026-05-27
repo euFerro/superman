@@ -69,10 +69,30 @@ reports them.
 | DELETE  | 2xx    | `RESOURCE_DELETED`    |
 
 The `resource` is inferred from the first URL segment after your `prefix`
-(e.g. `POST /api/users` ➡️ `resource: "users"`), and `resourceId` from
-`req.params.id` when present. `userId` / `userRoles` are pulled from
-`res.locals.userId` / `res.locals.userRoles` if the app's auth middleware
-populates them.
+(e.g. `POST /api/users` ➡️ `resource: "users"`). `userId` / `userRoles` are
+pulled from `res.locals.userId` / `res.locals.userRoles` if the app's auth
+middleware populates them.
+
+### Correlation model (no payload on the audit log)
+
+The audit log is a **correlation-only event marker**: it records *that* an
+action happened on a resource type, by whom, and a `requestId`. It deliberately
+does **not** store the affected id or a payload/diff. The actual data — the
+request body and the response body — lives on the correlated `REQUEST` /
+`RESPONSE` logs, which you join to the audit entry by their shared `requestId`.
+
+Because of this, "what changed" is only recoverable while the REQUEST/RESPONSE
+bodies are persisted. If you set `savePayload: false` (or `payloadMaxLength: 0`)
+on the `REQUEST` event, those bodies are stripped and the change detail is lost —
+the audit line still proves the action occurred, but not the values.
+
+To keep auditable operations safe under lean request logging, there is one
+targeted rule: **when the `AUDIT` event has `savePayload: true` (the default),
+the `REQUEST` log retains its `requestBody` for mutating methods
+(POST/PUT/PATCH/DELETE) even if the `REQUEST` event's own `savePayload` is
+`false`.** It keys off the HTTP method (the request log is emitted before the
+status is known), so a mutating request that ends in a 4xx also keeps its body —
+a safe over-retention. Set `AUDIT` `savePayload: false` to opt out entirely.
 
 ## File layout
 
@@ -139,7 +159,6 @@ log.events.audit({
   userRoles: ['user'],
   auditMessage: 'User changed their password',
   resource: 'users',
-  resourceId: userId,
 });
 
 log.events.system({

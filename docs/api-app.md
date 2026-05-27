@@ -77,7 +77,6 @@ log.events.audit({
   userRoles: ['user'],
   auditMessage: 'User changed their password',
   resource: 'users',
-  resourceId: userId,
 });
 
 log.events.system({
@@ -96,7 +95,7 @@ event-specific fields.
 
 - **Request logging** — every incoming/outgoing request produces a `REQUEST` and `RESPONSE` event (method, URL, status, duration, bytes)
 - **Exception handling** — every caught error produces an `ERROR` event with stack trace; `HttpException` subclasses return structured JSON, unhandled errors return 500
-- **Audit logs** — successful mutations (POST/PUT/PATCH/DELETE with 2xx) produce an `AUDIT` event auto-derived from method + URL (resource, resourceId)
+- **Audit logs** — successful mutations (POST/PUT/PATCH/DELETE with 2xx) produce a correlation-only `AUDIT` event auto-derived from method + URL (resource + `requestId`; payload lives in the correlated REQUEST/RESPONSE logs)
 - **Security logs** — responses with status 401, 403, 413, 422, 429 produce a `SECURITY` event (UNAUTHORIZED_ACCESS / FORBIDDEN_ACTION / PAYLOAD_TOO_LARGE / MALFORMED_PAYLOAD / RATE_LIMIT_EXCEEDED)
 - **System logs** — `SERVICE_STARTED`, `MANUAL_SHUTDOWN_ACTION`, `SYSTEM_SIGNAL_RECEIVED` on lifecycle transitions
 - **Request/trace IDs** — every request gets an `X-Request-Id` (mints via `crypto.randomUUID()` if absent, honours inbound `X-Request-Id`/`X-Trace-Id`), echoed on the response and attached to every log line

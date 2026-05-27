@@ -18,9 +18,34 @@
   --vp-c-brand-soft: rgba(255, 65, 86, 0.16);
 }
 
-/* Make the nav bar slightly blue to match the superman theme */
+/* Remove the nav bar bottom divider line */
+.VPNavBar,
+.VPNavBar.has-sidebar .content,
+.VPNavBar .divider,
+.VPNavBar .divider-line {
+  border-bottom: none !important;
+}
+
+.VPNavBar .divider,
+.VPNavBar .divider-line {
+  background-color: transparent !important;
+}
+
+/* Always frosted glass (including at the top), full-width so the right gutter
+   doesn't reveal the wallpaper on sidebar pages */
 .VPNavBar {
-  border-bottom: 1px solid var(--vp-c-divider);
+  background-color: rgba(18, 20, 26, 0.55) !important;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+.VPNavBar .content-body,
+.VPNavBar .title {
+  background-color: transparent !important;
+}
+
+html:not(.dark) .VPNavBar {
+  background-color: rgba(28, 30, 38, 0.42) !important;
 }
 
 /* Hero section custom tweaks */
@@ -240,7 +265,7 @@
   width: 70%;
   max-width: 56px;
   border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, var(--vp-c-text-3), var(--vp-c-text-2));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.45));
   transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -271,7 +296,7 @@
 }
 
 .perf-bar.is-superman .perf-label {
-  color: var(--vp-c-text-1);
+  color: #ffffff !important;
 }
 
 .perf-latency {
@@ -292,4 +317,466 @@
   .perf-value { font-size: 0.68rem; }
   .perf-label { font-size: 0.62rem; }
   .perf-latency { font-size: 0.6rem; }
+}
+
+/* Global wallpaper background — dark mode only, dimmed for readability */
+.dark body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65)),
+    url('/supermanframework-wallpaper.png') center center / cover no-repeat;
+  pointer-events: none;
+}
+
+/* Let the wallpaper show through: keep panels solid, page surface transparent */
+.dark body,
+.dark #app,
+.dark .Layout,
+.dark .VPContent,
+.dark .VPHome,
+.dark .VPDoc,
+.dark .VPDoc .container {
+  background-color: transparent !important;
+}
+
+/* Fragmented glass cards (dark mode): each text block gets its own panel
+   so prose stays readable over the wallpaper without one giant container. */
+.dark .VPDoc .vp-doc > div > p,
+.dark .VPDoc .vp-doc > div > ul,
+.dark .VPDoc .vp-doc > div > ol,
+.dark .VPDoc .vp-doc > div > blockquote {
+  background: rgba(18, 20, 26, 0.62);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* Headings keep a soft glass plate too, so section titles read clearly */
+.dark .VPDoc .vp-doc > div > h1,
+.dark .VPDoc .vp-doc > div > h2,
+.dark .VPDoc .vp-doc > div > h3 {
+  background: rgba(18, 20, 26, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 6px 16px;
+}
+
+/* Blockquote keeps its accent bar visible on the glass */
+.dark .VPDoc .vp-doc > div > blockquote {
+  border-left: 4px solid var(--vp-c-brand-1);
+}
+
+/* Glass cards for the home page section text (dark mode) */
+.dark .features-comparison > p,
+.dark .features-comparison .docs-screenshot > p {
+  background: rgba(18, 20, 26, 0.62);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 22px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* ----- Light mode: daylight wallpaper + glass cards ----- */
+html:not(.dark) body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.12)),
+    url('/supermanframework-daylight-wallpaper.png') center center / cover no-repeat;
+  pointer-events: none;
+}
+
+html:not(.dark) body,
+html:not(.dark) #app,
+html:not(.dark) .Layout,
+html:not(.dark) .VPContent,
+html:not(.dark) .VPHome,
+html:not(.dark) .VPDoc,
+html:not(.dark) .VPDoc .container {
+  background-color: transparent !important;
+}
+
+/* Frosted smoky-glass cards with white text (light mode) */
+html:not(.dark) .VPDoc .vp-doc > div > p,
+html:not(.dark) .VPDoc .vp-doc > div > ul,
+html:not(.dark) .VPDoc .vp-doc > div > ol,
+html:not(.dark) .VPDoc .vp-doc > div > blockquote,
+html:not(.dark) .features-comparison > p,
+html:not(.dark) .features-comparison .docs-screenshot > p {
+  background: rgba(28, 30, 38, 0.38);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 14px 22px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+}
+
+html:not(.dark) .VPDoc .vp-doc > div > h1,
+html:not(.dark) .VPDoc .vp-doc > div > h2,
+html:not(.dark) .VPDoc .vp-doc > div > h3 {
+  background: rgba(28, 30, 38, 0.34);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 6px 16px;
+  color: #ffffff;
+}
+
+/* Keep inline content inside the cards white too */
+html:not(.dark) .VPDoc .vp-doc > div > p strong,
+html:not(.dark) .VPDoc .vp-doc > div > ul strong,
+html:not(.dark) .VPDoc .vp-doc > div > ol strong,
+html:not(.dark) .VPDoc .vp-doc > div > p li,
+html:not(.dark) .VPDoc .vp-doc > div > ul li,
+html:not(.dark) .VPDoc .vp-doc > div > ol li,
+html:not(.dark) .features-comparison > p strong,
+html:not(.dark) .features-comparison .docs-screenshot > p strong {
+  color: #ffffff;
+}
+
+html:not(.dark) .VPDoc .vp-doc > div > blockquote {
+  border-left: 4px solid var(--vp-c-brand-1);
+}
+
+/* Hero tagline: white over the daylight wallpaper (light mode) */
+html:not(.dark) .VPHero .tagline {
+  color: #ffffff;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 0, 0, 0.4);
+}
+
+/* Hero title + navbar logo text: white (light mode) */
+html:not(.dark) .VPHero .text {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+html:not(.dark) .VPNavBarTitle .title {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* ----- Light mode: smoky glass for home feature boxes, table, legend, chart ----- */
+html:not(.dark) .VPFeature {
+  background: rgba(28, 30, 38, 0.38) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+html:not(.dark) .VPFeature .title,
+html:not(.dark) .VPFeature .details {
+  color: #ffffff !important;
+}
+
+html:not(.dark) .features-comparison .table-container,
+html:not(.dark) .features-comparison .legend-list,
+html:not(.dark) .perf-chart {
+  background: rgba(28, 30, 38, 0.38) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* White text inside the table + legend (light mode) */
+html:not(.dark) .features-comparison th,
+html:not(.dark) .features-comparison td,
+html:not(.dark) .features-comparison td:first-child,
+html:not(.dark) .features-comparison .legend-list li {
+  color: #ffffff !important;
+}
+
+html:not(.dark) .features-comparison th {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html:not(.dark) .features-comparison th,
+html:not(.dark) .features-comparison td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+html:not(.dark) .features-comparison tr:hover td {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Benchmark chart labels readable on the smoky glass (light mode) */
+html:not(.dark) .perf-value { color: #ffffff; }
+html:not(.dark) .perf-label { color: rgba(255, 255, 255, 0.88); }
+html:not(.dark) .perf-axis,
+html:not(.dark) .perf-latency { color: rgba(255, 255, 255, 0.7); }
+
+/* White navbar text on the glass bar (both themes); active link keeps brand color */
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .text,
+html:not(.dark) .VPNavBarTitle .title {
+  color: #ffffff !important;
+}
+
+.VPNavBarMenuLink.active {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* Make comparison-table rows transparent so the glass container shows (light mode) */
+html:not(.dark) .features-comparison table,
+html:not(.dark) .features-comparison tr,
+html:not(.dark) .features-comparison tbody tr,
+html:not(.dark) .features-comparison tbody tr:nth-child(2n) {
+  background-color: transparent !important;
+}
+
+/* Dark mode: frosted glass for the home feature boxes */
+.dark .VPFeature {
+  background: rgba(18, 20, 26, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Dark mode: glassy comparison table (transparent rows over the glass container) */
+.dark .features-comparison .table-container {
+  background: rgba(18, 20, 26, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+}
+
+.dark .features-comparison table,
+.dark .features-comparison tr,
+.dark .features-comparison tbody tr,
+.dark .features-comparison tbody tr:nth-child(2n) {
+  background-color: transparent !important;
+}
+
+.dark .features-comparison th {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Boost contrast of gradient headings over the bright wallpaper (light mode) */
+html:not(.dark) .VPHero .name,
+html:not(.dark) .features-comparison h2 {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5))
+          drop-shadow(0 0 12px rgba(0, 0, 0, 0.3));
+}
+
+/* Sidebar: translucent red hover + frosted red-glass active state (brand red) */
+.VPSidebarItem.is-link > .item > .link {
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin: 0 -10px;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.VPSidebarItem.is-link > .item > .link:hover {
+  background-color: rgba(255, 65, 86, 0.1);
+}
+
+.VPSidebarItem.is-link > .item > .link:hover .text {
+  color: var(--vp-c-brand-1);
+}
+
+.VPSidebarItem.is-active.is-link > .item > .link {
+  background-color: rgba(255, 65, 86, 0.16);
+  border-color: rgba(255, 65, 86, 0.35);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+}
+
+.VPSidebarItem.is-active.is-link > .item > .link .text {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600;
+}
+
+/* Dark mode: glassy sidebar (translucent + blur over the wallpaper) */
+.dark .VPSidebar {
+  background-color: rgba(18, 20, 26, 0.55) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+/* Light mode: smoky-glass sidebar with light text (match the rest of the theme) */
+html:not(.dark) .VPSidebar {
+  background-color: rgba(28, 30, 38, 0.5) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+html:not(.dark) .VPSidebarItem .text {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+html:not(.dark) .VPSidebarItem.level-0 > .item > .text {
+  color: #ffffff;
+}
+
+/* Keep the section divider lines visible on the dark glass (light mode) */
+html:not(.dark) .VPSidebarItem.level-0 {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Dark mode: white sidebar text */
+.dark .VPSidebarItem .text {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.dark .VPSidebarItem.level-0 > .item > .text {
+  color: #ffffff;
+}
+
+/* Ensure white sidebar text in both themes (beats VitePress level color rules) */
+.VPSidebarItem .text {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  color: #ffffff !important;
+}
+
+/* Active/hover keep the brand red */
+.VPSidebarItem.is-link > .item > .link:hover .text,
+.VPSidebarItem.is-active.is-link > .item > .link .text {
+  color: var(--vp-c-brand-1) !important;
+}
+
+/* Start the sidebar (and its scrollbar) below the navbar instead of behind it.
+   !important is required to beat VitePress's scoped [data-v-*] rules. */
+@media (min-width: 960px) {
+  .VPSidebar {
+    top: calc(var(--vp-layout-top-height, 0px) + var(--vp-nav-height)) !important;
+    height: calc(100vh - var(--vp-layout-top-height, 0px) - var(--vp-nav-height)) !important;
+    bottom: auto !important;
+    padding-top: 24px !important;
+  }
+}
+
+/* Subtle, thin sidebar scrollbar */
+.VPSidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 150, 150, 0.35) transparent;
+}
+
+.VPSidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.VPSidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.VPSidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(150, 150, 150, 0.3);
+  border-radius: 8px;
+}
+
+.VPSidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(150, 150, 150, 0.55);
+}
+
+/* Remove the opaque sidebar "curtain" behind the logo so the navbar glass shows */
+.VPSidebar .curtain {
+  background-color: transparent !important;
+}
+
+/* Remove the divider line under the sidebar logo section */
+.VPNavBarTitle.has-sidebar .title {
+  border-bottom-color: transparent !important;
+}
+
+/* Light mode: glass pagination (prev/next) buttons */
+html:not(.dark) .VPDocFooter .pager-link {
+  background: rgba(28, 30, 38, 0.42) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+html:not(.dark) .VPDocFooter .pager-link:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  background: rgba(28, 30, 38, 0.55) !important;
+}
+
+html:not(.dark) .VPDocFooter .pager-link .desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark mode: glass pagination (prev/next) buttons */
+.dark .VPDocFooter .pager-link {
+  background: rgba(18, 20, 26, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.dark .VPDocFooter .pager-link:hover {
+  border-color: var(--vp-c-brand-1) !important;
+  background: rgba(18, 20, 26, 0.65) !important;
+}
+
+/* Light mode: smoky-glass code blocks (dark syntax theme keeps code readable) */
+html:not(.dark) .vp-doc div[class*="language-"],
+html:not(.dark) .vp-doc .mermaid {
+  background-color: rgba(28, 30, 38, 0.5) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Make the inner <pre> transparent so the wrapper glass shows through */
+html:not(.dark) .vp-doc [class*="language-"] pre {
+  background-color: transparent !important;
+}
+
+/* White navbar social icons (GitHub/npm) in light mode */
+html:not(.dark) .VPSocialLink {
+  color: #ffffff !important;
+}
+
+html:not(.dark) .VPSocialLink svg {
+  fill: #ffffff !important;
+}
+
+/* Light mode: smoky-glass markdown tables on doc pages with white text */
+html:not(.dark) .VPDoc .vp-doc table {
+  background-color: rgba(28, 30, 38, 0.5) !important;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+html:not(.dark) .VPDoc .vp-doc tr,
+html:not(.dark) .VPDoc .vp-doc tr:nth-child(2n) {
+  background-color: transparent !important;
+}
+
+html:not(.dark) .VPDoc .vp-doc th,
+html:not(.dark) .VPDoc .vp-doc td {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html:not(.dark) .VPDoc .vp-doc th {
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }

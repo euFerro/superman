@@ -25,7 +25,7 @@ const plugin: FastifyPluginAsync = async (fastify) => {
     const method = req.method;
     const url = req.url;
 
-    const requestId = headerString(req.headers['x-request-id']) ?? randomUUID();
+    const requestId = headerString(req.headers['x-request-id']) ?? `req_${randomUUID()}`;
     const traceId = headerString(req.headers['x-trace-id']) ?? requestId;
 
     const locals = (res as any).locals || ((res as any).locals = {});

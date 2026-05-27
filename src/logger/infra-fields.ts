@@ -7,7 +7,7 @@ import { FullLog } from './log-sink';
 import { config } from '../config/superman-config';
 import { resolveEnvironment } from '../config/resolve-environment';
 
-export const SERVER_INSTANCE_UID: string = randomUUID();
+export const SERVER_INSTANCE_UID: string = `srv_${randomUUID()}`;
 
 const HOSTNAME: string = os.hostname();
 

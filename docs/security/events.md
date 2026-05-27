@@ -32,33 +32,38 @@ By standardizing events like `SecurityEvents.LOGIN_FAILED`, `TOKEN_EXPIRED`, or 
 
 ---
 
-## Audit Logs and Resource IDs
+## Audit Logs and Correlation
 
-In the context of the Superman framework's structured logging, `resourceId` is a specific field on the `AuditLog` object designed to track exactly *which* entity was acted upon.
+The `AuditLog` is a **correlation-only event marker**. It records *that* an action
+happened on a resource type, by whom, and a `requestId` — it deliberately does
+**not** store the affected entity id or a payload/diff. The mutated data lives on
+the correlated `REQUEST` / `RESPONSE` logs, which you join to the audit entry by
+their shared `requestId`.
 
-Here is a visual breakdown of how the framework automatically handles an Audit Event lifecycle:
+Here is how the framework handles an Audit Event lifecycle:
 
 ```mermaid
 flowchart TD
     Req([Incoming Request]) --> Auth[Auth Middleware]
     Auth -->|Injects User Principal| Ctrl[Controller Execution]
     Ctrl -->|Success Status 200/201| Emit[Log Event Emitter]
-    
-    Emit --> Scan[Identify Resource & ID]
-    Scan -->|Pattern Match e.g. tenantId| Res["resource: 'tenant'"]
-    
-    Emit --> Diff[Extract Payload]
-    Diff -->|Extracts res.locals.__responseBody| Changes[changes.payload.after]
-    
-    Res --> Audit[(Structured AUDIT Log)]
-    Changes --> Audit
+
+    Emit --> Audit[(AUDIT log: auditEvent + resource + requestId)]
+    Emit --> ReqLog[(REQUEST/RESPONSE logs: full payload)]
+
+    Audit -. join on requestId .-> ReqLog
 ```
 
-### Why it matters for Audit Logs
+### Why correlation instead of a payload field
 
-When you send logs to a system like Elasticsearch, Datadog, or AWS CloudWatch, security and compliance teams need to be able to trace the lifecycle of a specific record.
+When you send logs to Elasticsearch, Datadog, or AWS CloudWatch, security and
+compliance teams trace a record's lifecycle by `requestId`: find the AUDIT event,
+then pull the `REQUEST` / `RESPONSE` logs that share its `requestId` for the full
+before/after payload. The audit trail stays small and tamper-evident; the heavy
+data lives once, on the request/response logs.
 
-For example, if an admin updates a user's permissions, the framework emits an audit log like this:
+For example, when an admin updates a user's permissions, the framework emits an
+audit log like this:
 
 ```json
 {
@@ -68,70 +73,37 @@ For example, if an admin updates a user's permissions, the framework emits an au
   "appName": "superman-api",
   "appVersion": "1.0.0",
   "environment": "production",
-  "serverInstanceUid": "srv_8f93j2kd",
+  "serverInstanceUid": "srv_3f2a9c8e-1b4d-4e7a-9c2f-6d5b8a1e0f33",
   "hostname": "api-gateway-01",
   "uptimeMs": 349120,
   "memoryUsage": 128456000,
   "cpuUsage": 4.5,
   "context": "Mcp",
-  "requestId": "req_847294",
+  "requestId": "req_7c1e5d92-4a8b-4f3c-bd6a-2e9f0c4a7b18",
   "auditEvent": "USER_PERMISSIONS_CHANGED",
   "userRoles": ["ADMIN"],
   "auditMessage": "User permissions were modified by the system admin",
-  "resource": "user",
-  "resourceId": "usr_8923bca",
-  "changes": {
-    "payload": {
-      "after": {
-        "id": "usr_8923bca",
-        "email": "admin@example.com",
-        "roles": ["ADMIN"]
-      }
-    }
-  }
+  "resource": "user"
 }
 ```
 
-By having `resourceId` as a dedicated indexable field, your compliance team can easily search: *"Show me every single audit event that happened to the user with ID usr_8923bca"*.
+To see *what* changed, search the `REQUEST` / `RESPONSE` logs for
+`requestId: "req_7c1e5d92-4a8b-4f3c-bd6a-2e9f0c4a7b18"`.
 
 ### How it applies to the MCP Server
 
-When an AI agent (like Claude Desktop) calls an MCP tool, it's essentially acting on your system.
+When an AI agent (like Claude Desktop) calls an MCP tool, it acts on your system.
+The framework's `auditMcpRequest` logic emits a correlation-only audit event for
+that call; the tool arguments themselves live in the correlated `REQUEST` log,
+joinable via `requestId`.
 
-If the agent calls a tool named `lookup_customer` with the arguments `{ "customerId": "cust_123" }`, the framework's internal `auditMcpRequest` logic intercepts this. It notices the `customerId` argument and automatically tags the audit log with `resourceId: "cust_123"`.
+### Automatic Auditing Edge Case
 
-This guarantees that if you search your company's logs for `cust_123`, you will see not only when human admins touched that customer, but also exactly when an AI agent executed an MCP tool against them!
-
-### Is it configurable?
-
-Yes! By default, the framework smartly scans both standard HTTP request payloads (`req.params`, `req.body`, `req.query`) and MCP tool arguments for any key that contains common identifier patterns (e.g. `id`, `code`, `uuid`, etc.).
-
-If it finds a matching key (like `tenantId` or `customerCode`), it automatically assigns its value to `resourceId`. Even better, it gracefully extracts the prefix to use as the `resource` name (e.g., `tenantId` sets the resource name to `tenant`!). If nothing matches, it elegantly falls back to using the URL path and `req.params.id`.
-
-If your domain uses different nomenclature, you can easily add custom patterns to the framework globally in your `server.config.ts`. These will be combined with the defaults!
-
-```typescript
-// src/server.config.ts
-import { defineConfig } from '@supersec-ai/superman';
-
-defineConfig({
-  logger: {
-    events: {
-      audit: {
-        // The framework will scan payload keys for the default patterns AND your custom ones!
-        resourceIdPatterns: ['email', 'username', 'ssn', 'urn'] 
-      }
-    }
-  }
-});
-```
-
-### Automatic Auditing Edge Cases
-
-While the automated pipeline covers the vast majority of standard CRUD applications seamlessly, there are two edge cases to keep in mind:
-
-1. **Non-RESTful Mutations:** The framework relies on strict HTTP semantic mapping (`POST` -> `201`, `PUT`/`PATCH` -> `200/204`, `DELETE` -> `200/204`). If you have a custom action endpoint like `POST /users/123/suspend` that returns `200 OK`, the framework won't automatically emit an audit event. You will need to manually call `log.events.audit()` for these bespoke actions.
-2. **Multiple Matching IDs:** If a request payload contains multiple ID keys (e.g., both `tenantId` and `userId`), the framework's pattern scanner will attribute the audit log to the *first* matching key it scans.
+The framework relies on strict HTTP semantic mapping (`POST` -> `201`,
+`PUT`/`PATCH` -> `200/204`, `DELETE` -> `200/204`). If you have a custom action
+endpoint like `POST /users/123/suspend` that returns `200 OK`, the framework
+won't automatically emit an audit event — call `log.events.audit()` manually for
+these bespoke actions.
 
 ---
 
@@ -164,26 +136,21 @@ defineConfig({
 });
 ```
 
-### Tracking Changes Safely (Without Storing Payloads)
+### Keeping audit change-detail under lean request logging
 
-If you turn off payload storage for network events, how do you track what a user actually modified in your system? 
+Because the audit log carries no payload of its own, "what changed" is recovered
+from the correlated `REQUEST` / `RESPONSE` bodies. So if you set
+`savePayload: false` on `REQUEST`, the change detail is stripped and becomes
+unrecoverable — the audit line still proves the action happened, but not the
+values.
 
-Instead of relying on parsing huge, raw HTTP `body` objects, you should utilize the `changes` field inside a structured **AUDIT** event! This ensures you only record the exact, meaningful delta of what changed in your domain, keeping your logs small, compliant, and highly readable.
+To stay safe, the framework applies one targeted rule: **when the `AUDIT` event
+keeps its payload (`savePayload: true`, the default), the `REQUEST` log retains
+its `requestBody` for mutating methods (POST/PUT/PATCH/DELETE) even when the
+`REQUEST` event's own `savePayload` is `false`.** It keys off the HTTP method
+(the request log is emitted before the status is known), so a mutating request
+that ends in a 4xx also keeps its body — a safe over-retention. Set the `AUDIT`
+event's `savePayload` to `false` to opt out entirely.
 
-```typescript
-// Inside your controller or service
-log.events.audit({
-  auditEvent: AuditEvents.USER_UPDATED,
-  resource: 'user',
-  resourceId: user.id,
-  auditMessage: 'User profile was updated',
-  changes: {
-    email: {
-      before: 'old@example.com',
-      after: 'new@example.com'
-    }
-  }
-});
-```
-
-By combining `savePayload: false` for generic HTTP logs with precise `changes` tracking in Audit events, you achieve the ultimate balance of deep observability and highly efficient disk space management!
+This gives you the balance: drop noisy non-mutating bodies, while every auditable
+mutation keeps a recoverable record correlated by `requestId`.

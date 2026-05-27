@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import {
   AuditEvents,
@@ -16,7 +17,6 @@ import {
   SystemStatus,
 } from './superman-logger.types';
 import { HttpException } from '../exceptions/http.exception';
-import { config } from '../config/superman-config';
 
 type InfraFields =
   | '@timestamp'
@@ -185,67 +185,12 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
   const auditEvent = mapMethodToAuditEvent(req.method, res.statusCode);
   if (!auditEvent) return null;
 
-  let resource = extractResource(req.url, prefix);
-  let resourceId = ((req.params as Record<string, unknown>)?.id as string | undefined) ?? undefined;
-
-  // Attempt dynamic extraction if config is loaded
-  if (config.isInitialized()) {
-    const patterns = config.logger.events.audit.resourceIdPatterns;
-    const sources = [req.params, req.body, req.query];
-    let found = false;
-
-    for (const source of sources) {
-      if (!source || typeof source !== 'object') continue;
-      
-      for (const [key, value] of Object.entries(source)) {
-        if (typeof value !== 'string') continue;
-
-        for (const pattern of patterns) {
-          const lowerKey = key.toLowerCase();
-          const lowerPattern = pattern.toLowerCase();
-          
-          // To prevent short patterns like 'id' from matching 'hidden' or 'width',
-          // we require token matches for short strings, but allow broad includes for longer ones.
-          const isTokenMatch = key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().split(/[-_]+/).includes(lowerPattern);
-          const isMatch = pattern.length > 3 ? lowerKey.includes(lowerPattern) : isTokenMatch;
-
-          if (isMatch) {
-            resourceId = value;
-            const stripped = key.replace(new RegExp(pattern, 'i'), '').replace(/^[-_]+|[-_]+$/g, '');
-            if (stripped.length > 0) {
-              resource = stripped;
-            }
-            found = true;
-            break;
-          }
-        }
-        if (found) break;
-      }
-      if (found) break;
-    }
-  }
-
+  // The audit log is a correlation-only event marker: it records that an action
+  // happened on a resource type, by whom, and a `requestId`. The mutated payload
+  // is recovered from the correlated REQUEST/RESPONSE logs via that `requestId`.
+  const resource = extractResource(req.url, prefix);
   const userId = ((res as any).locals?.userId as string | undefined) ?? undefined;
   const userRoles = ((res as any).locals?.userRoles as string[] | undefined) ?? [];
-
-  let changes: Record<string, { before?: unknown; after?: unknown }> | undefined = undefined;
-
-  if (req.method.toUpperCase() !== 'DELETE') {
-    let payloadToLog: unknown = undefined;
-    if ((res as any).locals && typeof (res as any).locals.__responseBody === 'object' && (res as any).locals.__responseBody !== null) {
-      payloadToLog = (res as any).locals.__responseBody;
-    } else if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
-      payloadToLog = req.body;
-    }
-
-    if (payloadToLog) {
-      changes = {
-        payload: {
-          after: payloadToLog,
-        },
-      };
-    }
-  }
 
   return {
     requestId,
@@ -253,10 +198,8 @@ export const buildAuditLog = ({ req, res, requestId, prefix }: BuildAuditLogOpti
     userId,
     auditEvent,
     userRoles,
-    auditMessage: `${auditEvent} on resource "${resource}"${resourceId ? ` (id=${resourceId})` : ''}`,
+    auditMessage: `${auditEvent} on resource "${resource}"`,
     resource,
-    resourceId,
-    changes,
   };
 };
 
@@ -288,16 +231,22 @@ export const buildSecurityLog = ({
   };
 };
 
+/** Short, user-quotable error id: `err_` + 4 random bytes as hex (e.g. `err_3f2a9c8e`). */
+export const generateErrorId = (): string => `err_${randomBytes(4).toString('hex')}`;
+
 export interface BuildErrorLogOptions {
   err: Error;
   req: FastifyRequest;
   requestId: string;
+  /** Shared `err_`-prefixed id; generated here when the caller doesn't supply one. */
+  errorId?: string;
 }
 
-export const buildErrorLog = ({ err, req, requestId }: BuildErrorLogOptions): ErrorLogInput => ({
+export const buildErrorLog = ({ err, req, requestId, errorId }: BuildErrorLogOptions): ErrorLogInput => ({
   eventSeverity: EventSeverity.ERROR,
   causeUrl: `${req.method} ${req.url}`,
   requestId,
+  errorId: errorId ?? generateErrorId(),
   errorType: mapErrorToErrorType(err),
   errorMessage: err.message,
   stackTrace: err.stack,

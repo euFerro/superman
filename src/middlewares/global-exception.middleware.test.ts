@@ -44,7 +44,7 @@ describe('globalExceptionMiddleware', () => {
     errorSpy.mockRestore();
   });
 
-  it('should return structured JSON for HttpException', () => {
+  it('should return structured JSON with an err_-prefixed errorId for an ERROR-severity HttpException', () => {
     // Arrange
     const err = new BadRequestException('Invalid email');
     const res = makeRes();
@@ -54,10 +54,13 @@ describe('globalExceptionMiddleware', () => {
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith({ error: 'Invalid email' });
+    expect(res.send).toHaveBeenCalledWith({
+      error: 'Invalid email',
+      metadata: { errorId: expect.stringMatching(/^err_[0-9a-f]{8}$/) },
+    });
   }, 1000);
 
-  it('should return 500 for generic errors', () => {
+  it('should return 500 with an err_-prefixed errorId for generic errors', () => {
     // Arrange
     const err = new Error('Something broke');
     const res = makeRes();
@@ -67,7 +70,23 @@ describe('globalExceptionMiddleware', () => {
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+    expect(res.send).toHaveBeenCalledWith({
+      error: 'Internal Server Error',
+      metadata: { errorId: expect.stringMatching(/^err_[0-9a-f]{8}$/) },
+    });
+  }, 1000);
+
+  it('should not attach an errorId to a WARN-severity HttpException response', () => {
+    // Arrange
+    const err = new NotFoundException('User missing');
+    const res = makeRes();
+
+    // Act
+    globalExceptionMiddleware(err, makeReq(), res as unknown as FastifyReply);
+
+    // Assert
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith({ error: 'User missing' });
   }, 1000);
 
   it('should preserve the status code from HttpException', () => {
@@ -80,7 +99,10 @@ describe('globalExceptionMiddleware', () => {
 
     // Assert
     expect(res.status).toHaveBeenCalledWith(503);
-    expect(res.send).toHaveBeenCalledWith({ error: 'Service down' });
+    expect(res.send).toHaveBeenCalledWith({
+      error: 'Service down',
+      metadata: { errorId: expect.stringMatching(/^err_[0-9a-f]{8}$/) },
+    });
   }, 1000);
 
   it('should stash exceptionName on res.locals for the response-finish hook', () => {

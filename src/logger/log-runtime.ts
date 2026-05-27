@@ -29,11 +29,7 @@ const fallbackLoggerOptions = (): ResolvedLoggerOptions => {
   return {
     fileOutput: { enabled: false, directory: '/var/log/superman' },
     consoleOutput: { enabled: true, eventDebug: false },
-    events: { 
-      enabled: true, 
-      byType,
-      audit: { resourceIdPatterns: ['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token'] },
-    },
+    events: { enabled: true, byType },
   };
 };
 

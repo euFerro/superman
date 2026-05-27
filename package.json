@@ -1,6 +1,6 @@
 {
   "name": "@supersec-ai/superman",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The agentic backend framework for building the future of AI applications.",
   "type": "commonjs",
   "main": "dist/index.js",

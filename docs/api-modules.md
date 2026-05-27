@@ -106,7 +106,7 @@ GET /api/spec
           "metadata": { "type": "object", "additionalProperties": true }
         },
         "required": ["error"],
-        "example": { "error": "Validation failed", "metadata": { "field": "email" } }
+        "example": { "error": "Validation failed", "metadata": { "field": "email", "errorId": "err_3f2a9c8e" } }
       }
     },
     "securitySchemes": {

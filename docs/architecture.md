@@ -120,6 +120,8 @@ If the handler throws, control flows to [globalExceptionMiddleware](../src/middl
 - `HttpException` ➡️ status from `err.statusCode`, body `{ error, metadata? }`. Emits `ERROR` event only when severity is ERROR-class (5xx + 400/422). 4xx-WARN responses log via `log.warn` but skip the typed event.
 - Unknown `Error` ➡️ 500 + `Internal Server Error`. Always emits `ERROR` event with stack trace.
 
+Every ERROR-class response carries a short `err_`-prefixed `errorId` (e.g. `err_3f2a9c8e`, 4 random bytes) in its `metadata`, and the same id is set on the `ErrorLog` — so a user can quote the id from the response and support can grep the exact server-side error. WARN-class responses (e.g. 404/401/403) carry no `errorId`.
+
 ### Shutdown sequence
 
 `SIGTERM` / `SIGINT` triggers `shutdown()`:
@@ -253,7 +255,7 @@ Per-event options (each optional, with sensible default):
 | Option | Default | Purpose |
 |---|---|---|
 | `type` | — (required) | `'SYSTEM' \| 'ERROR' \| 'REQUEST' \| 'RESPONSE' \| 'AUDIT' \| 'SECURITY'` |
-| `savePayload` | `true` | When `false`, strips heavy fields (`requestBody`, `query`, `metadata`, `stackTrace`, `changes`) |
+| `savePayload` | `true` | When `false`, strips heavy fields (`requestBody`, `query`, `metadata`, `stackTrace`). Exception: a mutating `REQUEST` keeps its `requestBody` while `AUDIT` has `savePayload: true` |
 | `payloadMaxLength` | `5000` | Per-field char cap; longer values get `…[truncated]` |
 | `console` | `true` | Per-event opt-out of console sink |
 | `file` | `true` | Per-event opt-out of file sink |

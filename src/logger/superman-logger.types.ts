@@ -91,7 +91,6 @@ export interface SystemLog extends BaseLog {
 export enum ErrorType {
     RUNTIME_ERROR = 'RUNTIME_ERROR',
     HTTP_EXCEPTION = 'HTTP_EXCEPTION',
-    BUSINESS_EXCEPTION = 'BUSINESS_EXCEPTION',
 
     RFC_COMMUNICATION_FAILURE = 'RFC_COMMUNICATION_FAILURE',
 
@@ -119,6 +118,13 @@ export interface ErrorLog extends BaseLog {
     causeUrl: string;
     requestId: string;
     errorType: ErrorType;
+
+    /**
+     * Unique `err_`-prefixed id, also surfaced to the client so users can quote
+     * it in support tickets. Auto-populated by the framework for every caught
+     * error; optional on manual `log.events.error()` calls.
+     */
+    errorId?: string;
 
     errorMessage: string;
     stackTrace?: string;
@@ -219,12 +225,6 @@ export interface AuditLog extends BaseLog {
     auditMessage: string;
 
     resource: string;
-    resourceId?: string;
-
-    changes?: Record<string, {
-        before?: unknown;
-        after?: unknown;
-    }>;
 }
 
 // -- SECURITY EVENTS -------------------------------------------------------------

@@ -317,6 +317,96 @@ describe('LogEventEmitter', () => {
     expect(log.errorMessage).toBe('boom');
   });
 
+  it('should keep requestBody on a mutating REQUEST when REQUEST.savePayload=false but AUDIT.savePayload=true', () => {
+    // Arrange
+    const sink = makeSink();
+    const emitter = new LogEventEmitter({
+      sinks: [sink],
+      enabled: true,
+      configs: makeConfigs(
+        makeConfig(EventType.REQUEST, { savePayload: false }),
+        makeConfig(EventType.AUDIT, { savePayload: true }),
+      ),
+      context: 'Test',
+    });
+
+    // Act
+    emitter.request({
+      ip: '1.1.1.1',
+      requestId: 'r1',
+      method: 'POST',
+      url: '/users',
+      route: '/users',
+      requestBody: { name: 'Ana' },
+      bytesReceived: 0,
+      eventSeverity: EventSeverity.INFO,
+    });
+
+    // Assert
+    const log = sink.writes[0] as unknown as Record<string, unknown>;
+    expect(log.requestBody).toEqual({ name: 'Ana' });
+  });
+
+  it('should strip requestBody on a non-mutating REQUEST even when AUDIT.savePayload=true', () => {
+    // Arrange
+    const sink = makeSink();
+    const emitter = new LogEventEmitter({
+      sinks: [sink],
+      enabled: true,
+      configs: makeConfigs(
+        makeConfig(EventType.REQUEST, { savePayload: false }),
+        makeConfig(EventType.AUDIT, { savePayload: true }),
+      ),
+      context: 'Test',
+    });
+
+    // Act
+    emitter.request({
+      ip: '1.1.1.1',
+      requestId: 'r1',
+      method: 'GET',
+      url: '/users',
+      route: '/users',
+      requestBody: { q: 'x' },
+      bytesReceived: 0,
+      eventSeverity: EventSeverity.INFO,
+    });
+
+    // Assert
+    const log = sink.writes[0] as unknown as Record<string, unknown>;
+    expect(log.requestBody).toBeUndefined();
+  });
+
+  it('should strip requestBody on a mutating REQUEST when AUDIT.savePayload=false', () => {
+    // Arrange
+    const sink = makeSink();
+    const emitter = new LogEventEmitter({
+      sinks: [sink],
+      enabled: true,
+      configs: makeConfigs(
+        makeConfig(EventType.REQUEST, { savePayload: false }),
+        makeConfig(EventType.AUDIT, { savePayload: false }),
+      ),
+      context: 'Test',
+    });
+
+    // Act
+    emitter.request({
+      ip: '1.1.1.1',
+      requestId: 'r1',
+      method: 'POST',
+      url: '/users',
+      route: '/users',
+      requestBody: { name: 'Ana' },
+      bytesReceived: 0,
+      eventSeverity: EventSeverity.INFO,
+    });
+
+    // Assert
+    const log = sink.writes[0] as unknown as Record<string, unknown>;
+    expect(log.requestBody).toBeUndefined();
+  });
+
   it('should truncate payload fields exceeding payloadMaxLength', () => {
     // Arrange
     const sink = makeSink();

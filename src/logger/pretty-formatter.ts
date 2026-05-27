@@ -65,10 +65,8 @@ export const formatEventSummary = (log: FullLog): string => {
     }
     case EventType.ERROR:
       return `${l.errorType ?? ''}: ${l.errorMessage ?? ''}`.trim();
-    case EventType.AUDIT: {
-      const id = l.resourceId ? `/${l.resourceId}` : '';
-      return `${l.auditEvent ?? ''} ${l.resource ?? ''}${id}`.trim();
-    }
+    case EventType.AUDIT:
+      return `${l.auditEvent ?? ''} ${l.resource ?? ''}`.trim();
     case EventType.SECURITY:
       return `${l.securityEvent ?? ''} (${l.authOutcome ?? ''})`.trim();
     default:

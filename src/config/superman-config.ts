@@ -103,18 +103,6 @@ export interface EventsConfig {
    * event types are emitted with default options.
    */
   include?: EventConfig[];
-  /** Audit-specific logging configuration. */
-  audit?: AuditLoggerOptions;
-}
-
-export interface AuditLoggerOptions {
-  /**
-   * Patterns (case-insensitive) used to dynamically identify resource IDs in request payloads.
-   * If a key contains one of these patterns (e.g. 'userId' matching 'id'), its value is
-   * extracted as the resourceId, and the remaining part ('user') becomes the resource name.
-   * Default: `['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token']`
-   */
-  resourceIdPatterns?: string[];
 }
 
 export interface LoggerOptions {
@@ -141,9 +129,6 @@ export interface ResolvedLoggerOptions {
   events: {
     enabled: boolean;
     byType: ReadonlyMap<EventType, ResolvedEventConfig>;
-    audit: {
-      resourceIdPatterns: ReadonlyArray<string>;
-    };
   };
 }
 
@@ -325,16 +310,12 @@ const resolveEventConfig = (cfg: EventConfig): ResolvedEventConfig => {
 
 const resolveEvents = (events?: EventsConfig): ResolvedLoggerOptions['events'] => {
   const enabled = events?.enabled !== false;
-  const defaultPatterns = ['id', 'cod', 'code', 'uuid', 'guid', 'key', 'token'];
-  const userPatterns = events?.audit?.resourceIdPatterns ?? [];
-  const combinedPatterns = Array.from(new Set([...defaultPatterns, ...userPatterns]));
-  const audit = { resourceIdPatterns: combinedPatterns };
 
   const byType = new Map<EventType, ResolvedEventConfig>();
 
   if (events?.include === undefined) {
     for (const t of ALL_EVENT_TYPES) byType.set(t, defaultEventConfig(t));
-    return { enabled, byType, audit };
+    return { enabled, byType };
   }
 
   for (const cfg of events.include) {
@@ -342,7 +323,7 @@ const resolveEvents = (events?: EventsConfig): ResolvedLoggerOptions['events'] =
     byType.set(resolved.type, resolved);
   }
 
-  return { enabled, byType, audit };
+  return { enabled, byType };
 };
 
 const normalizeDocsPath = (raw: string | undefined): string => {

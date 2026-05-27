@@ -13,7 +13,8 @@ describe('SupermanApp', () => {
 
       // Assert
       expect(app.serverInstanceUid).toBeDefined();
-      expect(app.serverInstanceUid).toHaveLength(36);
+      expect(app.serverInstanceUid).toMatch(/^srv_/);
+      expect(app.serverInstanceUid).toHaveLength(40);
     }, 1000);
   });
 
@@ -25,7 +26,8 @@ describe('SupermanApp', () => {
 
       // Assert
       expect(app1.serverInstanceUid).toBe(app2.serverInstanceUid);
-      expect(app1.serverInstanceUid).toHaveLength(36);
+      expect(app1.serverInstanceUid).toMatch(/^srv_/);
+      expect(app1.serverInstanceUid).toHaveLength(40);
     }, 1000);
   });
 

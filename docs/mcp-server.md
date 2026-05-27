@@ -160,7 +160,7 @@ The framework emits typed `AUDIT` events automatically:
 
 `MCP_SESSION_ENDED` is emitted when the HTTP request that carried the `initialize` method gracefully (or abruptly) closes, cleanly bookending the session lifecycle.
 
-Both events include `resourceId` when the tool argument carries a known identifier (`userId`, `customerId` — extend with your own conventions inside `auditMcpRequest`).
+These audit events are correlation-only markers — the tool arguments themselves live in the correlated `REQUEST` log, joinable via `requestId`.
 
 The client identity is best-effort:
 - `params.clientInfo` from MCP `initialize` (canonical) — only present on initialize.

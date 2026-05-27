@@ -28,7 +28,7 @@ const PAYLOAD_FIELDS: Record<EventType, readonly string[]> = {
   [EventType.ERROR]:    ['stackTrace', 'metadata'],
   [EventType.REQUEST]:  ['requestBody', 'query', 'metadata'],
   [EventType.RESPONSE]: ['responseBody'],
-  [EventType.AUDIT]:    ['changes', 'metadata'],
+  [EventType.AUDIT]:    ['metadata'],
   [EventType.SECURITY]: ['metadata'],
 };
 
@@ -41,6 +41,11 @@ const SEVERITY_RANK: Record<EventSeverity, number> = {
 };
 
 const TRUNCATED_SUFFIX = 'â€¦[truncated]';
+
+// Methods that produce an audit event. When AUDIT keeps its payload, the REQUEST
+// log retains its `requestBody` for these methods even if REQUEST.savePayload is
+// off — so the audited "what changed" stays recoverable via `requestId`.
+const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 export class LogEventEmitter {
   private readonly rng: () => number;
@@ -100,7 +105,7 @@ export class LogEventEmitter {
 
     const full: FullLog = buildFullLog(this.options.context, eventType, partial, defaultSeverity);
 
-    applyPayloadRules(full, eventType, cfg);
+    applyPayloadRules(full, eventType, cfg, this.shouldKeepRequestBodyForAudit(eventType, full));
     if (cfg.redactFields.length > 0) applyRedaction(full, cfg.redactFields);
 
     for (const sink of this.options.sinks) {
@@ -109,12 +114,25 @@ export class LogEventEmitter {
       sink.write(full);
     }
   }
+
+  /**
+   * A mutating REQUEST keeps its `requestBody` when the AUDIT event wants its
+   * payload — even if REQUEST.savePayload is off — so the audited change stays
+   * recoverable through `requestId` correlation. No-op when AUDIT is unconfigured.
+   */
+  private shouldKeepRequestBodyForAudit(eventType: EventType, full: FullLog): boolean {
+    if (eventType !== EventType.REQUEST) return false;
+    const method = (full as unknown as { method?: string }).method;
+    if (!method || !MUTATING_METHODS.has(method.toUpperCase())) return false;
+    return this.options.configs.get(EventType.AUDIT)?.savePayload === true;
+  }
 }
 
 const applyPayloadRules = (
   log: FullLog,
   eventType: EventType,
   cfg: ResolvedEventConfig,
+  keepRequestBody = false,
 ): void => {
   const fields = PAYLOAD_FIELDS[eventType];
   const target = log as unknown as Record<string, unknown>;
@@ -123,7 +141,8 @@ const applyPayloadRules = (
     const value = target[field];
     if (value === undefined) continue;
 
-    if (!cfg.savePayload) {
+    const savePayload = cfg.savePayload || (field === 'requestBody' && keepRequestBody);
+    if (!savePayload) {
       delete target[field];
       continue;
     }

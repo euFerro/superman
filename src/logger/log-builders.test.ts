@@ -345,7 +345,7 @@ describe('buildAuditLog', () => {
     expect(log?.auditMessage).toContain('RESOURCE_CREATED');
   });
 
-  it('should include resourceId from req.params.id on PATCH', () => {
+  it('should emit RESOURCE_UPDATED with the URL-derived resource on PATCH', () => {
     // Arrange
     const req = makeReq({ method: 'PATCH', originalUrl: '/api/users/42', params: { id: '42' } });
     const res = makeRes({ statusCode: 200 });
@@ -354,8 +354,22 @@ describe('buildAuditLog', () => {
     const log = buildAuditLog({ req, res, requestId: 'req-6', prefix: '/api' });
 
     // Assert
-    expect(log?.resourceId).toBe('42');
     expect(log?.auditEvent).toBe(AuditEvents.RESOURCE_UPDATED);
+    expect(log?.resource).toBe('users');
+  });
+
+  it('should not include resourceId or changes on the audit log', () => {
+    // Arrange
+    const req = makeReq({ method: 'POST', originalUrl: '/api/users', body: { name: 'Ana' } });
+    const res = makeRes({ statusCode: 201, locals: { __responseBody: { id: '7' } } });
+
+    // Act
+    const log = buildAuditLog({ req, res, requestId: 'req-9', prefix: '/api' });
+
+    // Assert — correlation-only marker: no payload/id, just event + resource + requestId
+    expect(log).not.toHaveProperty('resourceId');
+    expect(log).not.toHaveProperty('changes');
+    expect(log).toMatchObject({ auditEvent: AuditEvents.RESOURCE_CREATED, resource: 'users', requestId: 'req-9' });
   });
 
   it('should return null for GET requests', () => {
@@ -482,6 +496,30 @@ describe('buildErrorLog', () => {
 
     // Assert
     expect(log.stackTrace).toBeDefined();
+  });
+
+  it('should generate an err_-prefixed errorId when none is supplied', () => {
+    // Arrange
+    const req = makeReq();
+    const err = new Error('boom');
+
+    // Act
+    const log = buildErrorLog({ err, req, requestId: 'req-16' });
+
+    // Assert
+    expect(log.errorId).toMatch(/^err_[0-9a-f]{8}$/);
+  });
+
+  it('should reuse a caller-supplied errorId', () => {
+    // Arrange
+    const req = makeReq();
+    const err = new Error('boom');
+
+    // Act
+    const log = buildErrorLog({ err, req, requestId: 'req-17', errorId: 'err_deadbeef' });
+
+    // Assert
+    expect(log.errorId).toBe('err_deadbeef');
   });
 });
 
