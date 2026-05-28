@@ -4,7 +4,7 @@ Because the Superman framework natively implements the **Model Context Protocol 
 
 By running the built-in MCP server, these agents can read your OpenAPI specs, explore your database schemas, and even invoke your backend endpoints dynamically!
 
-![Superman AI Agents](/agents-illustration.png)
+![Superman AI Agents](/agents-illustration.webp)
 
 ## Compatible Agents
 

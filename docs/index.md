@@ -121,7 +121,7 @@ Superman is built on top of the Fastify HTTP engine, inheriting its top-tier thr
   <p class="perf-axis">Requests / Sec (Avg) · higher is better</p>
 </div>
 
-<p style="text-align: center; font-size: 0.9rem; color: var(--vp-c-text-2); margin-top: 24px;">
+<p style="text-align: center; font-size: 0.9rem; margin-top: 24px; opacity: 0.9;">
   <strong>Benchmark Setup:</strong> c6i.xlarge instance (4 vCPU, 8GB RAM) using <code>autocannon</code> targeting a simple JSON response with 100 concurrent connections.
 </p>
 
@@ -131,7 +131,7 @@ Superman is built on top of the Fastify HTTP engine, inheriting its top-tier thr
 
 Superman is forged for the age of autonomous agents — a native MCP server, predictable declarative structure, and agent-ready tooling let AI agents understand and operate your backend with minimal context.
 
-![Superman AI Agents](/agents-illustration.png)
+![Superman AI Agents](/agents-illustration.webp)
 
 </div>
 

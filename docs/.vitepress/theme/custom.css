@@ -167,6 +167,7 @@ html:not(.dark) .VPNavBar {
   .features-comparison h2 {
     font-size: 1.8rem;
   }
+
   .features-comparison th,
   .features-comparison td {
     padding: 12px 14px;
@@ -233,6 +234,7 @@ html:not(.dark) .VPNavBar {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
 }
+
 /* Performance benchmark — vertical bar chart */
 .perf-chart {
   margin: 32px 0;
@@ -313,10 +315,22 @@ html:not(.dark) .VPNavBar {
 }
 
 @media (max-width: 640px) {
-  .perf-bars { height: 260px; gap: 6px; }
-  .perf-value { font-size: 0.68rem; }
-  .perf-label { font-size: 0.62rem; }
-  .perf-latency { font-size: 0.6rem; }
+  .perf-bars {
+    height: 260px;
+    gap: 6px;
+  }
+
+  .perf-value {
+    font-size: 0.68rem;
+  }
+
+  .perf-label {
+    font-size: 0.62rem;
+  }
+
+  .perf-latency {
+    font-size: 0.6rem;
+  }
 }
 
 /* Global wallpaper background — dark mode only, dimmed for readability */
@@ -327,7 +341,7 @@ html:not(.dark) .VPNavBar {
   z-index: -1;
   background:
     linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65)),
-    url('/supermanframework-wallpaper.png') center center / cover no-repeat;
+    url('/supermanframework-wallpaper.webp') center center / cover no-repeat;
   pointer-events: none;
 }
 
@@ -344,10 +358,10 @@ html:not(.dark) .VPNavBar {
 
 /* Fragmented glass cards (dark mode): each text block gets its own panel
    so prose stays readable over the wallpaper without one giant container. */
-.dark .VPDoc .vp-doc > div > p,
-.dark .VPDoc .vp-doc > div > ul,
-.dark .VPDoc .vp-doc > div > ol,
-.dark .VPDoc .vp-doc > div > blockquote {
+.dark .VPDoc .vp-doc>div>p,
+.dark .VPDoc .vp-doc>div>ul,
+.dark .VPDoc .vp-doc>div>ol,
+.dark .VPDoc .vp-doc>div>blockquote {
   background: rgba(18, 20, 26, 0.62);
   backdrop-filter: blur(14px) saturate(120%);
   -webkit-backdrop-filter: blur(14px) saturate(120%);
@@ -358,9 +372,9 @@ html:not(.dark) .VPNavBar {
 }
 
 /* Headings keep a soft glass plate too, so section titles read clearly */
-.dark .VPDoc .vp-doc > div > h1,
-.dark .VPDoc .vp-doc > div > h2,
-.dark .VPDoc .vp-doc > div > h3 {
+.dark .VPDoc .vp-doc>div>h1,
+.dark .VPDoc .vp-doc>div>h2,
+.dark .VPDoc .vp-doc>div>h3 {
   background: rgba(18, 20, 26, 0.5);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -369,13 +383,13 @@ html:not(.dark) .VPNavBar {
 }
 
 /* Blockquote keeps its accent bar visible on the glass */
-.dark .VPDoc .vp-doc > div > blockquote {
+.dark .VPDoc .vp-doc>div>blockquote {
   border-left: 4px solid var(--vp-c-brand-1);
 }
 
 /* Glass cards for the home page section text (dark mode) */
-.dark .features-comparison > p,
-.dark .features-comparison .docs-screenshot > p {
+.dark .features-comparison>p,
+.dark .features-comparison .docs-screenshot>p {
   background: rgba(18, 20, 26, 0.62);
   backdrop-filter: blur(14px) saturate(120%);
   -webkit-backdrop-filter: blur(14px) saturate(120%);
@@ -393,7 +407,7 @@ html:not(.dark) body::before {
   z-index: -1;
   background:
     linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.12)),
-    url('/supermanframework-daylight-wallpaper.png') center center / cover no-repeat;
+    url('/supermanframework-daylight-wallpaper.webp') center center / cover no-repeat;
   pointer-events: none;
 }
 
@@ -408,12 +422,12 @@ html:not(.dark) .VPDoc .container {
 }
 
 /* Frosted smoky-glass cards with white text (light mode) */
-html:not(.dark) .VPDoc .vp-doc > div > p,
-html:not(.dark) .VPDoc .vp-doc > div > ul,
-html:not(.dark) .VPDoc .vp-doc > div > ol,
-html:not(.dark) .VPDoc .vp-doc > div > blockquote,
-html:not(.dark) .features-comparison > p,
-html:not(.dark) .features-comparison .docs-screenshot > p {
+html:not(.dark) .VPDoc .vp-doc>div>p,
+html:not(.dark) .VPDoc .vp-doc>div>ul,
+html:not(.dark) .VPDoc .vp-doc>div>ol,
+html:not(.dark) .VPDoc .vp-doc>div>blockquote,
+html:not(.dark) .features-comparison>p,
+html:not(.dark) .features-comparison .docs-screenshot>p {
   background: rgba(28, 30, 38, 0.38);
   backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
@@ -424,9 +438,9 @@ html:not(.dark) .features-comparison .docs-screenshot > p {
   color: #ffffff;
 }
 
-html:not(.dark) .VPDoc .vp-doc > div > h1,
-html:not(.dark) .VPDoc .vp-doc > div > h2,
-html:not(.dark) .VPDoc .vp-doc > div > h3 {
+html:not(.dark) .VPDoc .vp-doc>div>h1,
+html:not(.dark) .VPDoc .vp-doc>div>h2,
+html:not(.dark) .VPDoc .vp-doc>div>h3 {
   background: rgba(28, 30, 38, 0.34);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
@@ -437,18 +451,18 @@ html:not(.dark) .VPDoc .vp-doc > div > h3 {
 }
 
 /* Keep inline content inside the cards white too */
-html:not(.dark) .VPDoc .vp-doc > div > p strong,
-html:not(.dark) .VPDoc .vp-doc > div > ul strong,
-html:not(.dark) .VPDoc .vp-doc > div > ol strong,
-html:not(.dark) .VPDoc .vp-doc > div > p li,
-html:not(.dark) .VPDoc .vp-doc > div > ul li,
-html:not(.dark) .VPDoc .vp-doc > div > ol li,
-html:not(.dark) .features-comparison > p strong,
-html:not(.dark) .features-comparison .docs-screenshot > p strong {
+html:not(.dark) .VPDoc .vp-doc>div>p strong,
+html:not(.dark) .VPDoc .vp-doc>div>ul strong,
+html:not(.dark) .VPDoc .vp-doc>div>ol strong,
+html:not(.dark) .VPDoc .vp-doc>div>p li,
+html:not(.dark) .VPDoc .vp-doc>div>ul li,
+html:not(.dark) .VPDoc .vp-doc>div>ol li,
+html:not(.dark) .features-comparison>p strong,
+html:not(.dark) .features-comparison .docs-screenshot>p strong {
   color: #ffffff;
 }
 
-html:not(.dark) .VPDoc .vp-doc > div > blockquote {
+html:not(.dark) .VPDoc .vp-doc>div>blockquote {
   border-left: 4px solid var(--vp-c-brand-1);
 }
 
@@ -516,10 +530,18 @@ html:not(.dark) .features-comparison tr:hover td {
 }
 
 /* Benchmark chart labels readable on the smoky glass (light mode) */
-html:not(.dark) .perf-value { color: #ffffff; }
-html:not(.dark) .perf-label { color: rgba(255, 255, 255, 0.88); }
+html:not(.dark) .perf-value {
+  color: #ffffff;
+}
+
+html:not(.dark) .perf-label {
+  color: rgba(255, 255, 255, 0.88);
+}
+
 html:not(.dark) .perf-axis,
-html:not(.dark) .perf-latency { color: rgba(255, 255, 255, 0.7); }
+html:not(.dark) .perf-latency {
+  color: rgba(255, 255, 255, 0.7);
+}
 
 /* White navbar text on the glass bar (both themes); active link keeps brand color */
 .VPNavBarMenuLink,
@@ -571,12 +593,11 @@ html:not(.dark) .features-comparison tbody tr:nth-child(2n) {
 /* Boost contrast of gradient headings over the bright wallpaper (light mode) */
 html:not(.dark) .VPHero .name,
 html:not(.dark) .features-comparison h2 {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5))
-          drop-shadow(0 0 12px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(0, 0, 0, 0.3));
 }
 
 /* Sidebar: translucent red hover + frosted red-glass active state (brand red) */
-.VPSidebarItem.is-link > .item > .link {
+.VPSidebarItem.is-link>.item>.link {
   border-radius: 8px;
   padding: 5px 10px;
   margin: 0 -10px;
@@ -584,22 +605,22 @@ html:not(.dark) .features-comparison h2 {
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.VPSidebarItem.is-link > .item > .link:hover {
+.VPSidebarItem.is-link>.item>.link:hover {
   background-color: rgba(255, 65, 86, 0.1);
 }
 
-.VPSidebarItem.is-link > .item > .link:hover .text {
+.VPSidebarItem.is-link>.item>.link:hover .text {
   color: var(--vp-c-brand-1);
 }
 
-.VPSidebarItem.is-active.is-link > .item > .link {
+.VPSidebarItem.is-active.is-link>.item>.link {
   background-color: rgba(255, 65, 86, 0.16);
   border-color: rgba(255, 65, 86, 0.35);
   backdrop-filter: blur(8px) saturate(140%);
   -webkit-backdrop-filter: blur(8px) saturate(140%);
 }
 
-.VPSidebarItem.is-active.is-link > .item > .link .text {
+.VPSidebarItem.is-active.is-link>.item>.link .text {
   color: var(--vp-c-brand-1) !important;
   font-weight: 600;
 }
@@ -622,7 +643,7 @@ html:not(.dark) .VPSidebarItem .text {
   color: rgba(255, 255, 255, 0.82);
 }
 
-html:not(.dark) .VPSidebarItem.level-0 > .item > .text {
+html:not(.dark) .VPSidebarItem.level-0>.item>.text {
   color: #ffffff;
 }
 
@@ -636,7 +657,7 @@ html:not(.dark) .VPSidebarItem.level-0 {
   color: rgba(255, 255, 255, 0.82);
 }
 
-.dark .VPSidebarItem.level-0 > .item > .text {
+.dark .VPSidebarItem.level-0>.item>.text {
   color: #ffffff;
 }
 
@@ -645,13 +666,13 @@ html:not(.dark) .VPSidebarItem.level-0 {
   color: rgba(255, 255, 255, 0.82) !important;
 }
 
-.VPSidebarItem.level-0 > .item > .text {
+.VPSidebarItem.level-0>.item>.text {
   color: #ffffff !important;
 }
 
 /* Active/hover keep the brand red */
-.VPSidebarItem.is-link > .item > .link:hover .text,
-.VPSidebarItem.is-active.is-link > .item > .link .text {
+.VPSidebarItem.is-link>.item>.link:hover .text,
+.VPSidebarItem.is-active.is-link>.item>.link .text {
   color: var(--vp-c-brand-1) !important;
 }
 
@@ -780,3 +801,83 @@ html:not(.dark) .VPDoc .vp-doc td {
 html:not(.dark) .VPDoc .vp-doc th {
   background-color: rgba(255, 255, 255, 0.06) !important;
 }
+
+/* Make code comments brighter (green) for visibility on glass background */
+.vp-doc [class*="language-"] span[style*="#6a737d" i],
+.vp-doc [class*="language-"] span[style*="#8b949e" i],
+.vp-doc [class*="language-"] span[style*="#7a828e" i] {
+  color: #4ade80 !important;
+}
+/* -------------------------------------------------------------------------- */
+/* Hero Buttons - Glass Morphism & Squared                                    */
+/* -------------------------------------------------------------------------- */
+.VPHero .VPButton {
+  border-radius: 8px !important;
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+.VPHero .VPButton.brand {
+  background-color: color-mix(in srgb, var(--vp-c-brand-1) 40%, transparent) !important;
+  border-color: color-mix(in srgb, var(--vp-c-brand-1) 60%, transparent) !important;
+}
+.VPHero .VPButton.brand:hover {
+  background-color: color-mix(in srgb, var(--vp-c-brand-1) 55%, transparent) !important;
+}
+
+.VPHero .VPButton.alt {
+  background-color: color-mix(in srgb, var(--vp-button-alt-bg) 45%, transparent) !important;
+  border-color: color-mix(in srgb, var(--vp-button-alt-bg) 60%, transparent) !important;
+}
+.VPHero .VPButton.alt:hover {
+  background-color: color-mix(in srgb, var(--vp-button-alt-hover-bg) 60%, transparent) !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* Dark Mode Glass - Graph and Tables                                         */
+/* -------------------------------------------------------------------------- */
+.dark .features-comparison .table-container,
+.dark .features-comparison .legend-list,
+.dark .perf-chart {
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 40%, transparent) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(28px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(140%) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* Minimalist Glass Scrollbars for Code Blocks                                */
+/* -------------------------------------------------------------------------- */
+.vp-doc [class*="language-"]::-webkit-scrollbar,
+.vp-doc [class*="language-"] pre::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.vp-doc [class*="language-"]::-webkit-scrollbar-track,
+.vp-doc [class*="language-"] pre::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.vp-doc [class*="language-"]::-webkit-scrollbar-thumb,
+.vp-doc [class*="language-"] pre::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+.vp-doc [class*="language-"]::-webkit-scrollbar-thumb:hover,
+.vp-doc [class*="language-"] pre::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar support */
+.vp-doc [class*="language-"],
+.vp-doc [class*="language-"] pre {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+

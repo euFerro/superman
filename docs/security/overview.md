@@ -2,7 +2,7 @@
 
 Superman is designed to be secure by default. By taking a declarative approach to routing and configuration, it automatically enforces rate limits, scrubs error payloads in production, and standardizes how security incidents are logged.
 
-![Superman Security](/security-diagram.png)
+![Superman Security](/security-diagram.webp)
 
 ---
 

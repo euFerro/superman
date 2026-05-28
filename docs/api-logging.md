@@ -1,4 +1,4 @@
-﻿# Automatic Event Logging
+# Automatic Event Logging
 
 The framework emits six categories of **typed, structured logs** out of the
 box. Every HTTP request, every exception, every resource mutation, every
@@ -6,7 +6,7 @@ security-relevant status code, and every lifecycle transition is captured as
 a JSON object that matches one of the `*Log` interfaces in `superman` —
 no application code required.
 
-![Superman Observability](/observability-illustration.png)
+![Superman Observability](/observability-illustration.webp)
 
 ## Enabling
 
